@@ -108,10 +108,12 @@ class BRS(models.Model):
     semester = models.ForeignKey(Semestr, db_index=True, blank=False, null=False)
     eduperiod = models.ForeignKey(EduPeriod, db_index=True, blank=False, null=False)
 
+
 class BRSpoints(models.Model):
     student = models.ForeignKey(Student, db_index=True, blank=False, null=False)
     CheckPoint = models.ForeignKey(CheckPoint, db_index=True, blank=False, null=False)
     points = models.FloatField(verbose_name="Баллы", db_index=True, blank=False, null=False, max_length=255)
+    brs = models.ForeignKey(BRS, db_index=True, blank=False, null=False)
 
 class Exam(models.Model):
     examDate = models.DateField(verbose_name="Дата экзамена", db_index=True, blank=False, null=False)
@@ -126,3 +128,4 @@ class ExamMarks(models.Model):
     examPoints = models.FloatField(verbose_name="Баллы за экзамен", db_index=True, blank=False, null=False, max_length=255)
     mark = models.ForeignKey(Mark, db_index=True, blank=False, null=False)
     markSymbol = models.ForeignKey(MarkSymbol, db_index=True, blank=False, null=False)
+    exam = models.ForeignKey(Exam, db_index=True, blank=False, null=False)
