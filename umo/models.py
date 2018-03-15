@@ -97,10 +97,6 @@ class EduPeriod(models.Model):
     endyear = models.IntegerField(verbose_name="Конец учебного года", db_index=True, blank=False, null=False)
     active = models.BooleanField(verbose_name="Статус", db_index=True, blank=False, null=False)
 
-class Group(models.Model):
-    Name = models.CharField(verbose_name="Название группы", db_index=True, blank=False, null=False, max_length=255)
-    beginyear = models.IntegerField(verbose_name="Начало учебного года", db_index=True, blank=False, null=False)
-
 class Student(models.Model):
     StudentID = models.CharField(verbose_name="ID Студента", db_index=True, blank=False, null=False, max_length=255)
 
