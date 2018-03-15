@@ -103,6 +103,8 @@ class Student(models.Model):
 
 class GroupList(models.Model):
     active = models.BooleanField(verbose_name="Статус", db_index=True, blank=False, null=False)
+    group = models.ForeignKey('Group', db_index=True, blank=False, null=False)
+    student = models.ForeignKey('Student', db_index=True, blank=False, null=False)
 
 class BRS(models.Model):
     discipline = models.ForeignKey(Discipline, db_index=True, blank=False, null=False)
