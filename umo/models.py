@@ -99,7 +99,7 @@ class EduPeriod(models.Model):
     active = models.BooleanField(verbose_name="Статус", db_index=True, blank=False, null=False)
 
 class Student(models.Model):
-    StudentID = models.CharField(verbose_name="ID Студента", db_index=True, blank=False, null=False, max_length=255)
+    StudentID = models.CharField(verbose_name="Номер зачетной книжки", db_index=True, blank=False, null=False, max_length=255)
 
 class GroupList(models.Model):
     active = models.BooleanField(verbose_name="Статус", db_index=True, blank=False, null=False)
