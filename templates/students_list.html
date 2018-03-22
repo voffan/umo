@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}
+Список студентов
+{% endblock %}
+{% block content %}
+    <h1>Список студентов</h1>
+    <table>
+        <thead>
+        <td>Номер зачетной книжки</td>
+        <td>ФИО</td>
+        <td>Группа</td>
+        </thead>
+        <tbody>
+            {% for i in student_list %}
+            <tr>
+                <td> {{ i.student.StudentID }} </td>
+                <td> {{ i.student.FIO }} </td>
+                <td> {{ i.group.Name }} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

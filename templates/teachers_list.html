@@ -12,11 +12,28 @@
         <td>Телефон</td>
         </thead>
         <tbody>
-            <!--tr>
+        {% for teacher in teachers %}
+            <tr>
+                <td>
+                    {{ teacher.FIO }}
+                </td>
+                <td>
+                    {{ teacher.Position }}
+                </td>
+                <td>
+                    {% if teacher.Zvanie %}
+                   {{  teacher.Zvanie }}
+                    {% endif %}
+                </td>
                 <td>
 
                 </td>
-            </tr-->
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
+
+    <a href="/teacher/create_teacher">
+        Добавить нового сотрудника
+    </a>
 {% endblock %}
