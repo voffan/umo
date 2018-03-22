@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from  django.urls import reverse_lazy
+from django.urls import reverse_lazy
+from django.contrib import auth
 from .models import Person, Teacher
 
 # Create your views here.
