@@ -15,10 +15,15 @@ Including another URLconf
 """
 from django.conf.urls import url,include
 from django.contrib import admin
+from umo import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^teacher/', include('umo.urls'))
+    url(r'^teacher/', include('umo.urls')),
+    url(r'^student/', views.list_students, name='list_students'),
+    #url(r'^create/$', views.StudentCreate.as_view(), name='student_create'),
+    #url(r'^(?P<pk>\d+)/update/$', views.StudentUpdate.as_view(), name='student_update'),
+    #url(r'^(?P<pk>\d+)/delete/$', views.StudentDelete.as_view(), name='student_delete')
 
 
 ]
