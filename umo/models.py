@@ -13,12 +13,16 @@ class Teacher(Person):
 class EduOrg(models.Model):
     name = models.CharField(verbose_name="названия института", max_length=200, db_index=True, blank=False, null=False)
     uni = models.ForeignKey('self', db_index=True, null=True, blank=True)
+    def __str__(self):
+        return self.name
+
 
 class Kafedra(models.Model):
     number = models.IntegerField(verbose_name="номер кафедры", db_index=True, blank=False, null=False)
     name = models.CharField(verbose_name="названия кафедры", max_length=200, db_index=True, blank=False, null=False)
     institution = models.ForeignKey('EduOrg', db_index=True, blank=False, null=False)
-
+    def __str__(self):
+        return self.name
 
 class EduProg(models.Model):
     specialization = models.ForeignKey('Specialization', db_index=True, blank=False, null=False)
@@ -98,8 +102,10 @@ class EduPeriod(models.Model):
     endyear = models.IntegerField(verbose_name="Конец учебного года", db_index=True, blank=False, null=False)
     active = models.BooleanField(verbose_name="Статус", db_index=True, blank=False, null=False)
 
-class Student(models.Model):
+class Student(Person):
     StudentID = models.CharField(verbose_name="Номер зачетной книжки", db_index=True, blank=False, null=False, max_length=255)
+    def __str__(self):
+        return self.FIO
 
 class GroupList(models.Model):
     active = models.BooleanField(verbose_name="Статус", db_index=True, blank=False, null=False)
