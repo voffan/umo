@@ -17,4 +17,9 @@ class TeacherDelete(DeleteView):
     success_url = reverse_lazy('teacher')
 
 def list_teachers(request):
-    return render(request,'teachers_list.html')
+    all = Teacher.objects.all()
+    return render(request,'teachers_list.html', {'teachers':all})
+
+
+def create_teacher(request):
+    return render(request, 'teacher_form.html')
