@@ -12,7 +12,8 @@
             {% if login_error %}
                 <label class="error">{{ login_error }}</label>
             {% endif %}
-            <button type="submit" class="btn btn-primary">Войти</button><br>
+            <button type="submit" class="btn btn-success">Войти</button>
+            <a href="/auth/register/" class="btn btn-primary">Регистрация&raquo;</a>
         </form>
     </div>
 {% endblock %}
