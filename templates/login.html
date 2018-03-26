@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
 {% load bootstrap4 %}
 {% block content %}
-    <div class="large-offset-3 large-6 columns">
+    <div class="container">
         <form action="/auth/login/" method="post">
             {% csrf_token %}
+            <h1>Вход в систему</h1>
             <label for="username">Имя пользователя</label>
-            <input type="text" name="username" id="username">
+            <p><input type="text" name="username" id="username"></p>
             <label for="password">Пароль</label>
-            <input type="password" name="password" id="password">
+            <p><input type="password" name="password" id="password"></p>
             {% if login_error %}
                 <label class="error">{{ login_error }}</label>
             {% endif %}
-            <button type="submit" class="btn btn-primary">Войти</button>
+            <button type="submit" class="btn btn-primary">Войти</button><br>
         </form>
     </div>
 {% endblock %}
