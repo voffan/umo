@@ -1,11 +1,28 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %} {% endblock %}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Заголовок страницы</title>
+  {% load staticfiles %}
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css">
 </head>
 <body>
-{% block content %}
-{% endblock %}
+  <div class="jumbotron">
+    <div class="container">
+        <h1>Привет!</h1>
+      <p>
+          {% block content %}
+          {% endblock %}
+        <a href="/auth/login/" class="btn btn-success btn-lg">Вход&raquo;</a>
+        <a href="/auth/register/" class="btn btn-primary btn-lg">Регистрация&raquo;</a>
+      </p>
+    </div>
+  </div>
+  <div class="container">
+    <!--<img src="{% static 'mainApp/image/1.png' %}" class="img-thumbnail">-->
+    <hr>
+    &copy; Все права защищены 2018
+  </div>
 </body>
 </html>

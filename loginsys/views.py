@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response, redirect, render
 from django.contrib import auth
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import requires_csrf_token, csrf_exempt
+from django.template import RequestContext
 
 
 @requires_csrf_token

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'umo.apps.UmoConfig',
     'loginsys',
+    'bootstrap4',
 #    'umo',
 ]
 
@@ -70,6 +71,10 @@ TEMPLATES = [
         },
     },
 ]
+
+STATICFILES_DIRS = (
+     os.path.join(BASE_DIR, 'static'), #сама папка указывается здесь
+)
 
 WSGI_APPLICATION = 'umo_project.wsgi.application'
 
