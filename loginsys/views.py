@@ -1,12 +1,9 @@
-# -- coding: utf-8 --
-
 from django.shortcuts import render_to_response, redirect, render
+from django.http import HttpResponseRedirect
 from django.contrib import auth
-from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import requires_csrf_token, csrf_exempt
+from loginsys.forms import RegistrationForm
 
-
-@requires_csrf_token
 def login(request):
     args = {}
     if request.POST:
@@ -28,17 +25,20 @@ def logout(request):
     auth.logout(request)
     return redirect("login.html")
 
-@csrf_exempt
 def register(request):
     args = {}
-    args['form'] = UserCreationForm()
+    args['form'] = RegistrationForm()
     if request.POST:
-        newuser_form = UserCreationForm(request.POST)
+        newuser_form = RegistrationForm(request.POST)
         if newuser_form.is_valid():
             newuser_form.save()
             newuser = auth.authenticate(username=newuser_form.cleaned_data['username'], password=newuser_form.cleaned_data['password2'])
             auth.login(request, newuser)
-            return redirect('/auth/login/')
+            return HttpResponseRedirect('/auth/register_success/')
         else:
             args['form'] = newuser_form
-    return render_to_response('register.html', args)
+    return render(request, 'register.html', args)
+
+def register_success(request):
+    args = {}
+    return render(request, 'register_success.html', args)
