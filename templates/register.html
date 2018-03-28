@@ -1,12 +1,13 @@
-{% extends 'main.html' %}
-
-{% block login %}
-    <div class="large-offset-3 large-6 columns">
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% block content %}
+    <div class="container">
         <form action="/auth/register/" method="post">
             {% csrf_token %}
-            {{ form }}
-
-            <input class="button" type="submit" value="Зарегистрироваться">
+            <h1>Регистрация</h1>
+            <pre>{{ form }}</pre>
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            <a href="/auth/login/" class="btn btn-success">Войти&raquo;</a>
         </form>
     </div>
 {% endblock %}
