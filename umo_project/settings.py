@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'umo.apps.UmoConfig',
     'loginsys',
     'bootstrap4',
+    'widget_tweaks',
 #    'umo',
 ]
 
