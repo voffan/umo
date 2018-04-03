@@ -1,19 +1,22 @@
 {% extends 'base.html' %}
-{% load bootstrap4 %}
 {% block content %}
     <div class="container">
         <form action="/auth/login/" method="post">
             {% csrf_token %}
+            <div class="form-row">
+            <div class="col-md-4 mb-3">
             <h1>Вход в систему</h1>
             <label for="username">Имя пользователя</label>
-            <p><input type="text" name="username" id="username"></p>
+            <p><input required type="text" class="form-control" name="username" id="username" placeholder="Введите имя пользователя"></p>
             <label for="password">Пароль</label>
-            <p><input type="password" name="password" id="password"></p>
+            <p><input required type="password" class="form-control" name="password" id="password" placeholder="Введите пароль"></p>
             {% if login_error %}
-                <label class="error">{{ login_error }}</label>
+                <p><label class="error">{{ login_error }}</label></p>
             {% endif %}
             <button type="submit" class="btn btn-success">Войти</button>
-            <a href="/auth/register/" class="btn btn-primary">Регистрация&raquo;</a>
+            <a href="/auth/register/" class="btn btn-primary">Регистрация</a>
+            </div>
+             </div>
         </form>
     </div>
 {% endblock %}

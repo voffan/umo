@@ -4,11 +4,11 @@
 {% endblock %}
 {% block content %}
     <h1>Список студентов</h1>
-    <table>
+    <table class="table table-bordered">
         <thead>
-        <td>Номер зачетной книжки</td>
-        <td>ФИО</td>
-        <td>Группа</td>
+        <th scope="col">Номер зачетной книжки</th>
+        <th scope="col">ФИО</th>
+        <th scope="col">Группа</th>
         </thead>
         <tbody>
             {% for i in student_list %}
@@ -20,4 +20,6 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <a href="/student/add">Добавить нового студента</a>
 {% endblock %}
