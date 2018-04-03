@@ -10,10 +10,14 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow-x: hidden;
 }
 .content {
   flex: 1 0 auto;
 }
 .footer {
   flex: 0 0 auto;
+  background: #343a40;;
+  color: #fff;
+  padding: 10px;
 }
