@@ -28,11 +28,15 @@ def create_teacher(request):
 class StudentListView(ListView):
     model = GroupList
     context_object_name = 'student_list'
+    success_url = reverse_lazy('student_changelist')
     template_name = "students_list.html"
 
 class StudentCreateView(CreateView):
     model = GroupList
-    fields = [ 'group' ]
+    fields = { 'group' }
+    labels = {
+        'group': ('Группа'),
+    }
     success_url = reverse_lazy('student_changelist')
     template_name = "student_form.html"
 
@@ -47,14 +51,11 @@ class StudentCreateView(CreateView):
         grouplist_.save()
         return super().form_valid(form)
 
-class GroupListCreateView(CreateView):
-    model = GroupList
-    fields = ('group', 'active')
-    success_url = reverse_lazy('student_changelist')
-    template_name = "student_form.html"
 
-class StudentUpdateView(UpdateView):
-    model = GroupList
-    fields = ('student.FIO', 'student.StudentID', 'group', 'active')
-    success_url = reverse_lazy('student_changelist')
-    template_name = "student_form.html"
+def student_delete(request):
+    if request.method == 'POST':
+        student_ = Student.objects.get(StudentID = request.POST['item_id'])
+        grouplist_ = GroupList.objects.get(student__id = student_.id)
+        grouplist_.delete()
+        student_.delete()
+        return HttpResponseRedirect(reverse_lazy('student_changelist'))

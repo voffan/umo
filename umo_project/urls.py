@@ -23,5 +23,5 @@ urlpatterns = [
     url(r'^teacher/', include('umo.urls')),
     url(r'^student/$', views.StudentListView.as_view(), name='student_changelist'),
     url(r'^student/add/$', views.StudentCreateView.as_view(), name='student_add'),
-    url(r'^student/<int:pk>/$', views.StudentUpdateView.as_view(), name = 'student_change'),
+    url(r'^student/delete/$', views.student_delete, name = 'student_delete'),
 ]
