@@ -1,8 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from .models import Person, Teacher, Student, GroupList
+from umo.forms import AddTeacherForm
+from django.http import HttpResponseRedirect
 
 
 # Create your views here.
@@ -23,15 +25,23 @@ def list_teachers(request):
     all = Teacher.objects.all()
     return render(request,'teachers_list.html', {'teachers':all})
 
-@requires_csrf_token
+#@requires_csrf_token
 def create_teacher(request):
-    arg = {}
+    #arg = {}
     #arg['form']
     if request.method == 'POST':
-        FIO = request.POST.get('FIO', '')
-        Position = request.POST.get('Position', '')
-        Zvanie = request.POST.get('Zvanie', '')
-    return render(request, 'teacher_form.html')
+        form = AddTeacherForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('teachers:list_teachers'))
+        return render(request, 'teacher_form.html', {'form': form})
+    form = AddTeacherForm(request.POST)
+    return render(request, 'teacher_form.html', {'form': form})
+
+       #FIO = request.POST.get('FIO', '')
+       #Position = request.POST.get('Position', '')
+        #Zvanie = request.POST.get('Zvanie', '')
+
 
 
 class StudentCreate(CreateView):

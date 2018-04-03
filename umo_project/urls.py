@@ -20,7 +20,7 @@ from umo import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^auth/', include('loginsys.urls')),
-    url(r'^teacher/', include('umo.urls')),
+    url(r'^teacher/', include('umo.urls', namespace="teachers")),
     url(r'^student/', views.list_students, name='list_students'),
     #url(r'^create/$', views.StudentCreate.as_view(), name='student_create'),
     #url(r'^(?P<pk>\d+)/update/$', views.StudentUpdate.as_view(), name='student_update'),
