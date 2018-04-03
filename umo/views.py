@@ -50,7 +50,7 @@ class StudentCreateView(CreateView):
     model = GroupList
     fields = { 'group' }
     labels = {
-        'group': ('Ãğóïïà'),
+        'group': ('Ğ“Ñ€ÑƒĞ¿Ğ¿Ğ°'),
     }
     success_url = reverse_lazy('student_changelist')
     template_name = "student_form.html"
