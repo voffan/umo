@@ -20,7 +20,7 @@ class RegistrationForm(UserCreationForm):
         label=_("Подтверждение пароля"),
         widget=forms.PasswordInput,
         strip=False,
-        help_text=_("Введите тот этот же пароль для подтверждения"),
+        help_text=_("Введите этот же пароль для подтверждения"),
     )
 
     class Meta:

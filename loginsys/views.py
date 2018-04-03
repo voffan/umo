@@ -14,7 +14,7 @@ def login(request):
             auth.login(request, user)
             return redirect('/teacher/')
         else:
-            args['login_error'] = "Пользователь не найден"
+            args['login_error'] = "Внимание, вход на сайт не был произведен. Возможно, вы ввели неверное имя пользователя или пароль."
             return render(request, 'login.html', args)
 
     else:
