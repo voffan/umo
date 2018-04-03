@@ -5,9 +5,9 @@
             {% csrf_token %}
             <h1>Вход в систему</h1>
             <label for="username">Имя пользователя</label>
-            <p><input type="text" name="username" id="username"></p>
+            <p><input required type="text" name="username" id="username"></p>
             <label for="password">Пароль</label>
-            <p><input type="password" name="password" id="password"></p>
+            <p><input required type="password" name="password" id="password"></p>
             {% if login_error %}
                 <p><label class="error">{{ login_error }}</label></p>
             {% endif %}
