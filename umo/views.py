@@ -1,14 +1,19 @@
-from django.shortcuts import render
+
+
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import requires_csrf_token
+from django.urls import reverse_lazy, reverse
 from .models import Person, Teacher, Student, GroupList
-from sys import stderr
+from umo.forms import AddTeacherForm
+from django.http import HttpResponseRedirect
+
 
 # Create your views here.
 class TeacherCreate(CreateView):
     model = Person, Teacher
     fields = '__all__'
+
 
 class TeacherUpdate(UpdateView):
     model = Person, Teacher
@@ -22,8 +27,18 @@ def list_teachers(request):
     all = Teacher.objects.all()
     return render(request,'teachers_list.html', {'teachers':all})
 
+#@requires_csrf_token
 def create_teacher(request):
-    return render(request, 'teacher_form.html')
+    #arg = {}
+    #arg['form']
+    if request.method == 'POST':
+        form = AddTeacherForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('teachers:list_teachers'))
+        return render(request, 'teacher_form.html', {'form': form})
+    form = AddTeacherForm(request.POST)
+    return render(request, 'teacher_form.html', {'form': form})
 
 class StudentListView(ListView):
     model = GroupList
@@ -35,7 +50,7 @@ class StudentCreateView(CreateView):
     model = GroupList
     fields = { 'group' }
     labels = {
-        'group': ('Ð“Ñ€ÑƒÐ¿Ð¿Ð°'),
+        'group': ('Ãðóïïà'),
     }
     success_url = reverse_lazy('student_changelist')
     template_name = "student_form.html"
@@ -50,7 +65,6 @@ class StudentCreateView(CreateView):
         grouplist_.active = True
         grouplist_.save()
         return super().form_valid(form)
-
 
 def student_delete(request):
     if request.method == 'POST':
