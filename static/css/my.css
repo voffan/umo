@@ -1,8 +1,19 @@
-#main_container{
- height: 100%;
+* {
+  margin: 0;
+  padding: 0;
 }
-.jumbotron{
-    height: 90%;
-    background-color: white;
+html,
+body {
+  height: 100%;
 }
-
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.content {
+  flex: 1 0 auto;
+}
+.footer {
+  flex: 0 0 auto;
+}

@@ -10,18 +10,18 @@
     <script src="{% static 'js/bootstrap.js' %}"></script>
 </head>
 <body>
-  <div class="jumbotron">
-    <div class="container">
+      <div class="wrapper">
+        <div class="content">
       <p>
           {% block content %}
           {% endblock %}
       </p>
-    </div>
-  </div>
-  <div class="container">
-    <!--<img src="{% static 'mainApp/image/1.png' %}" class="img-thumbnail">-->
-    <hr>
-    &copy; Все права защищены 2018
-  </div>
+        </div>
+
+        <div class="footer">
+            <!--<img src="{% static 'mainApp/image/1.png' %}" class="img-thumbnail">-->
+            <hr>&copy; Все права защищены 2018
+        </div>
+      </div>
 </body>
 </html>
