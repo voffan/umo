@@ -4,6 +4,8 @@
     <div class="container">
         <form action="/auth/register/" method="post">
             {% csrf_token %}
+            <div class="form-row">
+            <div class="col-md-4 mb-3">
             <h1>Регистрация</h1>
          {{ form.non_field_errors }}
             {% for hidden_field in form.hidden_fields %}
@@ -44,6 +46,8 @@
             {% endfor %}
             <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
             <a href="/auth/login/" class="btn btn-success">Вернуться обратно</a>
+            </div>
+            </div>
         </form>
     </div>
 {% endblock %}
