@@ -6,8 +6,7 @@
   <title>Добро пожаловать</title>
   {% load staticfiles %}
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css">
-  <!--<link rel="stylesheet" href="{% static 'css/my.css' %}" type="text/css">-->
-    <script src="{% static 'js/bootstrap.js' %}"></script>
+  <script src="{% static 'js/bootstrap.js' %}"></script>
 </head>
 <body>
           <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -35,17 +34,11 @@
                   </span>
               </div>
             </nav>
-          <div class="wrapper">
-                <div class="content">
-            <p>
-          {% block content %}
-          {% endblock %}
-            </p>
+                <div class="container">
+                    <p>
+                        {% block content %}
+                        {% endblock %}
+                    </p>
                 </div>
-          </div>
-        <!--<div class="footer">-->
-            <!--<img src="{% static 'mainApp/image/1.png' %}" class="img-thumbnail">-->
-        <!--&copy; Все права защищены 2018-->
-        <!--</div>-->
 </body>
 </html>

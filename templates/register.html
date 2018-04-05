@@ -5,48 +5,48 @@
         <form action="/auth/register/" method="post">
             {% csrf_token %}
             <div class="form-row">
-            <div class="col-md-6 mb-3">
-            <h1>Регистрация</h1>
-         {{ form.non_field_errors }}
-            {% for hidden_field in form.hidden_fields %}
-                {{ hidden_field }}
-            {% endfor %}
-
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger" role="alert">
-                    {% for error in form.non_field_errors %}
-                    {{ error }}
+                <div class="col-md-6 mb-3">
+                    <h1>Регистрация</h1>
+                    {{ form.non_field_errors }}
+                    {% for hidden_field in form.hidden_fields %}
+                        {{ hidden_field }}
                     {% endfor %}
-                </div>
-            {% endif %}
 
-            {% for field in form.visible_fields %}
-                 <div class="form-group">
-                    {{ field.label_tag }}
-
-                    {% if form.is_bound %}
-                    {% if field.errors %}
-                    {% render_field field class="form-control is-invalid" %}
-                    {% for error in field.errors %}
-                        <div class="invalid-feedback">
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for error in form.non_field_errors %}
                             {{ error }}
+                            {% endfor %}
                         </div>
-                    {% endfor %}
-                    {% else %}
-                    {% render_field field class="form-control is-valid" %}
-                    {% endif %}
-                    {% else %}
-                    {% render_field field class="form-control" %}
                     {% endif %}
 
-                    {% if field.help_text %}
-                    <small class="form-text text-muted">{{ field.help_text|safe }}</small>
-                    {% endif %}
+                    {% for field in form.visible_fields %}
+                             <div class="form-group">
+                                {{ field.label_tag }}
+
+                                {% if form.is_bound %}
+                                {% if field.errors %}
+                                {% render_field field class="form-control is-invalid" %}
+                                {% for error in field.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                {% else %}
+                                {% render_field field class="form-control is-valid" %}
+                                {% endif %}
+                                {% else %}
+                                {% render_field field class="form-control" %}
+                                {% endif %}
+
+                                {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text|safe }}</small>
+                                {% endif %}
+                            </div>
+                    {% endfor %}
+                    <p><button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                    <a href="/auth/login/" class="btn btn-success">Вернуться обратно</a></p>
                 </div>
-            {% endfor %}
-            <p><button type="submit" class="btn btn-primary">Зарегистрироваться</button>
-            <a href="/auth/login/" class="btn btn-success">Вернуться обратно</a></p>
-            </div>
             </div>
         </form>
     </div>

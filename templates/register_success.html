@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% load bootstrap4 %}
 {% block content %}
-    <h2>Вы успешно зарегистрировались!</h2>
-    <p>Нажмите <a href="/auth/login/">здесь</a> чтобы войти</p>
+    <div class="container">
+        <center>
+            <h1>Вы успешно зарегистрировались!</h1>
+            <p></p>
+            <p><a href="/auth/login/" class="btn btn-success">Авторизоваться</a></p>
+        </center>
+    </div>
 {% endblock %}
