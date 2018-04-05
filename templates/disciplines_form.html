@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Добавление предмета </h1>
+    <form action="/disciplines/add/" method="post">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+
+        <button type="submit" class="btn btn-success">Сохранить</button>
+        <a href= "/disciplines/list/" class="btn btn-primary">Отмена</a>
+    </form>
+{% endblock %}
+
