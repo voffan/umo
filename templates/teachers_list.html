@@ -9,7 +9,9 @@
         <td>ФИО</td>
         <td>Должность</td>
         <td>Звание</td>
+        <td>Кафедра</td>
         <td>Телефон</td>
+
         </thead>
         <tbody>
         {% for teacher in teachers %}
@@ -26,6 +28,7 @@
                     {% endif %}
                 </td>
                 <td>
+                    {{ teacher.cathedra }}
 
                 </td>
             </tr>

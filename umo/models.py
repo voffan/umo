@@ -9,7 +9,7 @@ class Person(models.Model):
 class Teacher(Person):
     Position = models.ForeignKey('Position', db_index=True, blank=False, null=False)
     Zvanie = models.ForeignKey('Zvanie', db_index=True, blank=True, null=True)
-    cathedra = models.ForeignKey('Kafedra', db_index=True, null=True, blank=True)
+    cathedra = models.ForeignKey('Kafedra', db_index=True)
     def __str__(self):
         return self.FIO
 

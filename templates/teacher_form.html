@@ -4,13 +4,14 @@
 {% endblock %}
 {% block content %}
     <h1>Добавление сотрудника </h1>
-    <form action='/teacher/create_teacher/' method="post">
+    <form action="/teacher/create_teacher/" method="post">
         {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
 
-            {{ form.as_p }}
-
-
-        <input type="submit">
+        <button type="submit" class="btn btn-success">Сохранить</button>
+        <a href= "/teacher/" class="btn btn-primary">Отмена</a>
     </form>
 {% endblock %}
 

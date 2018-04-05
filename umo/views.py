@@ -4,16 +4,15 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import requires_csrf_token
 from django.urls import reverse_lazy, reverse
-from .models import Person, Teacher, Student, GroupList
+from .models import Person, Teacher, Student, GroupList, Position, Zvanie,Kafedra
 from umo.forms import AddTeacherForm
 from django.http import HttpResponseRedirect
 
 
 # Create your views here.
-class TeacherCreate(CreateView):
+class TeacherCreateView(CreateView):
     model = Person, Teacher
     fields = '__all__'
-
 
 class TeacherUpdate(UpdateView):
     model = Person, Teacher
@@ -27,18 +26,16 @@ def list_teachers(request):
     all = Teacher.objects.all()
     return render(request,'teachers_list.html', {'teachers':all})
 
-#@requires_csrf_token
+
 def create_teacher(request):
-    #arg = {}
-    #arg['form']
-    if request.method == 'POST':
+     if request.method == 'POST':
         form = AddTeacherForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('teachers:list_teachers'))
         return render(request, 'teacher_form.html', {'form': form})
-    form = AddTeacherForm(request.POST)
-    return render(request, 'teacher_form.html', {'form': form})
+     form = AddTeacherForm()
+     return render(request, 'teacher_form.html', {'form': form})
 
 class StudentListView(ListView):
     model = GroupList
