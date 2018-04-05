@@ -14,14 +14,14 @@ class Teacher(Person):
         return self.FIO
 
 class EduOrg(models.Model):
-    name = models.CharField(verbose_name="названия института", max_length=200, db_index=True, blank=False, null=False)
+    name = models.CharField(verbose_name="название института", max_length=200, db_index=True, blank=False, null=False)
     uni = models.ForeignKey('self', db_index=True, null=True, blank=True)
     def __str__(self):
         return self.name
 
 class Kafedra(models.Model):
     number = models.IntegerField(verbose_name="номер кафедры", db_index=True, blank=False, null=False)
-    name = models.CharField(verbose_name="названия кафедры", max_length=200, db_index=True, blank=False, null=False)
+    name = models.CharField(verbose_name="название кафедры", max_length=200, db_index=True, blank=False, null=False)
     institution = models.ForeignKey('EduOrg', db_index=True, blank=False, null=False)
     def __str__(self):
         return self.name
@@ -35,7 +35,7 @@ class EduProg(models.Model):
         return self.specialization.name
 
 class Group(models.Model):
-    Name = models.CharField(verbose_name="названия группы", max_length=200, db_index=True, blank=False, null=False)
+    Name = models.CharField(verbose_name="название группы", max_length=200, db_index=True, blank=False, null=False)
     beginyear = models.ForeignKey('Year', db_index=True, blank=False, null=False)
     cathedra = models.ForeignKey(Kafedra,db_index=True, blank=False, null=False)
     program = models.ForeignKey(EduProg, db_index=True, blank=False, null=False)
@@ -43,7 +43,7 @@ class Group(models.Model):
         return self.Name
 
 class Specialization(models.Model):
-    name = models.CharField(verbose_name="названия специализации", max_length=200, db_index=True, blank=False, null=False)
+    name = models.CharField(verbose_name="название специализации", max_length=200, db_index=True, blank=False, null=False)
     briefname = models.CharField(verbose_name="короткое имя специализации", max_length=200, db_index=True, blank=False, null=False)
     code = models.IntegerField(verbose_name="код специализации", db_index=True, blank=False, null=False)
     qual = models.ForeignKey('Qual', db_index=True, blank=False, null=False)
@@ -52,7 +52,7 @@ class Specialization(models.Model):
         return self.name
 
 class Discipline(models.Model):
-    Name = models.CharField(verbose_name="названия дисциплины", max_length=200, db_index=True, blank=False, null=False)
+    Name = models.CharField(verbose_name="название дисциплины", max_length=200, db_index=True, blank=False, null=False)
     code = models.IntegerField(verbose_name="код дисциплины", db_index=True, blank=False, null=False)
     program = models.ForeignKey(EduProg, db_index=True, blank=False, null=False)
     lecturer = models.ForeignKey(Teacher, db_index=True, blank=False, null=False)
@@ -79,7 +79,7 @@ class Control(models.Model):
             return self.controltype
 
 class Year(models.Model):
-    receipts = models.DateTimeField(verbose_name="год поступления", db_index=True, blank=False, null=False)
+    receipts = models.DateField(verbose_name="год поступления", db_index=True, blank=False, null=False)
     def __str__(self):
             return self.receipts.year
 
