@@ -79,7 +79,7 @@ class Control(models.Model):
             return self.controltype
 
 class Year(models.Model):
-    receipts = models.DateField(verbose_name="год поступления", db_index=True, blank=False, null=False)
+    receipts = models.DateTimeField(verbose_name="год поступления", db_index=True, blank=False, null=False)
     def __str__(self):
             return self.receipts.year
 
