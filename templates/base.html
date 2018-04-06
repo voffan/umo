@@ -15,26 +15,36 @@
                 <span class="navbar-toggler-icon"></span>
               </button>
               <div class="collapse navbar-collapse" id="navbarText">
+                  {% if user.is_authenticated %}
                 <ul class="navbar-nav mr-auto">
+                  <li class="nav-item active">
+                    <a class="nav-link" href="/teacher/">Список преподавателей</a>
+                  </li>
+                  <li class="nav-item active">
+                    <a class="nav-link" href="/student/">Список студентов</a>
+                  </li>
+                   <li class="nav-item active">
+                    <a class="nav-link" href="/disciplines/list/">Список предметов</a>
+                  </li>
+                </ul>
+                <ul class="navbar-nav navbar-right">
+                    <li class="nav-item active">
+                    <a class="nav-link" href="/auth/logout/">Выйти <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+                  {% else %}
+                  <ul class="navbar-nav mr-auto">
+                  </ul>
+                  <ul class="navbar-nav navbar-right">
                   <li class="nav-item active">
                     <a class="nav-link" href="/auth/login/">Вход <span class="sr-only">(current)</span></a>
                   </li>
                   <li class="nav-item active">
                     <a class="nav-link" href="/auth/register/">Регистрация</a>
                   </li>
-                  <li class="nav-item active">
-                    <a class="nav-link" href="/teacher/">Список преподавателей</a>
-                  </li>
-                  <li class="nav-item active">
-                    <a class="nav-link disabled" href="/student/">Список студентов</a>
-                  </li>
-                   <li class="nav-item active">
-                    <a class="nav-link disabled" href="/disciplines/list/">Список предметов</a>
-                  </li>
                 </ul>
-                  <span class="navbar-text">
-                      Добро пожаловать!
-                  </span>
+                  {% endif %}
+
               </div>
             </nav>
                 <div class="container">

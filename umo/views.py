@@ -1,10 +1,7 @@
-
-
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.shortcuts import render, redirect
-from django.views.decorators.csrf import requires_csrf_token
+from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
-from .models import Person, Teacher, Student, GroupList, Position, Zvanie,Kafedra
+from .models import Person, Teacher, Student, GroupList
 from umo.forms import AddTeacherForm
 from django.http import HttpResponseRedirect
 
@@ -14,13 +11,16 @@ class TeacherCreateView(CreateView):
     model = Person, Teacher
     fields = '__all__'
 
+
 class TeacherUpdate(UpdateView):
     model = Person, Teacher
     fields = ['FIO', 'position', 'zvanie']
 
+
 class TeacherDelete(DeleteView):
     model = Teacher
     success_url = reverse_lazy('teacher')
+
 
 def list_teachers(request):
     all = Teacher.objects.all()
@@ -37,11 +37,13 @@ def create_teacher(request):
      form = AddTeacherForm()
      return render(request, 'teacher_form.html', {'form': form})
 
+
 class StudentListView(ListView):
     model = GroupList
     context_object_name = 'student_list'
     success_url = reverse_lazy('student_changelist')
     template_name = "students_list.html"
+
 
 class StudentCreateView(CreateView):
     model = GroupList
@@ -62,6 +64,7 @@ class StudentCreateView(CreateView):
         grouplist_.active = True
         grouplist_.save()
         return super().form_valid(form)
+
 
 def student_delete(request):
     if request.method == 'POST':
