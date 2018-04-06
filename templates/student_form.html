@@ -17,8 +17,9 @@
         </tr>
         {{ form.as_table }}
         </table>
-         <button type="submit">Сохранить</button>
-         <a href="{% url 'student_changelist' %}">Вернуться</a>
+        <p></p>
+        <button type="submit" class="btn btn-success">Сохранить</button>
+        <a href= "{% url 'student_changelist' %}" class="btn btn-primary">Вернуться</a>
     </form>
 {% endblock %}
 

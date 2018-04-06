@@ -18,18 +18,18 @@
                   {% if user.is_authenticated %}
                 <ul class="navbar-nav mr-auto">
                   <li class="nav-item active">
-                    <a class="nav-link" href="/teacher/">Список преподавателей</a>
+                    <a class="nav-link" href="{% url 'list_teachers' %}">Список преподавателей</a>
                   </li>
                   <li class="nav-item active">
-                    <a class="nav-link" href="/student/">Список студентов</a>
+                    <a class="nav-link" href="{% url 'student_changelist' %}">Список студентов</a>
                   </li>
                    <li class="nav-item active">
-                    <a class="nav-link" href="/disciplines/list/">Список предметов</a>
+                    <a class="nav-link" href="{% url 'disciplines_list' %}">Список предметов</a>
                   </li>
                 </ul>
                 <ul class="navbar-nav navbar-right">
                     <li class="nav-item active">
-                    <a class="nav-link" href="/auth/logout/">Выйти <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
                     </li>
                 </ul>
                   {% else %}
@@ -37,10 +37,10 @@
                   </ul>
                   <ul class="navbar-nav navbar-right">
                   <li class="nav-item active">
-                    <a class="nav-link" href="/auth/login/">Вход <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="{% url 'login' %}">Вход</a>
                   </li>
                   <li class="nav-item active">
-                    <a class="nav-link" href="/auth/register/">Регистрация</a>
+                    <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
                   </li>
                 </ul>
                   {% endif %}

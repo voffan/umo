@@ -2,7 +2,7 @@
 {% load widget_tweaks %}
 {% block content %}
     <div class="container">
-        <form action="/auth/register/" method="post">
+        <form action="{% url 'register' %}" method="post">
             {% csrf_token %}
             <div class="form-row">
                 <div class="col-md-6 mb-3">
@@ -45,7 +45,7 @@
                             </div>
                     {% endfor %}
                     <p><button type="submit" class="btn btn-primary">Зарегистрироваться</button>
-                    <a href="/auth/login/" class="btn btn-success">Вернуться обратно</a></p>
+                    <a href="{% url 'login' %}" class="btn btn-success">Вернуться обратно</a></p>
                 </div>
             </div>
         </form>

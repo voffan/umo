@@ -29,6 +29,5 @@
             {% endfor %}
         </tbody>
     </table>
-
-    <a href="/student/add">Добавить нового студента</a>
+    <a href="{% url 'student_add' %}" class="btn btn-success">Добавить нового студента</a>
 {% endblock %}
