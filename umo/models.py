@@ -79,9 +79,9 @@ class Control(models.Model):
             return self.controltype
 
 class Year(models.Model):
-    receipts = models.DateTimeField(verbose_name="год поступления", db_index=True, blank=False, null=False)
+    year = models.CharField(verbose_name="год поступления", max_length=4, db_index=True, blank=False, null=False)
     def __str__(self):
-            return self.receipts.year
+            return self.year
 
 class Position(models.Model):
     name = models.CharField(verbose_name="Позиция", db_index=True, blank=False, null=False, max_length=255)
