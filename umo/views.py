@@ -70,3 +70,9 @@ def student_delete(request):
         grouplist_.delete()
         student_.delete()
         return HttpResponseRedirect(reverse_lazy('student_changelist'))
+
+def delete_teacher(request):
+    if request.method == 'POST':
+        teacher_ = Teacher.objects.get(pk=request.POST['teacher'])
+        teacher_.delete()
+        return HttpResponseRedirect(reverse('teachers:list_teachers'))

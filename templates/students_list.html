@@ -18,7 +18,7 @@
                 <td> {{ i.group.Name }} </td>
                 <td>
                     <td>
-                        <form action="delete/" method="post">
+                        <form action="/teacher/delete/" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="item_id" value="{{ i.student.StudentID }}" />
                             <input type="submit" value="delete item">

@@ -4,39 +4,40 @@
 {% endblock %}
 {% block content %}
     <h1>Список преподавателей</h1>
-    <table>
+    <table class="table table-bordered">
         <thead>
-        <td>ФИО</td>
-        <td>Должность</td>
-        <td>Звание</td>
-        <td>Кафедра</td>
-        <td>Телефон</td>
-
+        <th scope="col">ФИО</th>
+        <th scope="col">Должность</th>
+        <th scope="col">Звание</th>
+        <th scope="col">Кафедра</th>
+        <th scope="col">Телефон</th>
+        <th scope="col"></th>
         </thead>
         <tbody>
         {% for teacher in teachers %}
             <tr>
-                <td>
-                    {{ teacher.FIO }}
-                </td>
-                <td>
-                    {{ teacher.Position }}
-                </td>
+                <td> {{ teacher.FIO }} </td>
+                <td> {{ teacher.Position }} </td>
                 <td>
                     {% if teacher.Zvanie %}
                    {{  teacher.Zvanie }}
                     {% endif %}
                 </td>
+                <td> {{ teacher.cathedra }} </td>
+                <td></td>
                 <td>
-                    {{ teacher.cathedra }}
-
+                    <form action = '/teacher/delete_teacher/' method="post">
+                        {% csrf_token %}
+                         <input type="hidden" name="teacher" value="{{ teacher.id }}" />
+                         <input type="submit" value="удалить">
+                    </form>
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <a href="/teacher/create_teacher">
+    <a href="/teacher/create_teacher" class="btn btn-primary">
         Добавить нового сотрудника
     </a>
 {% endblock %}
