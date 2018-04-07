@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'umo.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'umo_project.urls'
@@ -125,8 +126,16 @@ USE_TZ = True
 
 CSRF_USE_SESSIONS = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGIN_REDIRECT_URL = '/auth/'
+
+LOGIN_URL = '/auth/login/'
+
+LOGIN_EXEMPT_URLS = (
+    r'^auth/logout/$',
+    r'^auth/register/$',
+)
