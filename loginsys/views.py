@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, reverse
 from django.http import HttpResponseRedirect
 from django.contrib import auth
 from loginsys.forms import RegistrationForm
@@ -12,7 +12,7 @@ def login(request):
         user = auth.authenticate(username=username, password=password)
         if user is not None:
             auth.login(request, user)
-            return redirect('/teacher/')
+            return redirect(reverse('disciplines:disciplines_list'))
         else:
             args['login_error'] = "Внимание, вход на сайт не был произведен. " \
                                   "Возможно, вы ввели неверное имя пользователя или пароль."

@@ -100,3 +100,8 @@ class StudentUpdateView(UpdateView):
         grouplist_.active = True
         grouplist_.save()
         return super().form_valid(form)
+def delete_teacher(request):
+    if request.method == 'POST':
+        teacher_ = Teacher.objects.get(pk=request.POST['teacher'])
+        teacher_.delete()
+        return HttpResponseRedirect(reverse('teachers:list_teachers'))

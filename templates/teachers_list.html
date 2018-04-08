@@ -11,19 +11,33 @@
         <th scope="col">Звание</th>
         <th scope="col">Кафедра</th>
         <th scope="col">Телефон</th>
+        <th scope="col"></th>
         </thead>
         <tbody>
-            {% for teacher in teachers %}
+        {% for teacher in teachers %}
             <tr>
                 <td> {{ teacher.FIO }} </td>
                 <td> {{ teacher.Position }} </td>
-                <td> {% if teacher.Zvanie %}
+                <td>
+                    {% if teacher.Zvanie %}
                    {{  teacher.Zvanie }}
-                    {% endif %} </td>
+                    {% endif %}
+                </td>
                 <td> {{ teacher.cathedra }} </td>
+                <td></td>
+                <td>
+                    <form action = '/teacher/delete_teacher/' method="post">
+                        {% csrf_token %}
+                         <input type="hidden" name="teacher" value="{{ teacher.id }}" />
+                         <input type="submit" value="удалить">
+                    </form>
+                </td>
             </tr>
-            {% endfor %}
+        {% endfor %}
         </tbody>
     </table>
-    <a href="{% url 'create_teacher' %}" class="btn btn-success">Добавить нового сотрудника</a>
+
+    <a href="{% url 'teachers:create_teacher' %}" class="btn btn-primary">
+        Добавить нового сотрудника
+    </a>
 {% endblock %}
