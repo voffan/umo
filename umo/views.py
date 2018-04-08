@@ -74,12 +74,14 @@ def student_delete(request):
         student_.delete()
         return HttpResponseRedirect(reverse_lazy('student_changelist'))
 
+
 def student_edit(request,student_id):
     if request.method == "POST":
         pass
     gl = GroupList.objects.get(pk=student_id)
     form = StudentCreateView(instance=gl)
     return render(request, 'student_form.html', {'form': form})
+
 
 class StudentUpdateView(UpdateView):
     model = GroupList
@@ -100,6 +102,8 @@ class StudentUpdateView(UpdateView):
         grouplist_.active = True
         grouplist_.save()
         return super().form_valid(form)
+
+
 def delete_teacher(request):
     if request.method == 'POST':
         teacher_ = Teacher.objects.get(pk=request.POST['teacher'])

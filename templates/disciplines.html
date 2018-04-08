@@ -9,11 +9,12 @@
         <th scope="col">Специализация</th>
         <th scope="col">Преподаватель</th>
         <th scope="col">Тип контроля</th>
+        <th scope="col"></th>
         </thead>
         <tbody>
             {% for discipline in discipline_list %}
             <tr>
-                <td> {{ discipline.Name }} </td>
+                <td> <a href="{% url 'disciplines:update' discipline.id %}">{{ discipline.Name }}</a> </td>
                 <td> {{ discipline.code }} </td>
                 <td> {{ discipline.program }} </td>
                 <td> {{ discipline.lecturer }} </td>
@@ -22,7 +23,7 @@
                     <form action = '/disciplines/delete/' method="post">
                         {% csrf_token %}
                          <input type="hidden" name="discipline" value="{{ discipline.id }}" />
-                         <input type="submit" value="удалить">
+                         <input type="submit" value="Удалить" class="btn btn-danger">
                     </form>
                 </td>
             </tr>

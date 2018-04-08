@@ -78,7 +78,7 @@ class Discipline(models.Model):
     control = models.ForeignKey('Control', verbose_name="Тип контроля", db_index=True, blank=False, null=False)
 
     def get_absolute_url(self):
-        return reverse('disciplines:update', kwargs={'pk': self.pk})
+        return reverse('disciplines:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
             return self.Name
