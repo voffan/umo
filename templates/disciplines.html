@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<title>Список предметов</title>
     <h1>Список предметов</h1>
     <table class="table table-bordered">
         <thead>
@@ -10,17 +11,23 @@
         <th scope="col">Тип контроля</th>
         </thead>
         <tbody>
-            {% for i in disciplines %}
+            {% for discipline in discipline_list %}
             <tr>
-                <td> {{ i.Name }} </td>
-                <td> {{ i.code }} </td>
-                <td> {{ i.program }} </td>
-                <td> {{ i.lecturer }} </td>
-                <td> {{ i.control }} </td>
+                <td> {{ discipline.Name }} </td>
+                <td> {{ discipline.code }} </td>
+                <td> {{ discipline.program }} </td>
+                <td> {{ discipline.lecturer }} </td>
+                <td> {{ discipline.control }} </td>
+                <td>
+                    <form action = '/disciplines/delete/' method="post">
+                        {% csrf_token %}
+                         <input type="hidden" name="discipline" value="{{ discipline.id }}" />
+                         <input type="submit" value="удалить">
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
     <a href="{% url 'disciplines:disciplines_add' %}" class="btn btn-success">Добавить новый предмет</a></p>
 {% endblock %}

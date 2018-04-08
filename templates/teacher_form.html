@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}
-    Добавление сотрудника
-{% endblock %}
 {% block content %}
+<title>Добавление сотрудника </title>
     <h1>Добавление сотрудника </h1>
     <form action="{% url 'teachers:create_teacher' %}" method="post">
         {% csrf_token %}

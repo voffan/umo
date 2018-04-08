@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<title>Удаление предмета </title>
+    <h1>Удаление предмета </h1>
+    <form action="{% url 'disciplines:delete' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Удалить</button>
+        <a href= "{% url 'disciplines:disciplines_list' %}" class="btn btn-primary">Отмена</a>
+    </form>
+{% endblock %}
+
+
+
+
+
