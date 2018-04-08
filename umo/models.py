@@ -157,7 +157,7 @@ class ControlType(models.Model):
 
 
 class Semestr(models.Model):
-    name = models.IntegerField(verbose_name="Семестр", db_index=True, blank=False, null=False)
+    name = models.CharField(verbose_name="Семестр", db_index=True, blank=False, null=False, max_length=255)
 
     def __str__(self):
             return self.name

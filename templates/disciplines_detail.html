@@ -1,14 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
-<title>Детали предмета </title>
-    <h1>Детали предмета </h1>
-    <form action="" method="post">
-        {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-        </table>
-        <p></p>
-        <a href= "{% url 'disciplines:disciplines_list' %}" class="btn btn-primary">Вернуться</a>
-    </form>
+<div class="container">
+    <div class="row">
+        <!-- Left Album Info -->
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                     <table class="table table-bordered">
+                        <thead>
+                        <th scope="col">Предмет</th>
+                        <th scope="col">Код</th>
+                        <th scope="col">Специализация</th>
+                        <th scope="col">Преподаватель</th>
+                        <th scope="col">Тип контроля</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td> {{ discipline.Name }} </td>
+                                <td> {{ discipline.code }} </td>
+                                <td> {{ discipline.program }} </td>
+                                <td> {{ discipline.lecturer }} </td>
+                                <td> {{ discipline.control }} </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="{% url 'disciplines:disciplines_list' %}" class="btn btn-success">Вернуться</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-
