@@ -36,4 +36,30 @@ class AddTeacherForm(ModelForm):
         #self.add_error('')
 
 
+class EditTeacherForm(ModelForm):
+    class Meta:
+        model = Teacher
+        fields = [
+            'FIO',
+            'Position',
+            'Zvanie',
+            'cathedra'
+        ]
+        labels = {
+            'FIO': _('ФИО'),
+            'Position': _('Должность'),
+            'Zvanie': _('Звание'),
+            'cathedra': _('Кафедра')
+        }
+
+    def edit(self):
+
+         if self.clean():
+            teacher = Teacher()
+            teacher.FIO = self.cleaned_data['FIO']
+            teacher.Position = self.cleaned_data['Position']
+            teacher.Zvanie = self.cleaned_data['Zvanie']
+            teacher.cathedra = self.cleaned_data['cathedra']
+            teacher.save()
+            return teacher
 

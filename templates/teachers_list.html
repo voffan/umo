@@ -12,11 +12,12 @@
         <th scope="col">Кафедра</th>
         <th scope="col">Телефон</th>
         <th scope="col"></th>
+
         </thead>
         <tbody>
         {% for teacher in teachers %}
             <tr>
-                <td> {{ teacher.FIO }} </td>
+                <td>  <a href="{% url 'teachers:edit_teacher' teacher.id %}">{{ teacher.FIO }} </a> </td>
                 <td> {{ teacher.Position }} </td>
                 <td>
                     {% if teacher.Zvanie %}
@@ -25,6 +26,7 @@
                 </td>
                 <td> {{ teacher.cathedra }} </td>
                 <td></td>
+
                 <td>
                     <form action = '/teacher/delete_teacher/' method="post">
                         {% csrf_token %}
@@ -37,7 +39,7 @@
         </tbody>
     </table>
 
-    <a href="{% url 'teachers:create_teacher' %}" class="btn btn-primary">
+    <a href="{% url 'teachers:create_teacher' %}" class="btn btn-success">
         Добавить нового сотрудника
     </a>
 {% endblock %}

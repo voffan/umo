@@ -2,7 +2,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from .models import Person, Teacher, Student, GroupList
-from umo.forms import AddTeacherForm
+from umo.forms import AddTeacherForm, EditTeacherForm
 from django.http import HttpResponseRedirect
 
 
@@ -13,8 +13,21 @@ class TeacherCreateView(CreateView):
 
 
 class TeacherUpdate(UpdateView):
-    model = Person, Teacher
-    fields = ['FIO', 'position', 'zvanie']
+    template_name = 'teacher_edit.html'
+    success_url = reverse_lazy('teachers:list_teachers')
+    model = Teacher
+    fields = [
+            'FIO',
+            'Position',
+            'Zvanie',
+            'cathedra'
+    ]
+    labels = {
+        'FIO': 'ФИО',
+        'Position': 'Должность',
+        'Zvanie': 'Звание',
+        'cathedra': 'Кафедра'
+    }
 
 
 class TeacherDelete(DeleteView):
