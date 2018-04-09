@@ -3,7 +3,7 @@ from umo.models import Discipline, DisciplineDetails
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render
 from disciplines.forms import AddDisciplineForm
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 
 
 # Create your views here.
@@ -65,7 +65,17 @@ class DisciplineDelete(DeleteView):
 
 class DisciplineDetail(DetailView):
     template_name = 'disciplines_detail.html'
-    model = Discipline
+    model = DisciplineDetails
+    context_object_name = 'discipline_detail'
+
+
+def discipline_detail(request, pk):
+    if request.method == 'POST':
+        pass
+    subject_ = Discipline.objects.get(id = pk)
+    details_ = DisciplineDetails.objects.get(subject__id = subject_.id)
+    form = DisciplineDetail(object=details_)
+    return render(request, 'disciplines_detail.html', {'form': form})
 
 
 class DetailsList(ListView):
