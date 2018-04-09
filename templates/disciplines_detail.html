@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Left Album Info -->
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                     <table class="table table-bordered">
+                        <thead>
+                        <th scope="col">Предмет</th>
+                        <th scope="col">Код</th>
+                        <th scope="col">Специализация</th>
+                        <th scope="col">Преподаватель</th>
+                        <th scope="col">Тип контроля</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td> {{ discipline.Name }} </td>
+                                <td> {{ discipline.code }} </td>
+                                <td> {{ discipline.program }} </td>
+                                <td> {{ discipline.lecturer }} </td>
+                                <td> {{ discipline.control }} </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="{% url 'disciplines:disciplines_list' %}" class="btn btn-success">Вернуться</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

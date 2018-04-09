@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<title>Вход в систему</title>
     <div class="container">
         <form action="{% url 'login' %}" method="post">
             {% csrf_token %}

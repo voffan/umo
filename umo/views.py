@@ -2,8 +2,8 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from .models import Person, Teacher, Student, GroupList
-from umo.forms import AddTeacherForm, EditTeacherForm
-from django.http import HttpResponseRedirect
+from umo.forms import AddTeacherForm
+from django.http import HttpResponseRedirect, HttpResponse
 
 
 # Create your views here.
@@ -86,6 +86,34 @@ def student_delete(request):
         grouplist_.delete()
         student_.delete()
         return HttpResponseRedirect(reverse_lazy('student_changelist'))
+
+
+# def student_edit(request,student_id):
+#     if request.method == "POST":
+#         pass
+#     gl = GroupList.objects.get(pk=student_id)
+#     form = StudentCreateView(instance=gl)
+#     return render(request, 'student_form.html', {'form': form})
+
+
+class StudentUpdateView(UpdateView):
+    model = GroupList
+    fields = ['group']
+    success_url = reverse_lazy('student_changelist')
+    template_name = "student_form.html"
+    context_object_name = 'student_list'
+
+    def form_valid(self, form):
+        student_ = self.object.student
+        student_.FIO = form.data.get('fio')
+        student_.StudentID = form.data.get('studid')
+        student_.save()
+        grouplist_ = self.object
+        grouplist_.student = student_
+        grouplist_.active = True
+        grouplist_.save()
+        return super().form_valid(form)
+
 
 def delete_teacher(request):
     if request.method == 'POST':

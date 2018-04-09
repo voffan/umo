@@ -1,4 +1,3 @@
-from django import forms
 from django.forms import ModelForm
 from umo.models import Discipline
 
@@ -31,4 +30,3 @@ class AddDisciplineForm(ModelForm):
             discipline.control = self.cleaned_data['control']
             discipline.save()
             return discipline
-
