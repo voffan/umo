@@ -6,12 +6,12 @@
         {% csrf_token %}
         <table>
         <tr>
-            <td align="right">ФИО студента</td>
-            <td><input id="id_fio" type="text" name="fio" maxlength="255"></td>
+            <td align="left"><b>ФИО студента:</b></td>
+            <td><input id="id_fio" type="text" name="fio" maxlength="255" value="{{ student_list.student.FIO }}"></td>
         </tr>
         <tr>
-            <td align="right">Номер зачетной книжки</td>
-            <td><input id="id_studid" type="text" name="studid" maxlength="255"></td>
+            <td align="left"><b>Номер зачетной книжки:</b></td>
+            <td><input id="id_studid" type="text" name="studid" maxlength="255" value="{{ student_list.student.StudentID }}"></td>
         </tr>
         {{ form.as_table }}
         </table>
