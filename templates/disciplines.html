@@ -2,8 +2,9 @@
 {% block content %}
 <title>Список предметов</title>
     <h1>Список предметов</h1>
-    <table class="table table-bordered">
+    <table id="disciplines_table" class="table table-bordered">
         <thead>
+        <tr>
         <th scope="col">Предмет</th>
         <th scope="col">Код</th>
         <th scope="col">Специализация</th>
@@ -11,6 +12,7 @@
         <th scope="col">Тип контроля</th>
         <th scope="col"></th>
         <th scope="col"></th>
+        </tr>
         </thead>
         <tbody>
             {% for discipline in discipline_list %}
