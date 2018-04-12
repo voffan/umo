@@ -33,7 +33,7 @@ class DisciplineList(ListView):
 
 class DisciplineCreate(CreateView):
     template_name = 'disciplines_form.html'
-    # success_url = reverse_lazy('disciplines:disciplines_list')
+    success_url = reverse_lazy('disciplines:details_add')
     model = Discipline
     fields = [
         'Name',
@@ -78,9 +78,17 @@ def discipline_detail(request, pk):
     return render(request, 'disciplines_detail.html', {'form': form})
 
 
-class DetailsList(ListView):
-    template_name = 'disciplines_details.html'
-    context_object_name = 'detail_list'
-
-    def get_queryset(self):
-        return DisciplineDetails.objects.all()
+class DetailsCreate(CreateView):
+    template_name = 'details_form.html'
+    model = DisciplineDetails
+    success_url = reverse_lazy('disciplines:disciplines_list')
+    fields = [
+        'subject',
+        'Credit',
+        'Lecture',
+        'Practice',
+        'Lab',
+        'KSR',
+        'SRS',
+        'semestr',
+    ]
