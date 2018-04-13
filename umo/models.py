@@ -77,9 +77,6 @@ class Discipline(models.Model):
     lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=False, null=False)
     control = models.ForeignKey('Control', verbose_name="Тип контроля", db_index=True, blank=False, null=False)
 
-    def get_absolute_url(self):
-        return reverse('disciplines:detail', kwargs={'pk': self.pk})
-
     def __str__(self):
             return self.Name
 
