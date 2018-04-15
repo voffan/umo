@@ -39,9 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'umo.apps.UmoConfig',
     'loginsys',
+    'disciplines',
     'bootstrap4',
     'widget_tweaks',
-#    'umo',
 ]
 
 MIDDLEWARE = [

@@ -9,6 +9,4 @@ urlpatterns = [
     url(r'^create_teacher/$',  views.create_teacher, name='create_teacher'),
     url(r'^delete_teacher/$', views.delete_teacher, name='delete_teacher'),
     url(r'(?P<pk>[0-9]+)/edit_teacher/$', views.TeacherUpdate.as_view(), name='edit_teacher'),
-    #url(r'^(?P<pk>\d+)/update/$', views.TeacherUpdate.as_view(), name='teacher_update'),
-    #url(r'^(?P<pk>\d+)/delete/$', views.TeacherDelete.as_view(), name='teacher_delete'),
 ]

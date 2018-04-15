@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+{% extends 'base.html'
+{% block title %}Добавление деталей предмета{% endblock %}
 {% block content %}
-<title>Добавление деталей предмета </title>
     <h1>Пожалуйста, добавьте детали предмета </h1>
     <form action="{% url 'disciplines:details_add' %}" method="post">
         {% csrf_token %}

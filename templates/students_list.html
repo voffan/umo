@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
+{% block title %}Список студентов{% endblock %}
 {% block content %}
-<title>Список студентов</title>
     <h1>Список студентов</h1>
     <table id="students_table" class="table table-bordered">
         <thead>
+        <tr>
         <th scope="col">Номер зачетной книжки</th>
         <th scope="col">ФИО</th>
         <th scope="col">Группа</th>
         <th scope="col"></th>
+        </tr>
         </thead>
         <tbody>
             {% for i in student_list %}

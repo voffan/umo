@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% block title %}Регистрация{% endblock %}
 {% block content %}
-<title>Регистрация</title>
     <div class="container">
         <form action="{% url 'register' %}" method="post">
             {% csrf_token %}
