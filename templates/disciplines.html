@@ -24,12 +24,37 @@
                 <td> {{ discipline.control }} </td>
                 <td> <a href="{% url 'disciplines:update' discipline.id %}"><input type="submit" value="Изменить"
                                                                                    class="btn btn-primary"></a></td>
-                <td> <a href="{% url 'disciplines:delete' discipline.id %}"><input type="submit" value="Удалить"
-                                                                                   class="btn btn-danger"></a></td>
+                <td>
+                     <div class="modal" id="myModal" tabindex="-1" role="dialog">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Подтверждение удаления</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            <p>Вы уверены что хотите удалить данный предмет?</p>
+                          </div>
+                          <div class="modal-footer">
+                              <form action = "{% url 'disciplines:delete' %}" method="post">
+                                  {% csrf_token %}
+                                  <input type="hidden" name="discipline" value="{{ discipline.id }}" />
+                                  <input type="submit"  value="Удалить" class="btn btn-danger">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                              </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" data-toggle="modal" data-target="#myModal" class="btn btn-danger">Удалить</button>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
     <a href="{% url 'disciplines:disciplines_add' %}" class="btn btn-success">Добавить новый предмет</a>
     <a href="{% url 'disciplines:details_add' %}" class="btn btn-success">Добавить детали предмета</a>
 {% endblock %}
