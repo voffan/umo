@@ -3,18 +3,19 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <!-- Left Album Info -->
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-body">
                      <table class="table table-bordered">
                         <thead>
+                        <tr>
                         <th scope="col">Предмет</th>
                         <th scope="col">Код</th>
                         <th scope="col">Специализация</th>
                         <th scope="col">Преподаватель</th>
                         <th scope="col">Тип контроля</th>
                         </thead>
+                        </tr>
                         <tbody>
                             <tr>
                                 <td> {{ form.object.subject.Name }} </td>
@@ -28,6 +29,7 @@
 
                     <table class="table table-bordered">
         <thead>
+        <tr>
         <th scope="col">Предмет</th>
         <th scope="col">Кол-во часов</th>
         <th scope="col">Кол-во лекций</th>
@@ -36,6 +38,7 @@
         <th scope="col">Кол-в КСР</th>
         <th scope="col">Кол-в СРС</th>
         <th scope="col">Семестр</th>
+        </tr>
         </thead>
         <tbody>
             <tr>

@@ -72,8 +72,8 @@ class DisciplineDetail(DetailView):
 def discipline_detail(request, pk):
     if request.method == 'POST':
         pass
-    subject_ = Discipline.objects.get(id = pk)
-    details_ = DisciplineDetails.objects.get(subject__id = subject_.id)
+    subject_ = Discipline.objects.get(id=pk)
+    details_ = DisciplineDetails.objects.get(subject__id=subject_.id)
     form = DisciplineDetail(object=details_)
     return render(request, 'disciplines_detail.html', {'form': form})
 
