@@ -3,15 +3,15 @@
 {% block content %}
     <h1>Список предметов</h1>
     <table id="disciplines_table" class="table table-bordered">
-        <thead>
+        <thead class="thead-light">
         <tr>
-        <th scope="col">Предмет</th>
-        <th scope="col">Код</th>
-        <th scope="col">Специализация</th>
-        <th scope="col">Преподаватель</th>
-        <th scope="col">Тип</th>
-        <th scope="col"></th>
-        <th scope="col"></th>
+        <th>Предмет</th>
+        <th>Код</th>
+        <th>Специализация</th>
+        <th>Преподаватель</th>
+        <th>Тип</th>
+        <th></th>
+        <th></th>
         </tr>
         </thead>
         <tbody>
@@ -23,7 +23,7 @@
                 <td> {{ discipline.lecturer }} </td>
                 <td> {{ discipline.control }} </td>
                 <td> <a href="{% url 'disciplines:update' discipline.id %}"><input type="submit" value="Изменить"
-                                                                                   class="btn btn-primary"></a></td>
+                                                                                   class="btn btn-secondary"></a></td>
                 <td>
                      <div class="modal" id="myModal" tabindex="-1" role="dialog">
                       <div class="modal-dialog" role="document">
@@ -56,5 +56,5 @@
     </table>
 
     <a href="{% url 'disciplines:disciplines_add' %}" class="btn btn-success">Добавить новый предмет</a>
-    <a href="{% url 'disciplines:details_add' %}" class="btn btn-success">Добавить детали предмета</a>
+    <a href="{% url 'disciplines:details_add' %}" class="btn btn-primary">Добавить детали предмета</a>
 {% endblock %}
