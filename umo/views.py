@@ -1,3 +1,120 @@
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.shortcuts import render
+from django.urls import reverse_lazy, reverse
+from .models import Person, Teacher, Student, GroupList
+from umo.forms import AddTeacherForm
+from django.http import HttpResponseRedirect, HttpResponse
+from django.template import RequestContext
+
 
 # Create your views here.
+class TeacherCreateView(CreateView):
+    model = Person, Teacher
+    fields = '__all__'
+
+
+class TeacherUpdate(UpdateView):
+    template_name = 'teacher_edit.html'
+    success_url = reverse_lazy('teachers:list_teachers')
+    model = Teacher
+    fields = [
+            'FIO',
+            'Position',
+            'Zvanie',
+            'cathedra'
+    ]
+    labels = {
+        'FIO': 'ФИО',
+        'Position': 'Должность',
+        'Zvanie': 'Звание',
+        'cathedra': 'Кафедра'
+    }
+
+
+class TeacherDelete(DeleteView):
+    model = Teacher
+    success_url = reverse_lazy('teacher')
+
+
+def list_teachers(request):
+    all = Teacher.objects.all()
+    return render(request,'teachers_list.html', {'teachers':all})
+
+
+def create_teacher(request):
+     if request.method == 'POST':
+        form = AddTeacherForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('teachers:list_teachers'))
+        return render(request, 'teacher_form.html', {'form': form})
+     form = AddTeacherForm()
+     return render(request, 'teacher_form.html', {'form': form})
+
+
+class StudentListView(ListView):
+    model = GroupList
+    context_object_name = 'student_list'
+    success_url = reverse_lazy('student_changelist')
+    template_name = "students_list.html"
+
+
+class StudentCreateView(CreateView):
+    model = GroupList
+    fields = ['group']
+    success_url = reverse_lazy('student_changelist')
+    template_name = "student_form.html"
+
+    def form_valid(self, form):
+        student_ = Student.objects.create()
+        student_.FIO = form.data.get('fio')
+        student_.StudentID = form.data.get('studid')
+        student_.save()
+        grouplist_ = form.save(commit=False)
+        grouplist_.student = student_
+        grouplist_.active = True
+        grouplist_.save()
+        return super().form_valid(form)
+
+
+def student_delete(request):
+    if request.method == 'POST':
+        student_ = Student.objects.get(StudentID = request.POST['item_id'])
+        grouplist_ = GroupList.objects.get(student__id = student_.id)
+        grouplist_.delete()
+        student_.delete()
+        return HttpResponseRedirect(reverse_lazy('student_changelist'))
+
+
+# def student_edit(request,student_id):
+#     if request.method == "POST":
+#         pass
+#     gl = GroupList.objects.get(pk=student_id)
+#     form = StudentCreateView(instance=gl)
+#     return render(request, 'student_form.html', {'form': form})
+
+
+class StudentUpdateView(UpdateView):
+    model = GroupList
+    fields = ['group']
+    success_url = reverse_lazy('student_changelist')
+    template_name = "student_update.html"
+    context_object_name = 'student_list'
+
+    def form_valid(self, form):
+        student_ = self.object.student
+        student_.FIO = form.data.get('fio')
+        student_.StudentID = form.data.get('studid')
+        student_.save()
+        grouplist_ = self.object
+        grouplist_.student = student_
+        grouplist_.active = True
+        grouplist_.save()
+        return super().form_valid(form)
+
+
+def delete_teacher(request):
+    if request.method == 'POST':
+        teacher_ = Teacher.objects.get(pk=request.POST['teacher'])
+        teacher_.delete()
+        return HttpResponseRedirect(reverse('teachers:list_teachers'))

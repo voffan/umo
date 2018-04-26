@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Изменение студента{% endblock %}
+{% block content %}
+    <h1>Изменение студента</h1>
+    <form method="post">
+        {% csrf_token %}
+        <table>
+        <tr>
+            <td align="left"><b>ФИО студента:</b></td>
+            <td><input id="id_fio" type="text" name="fio" maxlength="255" value="{{ student_list.student.FIO }}"></td>
+        </tr>
+        <tr>
+            <td align="left"><b>Номер зачетной книжки:</b></td>
+            <td><input id="id_studid" type="text" name="studid" maxlength="255" value="{{ student_list.student.StudentID }}"></td>
+        </tr>
+        {{ form.as_table }}
+        </table>
+        <p></p>
+        <button type="submit" class="btn btn-success">Сохранить</button>
+        <a href= "{% url 'student_changelist' %}" class="btn btn-primary">Вернуться</a>
+    </form>
+{% endblock %}

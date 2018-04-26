@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Вход в систему{% endblock %}
+{% block content %}
+    <div class="container">
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <div class="row justify-content-md-center">
+                <div class="col-md-4">
+                    <h1>Вход в систему</h1>
+                    <label for="username">Имя пользователя</label>
+                    <p><input required type="text" class="form-control" name="username" id="username" placeholder="Введите имя пользователя"></p>
+                    <label for="password">Пароль</label>
+                    <p><input required type="password" class="form-control" name="password" id="password" placeholder="Введите пароль"></p>
+                    {% if login_error %}
+                        <p><label class="error">{{ login_error }}</label></p>
+                    {% endif %}
+                    <button type="submit" class="btn btn-success">Войти</button>
+                    <a href="{% url 'register' %}" class="btn btn-primary">Регистрация</a>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

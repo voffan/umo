@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Детали предмета{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h1>Детали предмета</h1>
+                     <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                        <th scope="col">Предмет</th>
+                        <th scope="col">Код</th>
+                        <th scope="col">Специализация</th>
+                        <th scope="col">Преподаватель</th>
+                        <th scope="col">Тип контроля</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td> {{ form.object.subject.Name }} </td>
+                                <td> {{ form.object.subject.code }} </td>
+                                <td> {{ form.object.subject.program }} </td>
+                                <td> {{ form.object.subject.lecturer }} </td>
+                                <td> {{ form.object.subject.control }} </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                        <th scope="col">Предмет</th>
+                        <th scope="col">Кол-во часов</th>
+                        <th scope="col">Кол-во лекций</th>
+                        <th scope="col">Кол-во практики</th>
+                        <th scope="col">Кол-в лаб. работ</th>
+                        <th scope="col">Кол-в КСР</th>
+                        <th scope="col">Кол-в СРС</th>
+                        <th scope="col">Семестр</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td> {{ form.object.subject }} </td>
+                                <td> {{ form.object.Credit }} </td>
+                                <td> {{ form.object.Lecture }} </td>
+                                <td> {{ form.object.Practice }} </td>
+                                <td> {{ form.object.Lab }} </td>
+                                <td> {{ form.object.KSR }} </td>
+                                <td> {{ form.object.SRS }} </td>
+                                <td> {{ form.object.semestr }} </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="{% url 'disciplines:disciplines_list' %}" class="btn btn-success">Вернуться</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

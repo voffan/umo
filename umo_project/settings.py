@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'umo.apps.UmoConfig',
+    'loginsys',
+    'disciplines',
+    'bootstrap4',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'umo.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'umo_project.urls'
@@ -68,6 +73,10 @@ TEMPLATES = [
         },
     },
 ]
+
+STATICFILES_DIRS = (
+     os.path.join(BASE_DIR, 'static'), #сама папка указывается здесь
+)
 
 WSGI_APPLICATION = 'umo_project.wsgi.application'
 
@@ -105,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
 
@@ -115,8 +124,18 @@ USE_L10N = True
 
 USE_TZ = True
 
+CSRF_USE_SESSIONS = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGIN_REDIRECT_URL = '/auth/'
+
+LOGIN_URL = '/auth/login/'
+
+LOGIN_EXEMPT_URLS = (
+    r'^auth/logout/$',
+    r'^auth/register/$',
+)
