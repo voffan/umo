@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 from umo import models
+
 # Register your models here.
 
 admin.site.register(models.BRS)
@@ -18,6 +20,7 @@ admin.site.register(models.Group)
 admin.site.register(models.GroupList)
 admin.site.register(models.Kafedra)
 admin.site.register(models.Level)
+admin.site.register(models.Mark)
 admin.site.register(models.MarkSymbol)
 admin.site.register(models.Person)
 admin.site.register(models.Position)

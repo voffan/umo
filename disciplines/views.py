@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
-from umo.models import Discipline, DisciplineDetails, GroupList
+from umo.models import Discipline, DisciplineDetails, ExamMarks
 
 
 # Create your views here.
@@ -166,7 +166,7 @@ def export_to_excel(request):
         today = today.strftime('%d.%m.%Y %S:%M:%H')
 
         # данные для строк
-        students = GroupList.objects.all()
+        students = ExamMarks.objects.all()
         disciplines = Discipline.objects.all()
         _row = 1
         _column = 2
@@ -175,9 +175,12 @@ def export_to_excel(request):
             ws.cell(row=_row, column=_column).value = discipline.Name
             _column += 1
         _row += 1
+        _column = 2
         for student in students:
             ws.cell(row=_row, column=1).value = student.student.FIO
+            ws.cell(row=_row, column=_column).value = student.mark.name
             _row += 1
+            _column += 1
 
         # шрифты
         ws['A3'].font = font
