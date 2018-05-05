@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Рабочий учебный план{% endblock %}
+{% block content %}
+    <h1>Рабочий учебный план </h1>
+
+        {% csrf_token %}
+        <table>
+
+        </table>
+        <p></p>
+
+        <a href="{% url 'nomenclatures:upload_file' %}" class="btn btn-success"> Загрузить РУП </a>
+    </form>
+{% endblock %}
