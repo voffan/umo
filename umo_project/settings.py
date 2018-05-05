@@ -16,6 +16,9 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'upload')
+MEDIA_URL = '/upload/'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -26,6 +29,8 @@ SECRET_KEY = 'sed2%541#m9knzz1wgab3%f1r#$3h2+bz05w!6@)8awztl8ogz'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+
 
 
 # Application definition

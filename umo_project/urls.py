@@ -13,4 +13,7 @@ urlpatterns = [
     url(r'^student/(?P<pk>[0-9]+)/$', views.StudentUpdateView.as_view(), name = 'student_edit'),
     url(r'^disciplines/', include('disciplines.urls', namespace='disciplines')),
     url(r'^$', include('disciplines.urls')),
+    url(r'^nomenclature/', include('nomenclature.urls', namespace='nomenclatures')),
+    url(r'^$', include('nomenclature.urls')),
+
 ]
