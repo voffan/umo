@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
-from umo.models import Discipline, DisciplineDetails, ExamMarks
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Discipline
 
 
 # Create your views here.
@@ -101,6 +101,8 @@ def discipline_delete(request):
 
 def export_to_excel(request):
         # определяем стили
+        group_id = 1
+        semestr = 2
         font = Font(name='Calibri',
                     size=11,
                     bold=False,
@@ -166,21 +168,28 @@ def export_to_excel(request):
         today = today.strftime('%d.%m.%Y %S:%M:%H')
 
         # данные для строк
-        students = ExamMarks.objects.all()
-        disciplines = Discipline.objects.all()
-        _row = 1
+        group = Group.objects.get(pk=group_id)
+        students = group.grouplist_set.all()
+        subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
+
+        _row = 2
         _column = 2
-        ws.cell(row=_row, column=1).value = 'ФИО'
-        for discipline in disciplines:
-            ws.cell(row=_row, column=_column).value = discipline.Name
+        ws.cell(row=1, column=1).value = 'ФИО'
+        for s in subjects:
+            ws.cell(row=1, column=_column).value = s.Name
             _column += 1
-        _row += 1
-        _column = 2
-        for student in students:
-            ws.cell(row=_row, column=1).value = student.student.FIO
-            ws.cell(row=_row, column=_column).value = student.mark.name
+        for gl in students:
+            print(gl)
+            ws.cell(row=_row, column=1).value = gl.student.FIO
+            _column = 2
+            for s in subjects:
+                mark = ExamMarks.objects.filter(student__id=gl.student.id, exam__discipline__id=s.id).first()
+                if mark is not None:
+                    ws.cell(row=_row, column=_column).value = mark.mark.name
+                    print(mark)
+                _column += 1
             _row += 1
-            _column += 1
+
 
         # шрифты
         ws['A3'].font = font
