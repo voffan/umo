@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Discipline
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr
 
 
 # Create your views here.
@@ -101,8 +101,6 @@ def discipline_delete(request):
 
 def export_to_excel(request):
         # определяем стили
-        group_id = 1
-        semestr = 2
         font = Font(name='Calibri',
                     size=11,
                     bold=False,
@@ -168,6 +166,8 @@ def export_to_excel(request):
         today = today.strftime('%d.%m.%Y %S:%M:%H')
 
         # данные для строк
+        group_id = 1
+        semestr = 2
         group = Group.objects.get(pk=group_id)
         students = group.grouplist_set.all()
         subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
@@ -179,14 +179,12 @@ def export_to_excel(request):
             ws.cell(row=1, column=_column).value = s.Name
             _column += 1
         for gl in students:
-            print(gl)
             ws.cell(row=_row, column=1).value = gl.student.FIO
             _column = 2
             for s in subjects:
                 mark = ExamMarks.objects.filter(student__id=gl.student.id, exam__discipline__id=s.id).first()
                 if mark is not None:
                     ws.cell(row=_row, column=_column).value = mark.mark.name
-                    print(mark)
                 _column += 1
             _row += 1
 
@@ -240,3 +238,9 @@ def export_to_excel(request):
         wb.save(response)
 
         return response
+
+
+def excel(request):
+    groupname = Group.objects.all()
+    semestrname = Semestr.objects.all()
+    return render(request, 'export_to_excel.html', {'groupname': groupname, 'semestrname': semestrname})
