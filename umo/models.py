@@ -1,5 +1,4 @@
 from django.db import models
-from django.core.urlresolvers import reverse
 
 
 # Create your models here.
@@ -183,8 +182,8 @@ class CheckPoint(models.Model):
 
 
 class EduPeriod(models.Model):
-    beginyear = models.IntegerField(verbose_name="Начало учебного года", db_index=True, blank=False, null=False)
-    endyear = models.IntegerField(verbose_name="Конец учебного года", db_index=True, blank=False, null=False)
+    beginyear = models.CharField(verbose_name="Начало учебного года", db_index=True, blank=False, null=False, max_length=255)
+    endyear = models.CharField(verbose_name="Конец учебного года", db_index=True, blank=False, null=False, max_length=255)
     active = models.BooleanField(verbose_name="Статус", db_index=True, blank=False, null=False)
 
     def __str__(self):
@@ -228,7 +227,7 @@ class BRSpoints(models.Model):
 
 
 class Exam(models.Model):
-    examDate = models.DateField(verbose_name="Дата экзамена", db_index=True, blank=False, null=False)
+    examDate = models.CharField(verbose_name="Дата экзамена", db_index=True, blank=False, null=False, max_length=255)
     discipline = models.ForeignKey(Discipline, db_index=True, blank=False, null=False)
     controlType = models.ForeignKey(ControlType, db_index=True, blank=False, null=False)
     semestr = models.ForeignKey(Semestr, db_index=True, blank=False, null=False)
