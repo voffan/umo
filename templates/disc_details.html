@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Детали предметов{% endblock %}
+{% block content %}
+    <h1>Детали предметов</h1>
+    <table id="disc_details_table" class="table table-bordered">
+        <thead class="thead-light">
+        <tr>
+        <th>Предмет</th>
+        <th>Кол-во часов</th>
+        <th>Кол-во лекций</th>
+        <th>Кол-во практики</th>
+        <th>Кол-в лаб. работ</th>
+        <th>Кол-в КСР</th>
+        <th>Кол-в СРС</th>
+        <th>Семестр</th>
+        <th></th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for d in discipline_details %}
+            <tr>
+                <td> {{ d.subject }} </td>
+                <td> {{ d.Credit }} </td>
+                <td> {{ d.Lecture }} </td>
+                <td> {{ d.Practice }} </td>
+                <td> {{ d.Lab }} </td>
+                <td> {{ d.KSR }} </td>
+                <td> {{ d.SRS }} </td>
+                <td> {{ d.semestr }} </td>
+                <td> <a href="{% url 'disciplines:update_details' d.id %}"><input type="submit" value="Изменить"
+                                                                                   class="btn btn-secondary"></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'disciplines:details_add' %}" class="btn btn-success">Добавить детали предмета</a>
+    <a href="{% url 'disciplines:disciplines_list' %}" class="btn btn-primary">Вернуться в список предметов</a>
+{% endblock %}

@@ -61,6 +61,13 @@ class DisciplineUpdate(UpdateView):
     ]
 
 
+def discipline_delete(request):
+    if request.method == 'POST':
+        discipline_ = Discipline.objects.get(pk=request.POST['discipline'])
+        discipline_.delete()
+        return HttpResponseRedirect(reverse('disciplines:disciplines_list'))
+
+
 class DisciplineDetail(DetailView):
     template_name = 'disciplines_detail.html'
     model = DisciplineDetails
@@ -74,6 +81,14 @@ def discipline_detail(request, pk):
     details_ = DisciplineDetails.objects.get(subject__id=subject_.id)
     form = DisciplineDetail(object=details_)
     return render(request, 'disciplines_detail.html', {'form': form})
+
+
+class DisciplineDetailsList(ListView):
+    template_name = 'disc_details.html'
+    context_object_name = 'discipline_details'
+
+    def get_queryset(self):
+        return DisciplineDetails.objects.all()
 
 
 class DetailsCreate(CreateView):
@@ -92,11 +107,20 @@ class DetailsCreate(CreateView):
     ]
 
 
-def discipline_delete(request):
-    if request.method == 'POST':
-        discipline_ = Discipline.objects.get(pk=request.POST['discipline'])
-        discipline_.delete()
-        return HttpResponseRedirect(reverse('disciplines:disciplines_list'))
+class DisciplineDetailsUpdate(UpdateView):
+    template_name = 'disciplines_update.html'
+    success_url = reverse_lazy('disciplines:disciplines_list')
+    model = DisciplineDetails
+    fields = [
+        'subject',
+        'Credit',
+        'Lecture',
+        'Practice',
+        'Lab',
+        'KSR',
+        'SRS',
+        'semestr',
+    ]
 
 
 def export_to_excel(request):
@@ -171,12 +195,13 @@ def export_to_excel(request):
         group = Group.objects.get(pk=group_id)
         students = group.grouplist_set.all()
         subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
-
-        _row = 2
+        _row = 3
         _column = 2
-        ws.cell(row=1, column=1).value = 'ФИО'
+        ws.cell(row=1, column=1).value = group.Name
+        ws.cell(row=2, column=1).value = 'Всего часов:'
         for s in subjects:
             ws.cell(row=1, column=_column).value = s.Name
+            ws.cell(row=2, column=_column).value = s.control.hours
             _column += 1
         for gl in students:
             ws.cell(row=_row, column=1).value = gl.student.FIO

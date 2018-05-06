@@ -7,16 +7,21 @@
                 <center>
                     <h1 class="title">Экран успеваемости</h1>
                     <p></p>
-                    <select name="dropdown1">
+                    <div class="col-lg-3 col-lg-offset-12">
+                        <label>Группа:</label>
+                    <select name="dropdown1 " class="form-control">
                         {% for groupname in groupname %}
                             <option value="{{ groupname.Name }}">{{ groupname.Name}}</option>
                         {% endfor %}
                     </select>
-                    <select name="dropdown2">
+                        <p></p>
+                        <label>Семестр:</label>
+                    <select name="dropdown2" class="form-control">
                         {% for semestrname in semestrname %}
                             <option value="{{ semestrname.name }}">{{ semestrname.name}}</option>
                         {% endfor %}
                     </select>
+                    </div>
                     <p></p>
                     <p><button type="submit" class="btn btn-success">Вывести</button>
                     <p></p>
