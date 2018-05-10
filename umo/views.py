@@ -1,9 +1,10 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
-from .models import Person, Teacher, Student, GroupList
+from .models import Person, Teacher, Student, GroupList, BRSpoints, CheckPoint, Discipline, ExamMarks
 from umo.forms import AddTeacherForm
 from django.http import HttpResponseRedirect, HttpResponse
+from django import template
 from django.template import RequestContext
 
 
@@ -118,3 +119,57 @@ def delete_teacher(request):
         teacher_ = Teacher.objects.get(pk=request.POST['teacher'])
         teacher_.delete()
         return HttpResponseRedirect(reverse('teachers:list_teachers'))
+
+class BRSPointsListView(ListView):
+    model = BRSpoints
+    context_object_name = 'brs_students_list'
+    success_url = reverse_lazy('disciplines:disciplines_list')
+    template_name = "brs_students.html"
+
+    def get_queryset(self):
+        return BRSpoints.objects.filter(brs__discipline__id = self.kwargs['pk']).filter(CheckPoint__id = 1)
+
+    def get_context_data(self, **kwargs):
+        context = super(BRSPointsListView, self).get_context_data(**kwargs)
+        checkpoint = CheckPoint.objects.all()
+        student = Student.objects.all()
+        context['checkpoint'] = checkpoint
+        discipline = Discipline.objects.get(id=self.kwargs['pk'])
+        context['discipline'] = discipline
+        dict = {}
+        for st in student:
+            dict[str(st.id)] = {}
+            dict[str(st.id)]['key'] = st.id
+            i = 0
+            for ch in checkpoint:
+                i = i + 1
+                dict[str(st.id)][str(i)] = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).get(student = st)
+            dict[str(st.id)]['6'] = ExamMarks.objects.filter(exam__discipline__id = discipline.id).get(student = st)
+        context['dict'] = dict
+        return context
+
+    def post(self, request, *args, **kwargs):
+        studid = request.POST.getlist('studid')
+        points = []
+        points.append(request.POST.getlist('points1'))
+        points.append(request.POST.getlist('points2'))
+        points.append(request.POST.getlist('points3'))
+        points.append(request.POST.getlist('points4'))
+        points.append(request.POST.getlist('points5'))
+        points.append(request.POST.getlist('points6'))
+        arr_size = len(studid)
+        checkpoint = CheckPoint.objects.all()
+        discipline = Discipline.objects.get(id=self.kwargs['pk'])
+        for i in range(0, arr_size):
+            st = Student.objects.get(id = studid[i])
+            k = 0
+            for ch in checkpoint:
+                brspoints = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).get(student = st)
+                brspoints.points = float(points[k][i].replace(',','.'))
+                brspoints.save()
+                k = k + 1
+            exammarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id).get(student = st)
+            exammarks.examPoints = float(points[5][i].replace(',','.'))
+            exammarks.inPoints = float(points[3][i].replace(',','.'))
+            exammarks.save()
+        return HttpResponseRedirect(self.success_url)
