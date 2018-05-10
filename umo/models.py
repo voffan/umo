@@ -81,7 +81,7 @@ class Discipline(models.Model):
 
 
 class DisciplineDetails(models.Model):
-    Credit = models.IntegerField(verbose_name="количество часов", db_index=True, blank=False, null=False)
+    Credit = models.CharField(verbose_name="количество часов", max_length=200, db_index=True, blank=False, null=False)
     Lecture = models.IntegerField(verbose_name="количество лекции", db_index=True, blank=False, null=False)
     Practice = models.IntegerField(verbose_name="количество практики", db_index=True, blank=False, null=False)
     Lab = models.IntegerField(verbose_name="количество лабораторных работ", db_index=True, blank=False, null=False)
@@ -97,7 +97,7 @@ class DisciplineDetails(models.Model):
 
 class Control(models.Model):
     controltype = models.CharField(verbose_name="тип контроля", max_length=100, db_index=True, blank=False, null=False)
-    hours = models.IntegerField(verbose_name="кол-во часов", db_index=True, null=False)
+    hours = models.CharField(verbose_name="кол-во часов", max_length=100, db_index=True, null=False)
 
     def __str__(self):
             return self.controltype

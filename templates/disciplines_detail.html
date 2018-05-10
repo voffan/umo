@@ -7,27 +7,6 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <h1>Детали предмета</h1>
-                     <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                        <th scope="col">Предмет</th>
-                        <th scope="col">Код</th>
-                        <th scope="col">Специализация</th>
-                        <th scope="col">Преподаватель</th>
-                        <th scope="col">Тип контроля</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td> {{ form.object.subject.Name }} </td>
-                                <td> {{ form.object.subject.code }} </td>
-                                <td> {{ form.object.subject.program }} </td>
-                                <td> {{ form.object.subject.lecturer }} </td>
-                                <td> {{ form.object.subject.control }} </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
                     <table class="table table-bordered">
                         <thead>
                         <tr>
@@ -55,6 +34,7 @@
                         </tbody>
                     </table>
                     <a href="{% url 'disciplines:disciplines_list' %}" class="btn btn-success">Вернуться</a>
+                    <a href="{% url 'disciplines:details_list' %}" class="btn btn-primary">Изменить</a>
                 </div>
             </div>
         </div>
