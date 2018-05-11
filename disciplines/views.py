@@ -119,6 +119,7 @@ class DisciplineDetailsUpdate(UpdateView):
         'Lab',
         'KSR',
         'SRS',
+        'control_hours',
         'semestr',
     ]
 
@@ -190,8 +191,8 @@ def export_to_excel(request):
         today = today.strftime('%d.%m.%Y %S:%M:%H')
 
         # данные для строк
-        group_id = 1
-        semestr = 2
+        group_id = request.GET['dropdown1']
+        semestr = request.GET['dropdown2']
         group = Group.objects.get(pk=group_id)
         students = group.grouplist_set.all()
         subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
@@ -201,7 +202,7 @@ def export_to_excel(request):
         ws.cell(row=2, column=1).value = 'Всего часов:'
         for s in subjects:
             ws.cell(row=1, column=_column).value = s.Name
-            ws.cell(row=2, column=_column).value = s.control.hours
+            ws.cell(row=2, column=_column).value = str(s.disciplinedetails_set.get().total_hours)
             _column += 1
         for gl in students:
             ws.cell(row=_row, column=1).value = gl.student.FIO
@@ -415,7 +416,7 @@ def vedomost(request):
 
     # сохранение файла в текущую директорию
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=items.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=vedomost.xlsx'
 
     wb.save(response)
 

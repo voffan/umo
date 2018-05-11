@@ -6,12 +6,13 @@
         <thead class="thead-light">
         <tr>
         <th>Предмет</th>
-        <th>Кол-во часов</th>
+        <th>ЗЕТ</th>
         <th>Кол-во лекций</th>
         <th>Кол-во практики</th>
-        <th>Кол-в лаб. работ</th>
-        <th>Кол-в КСР</th>
-        <th>Кол-в СРС</th>
+        <th>Кол-во лаб. работ</th>
+        <th>Кол-во КСР</th>
+        <th>Кол-во СРС</th>
+        <th>Кол-во часов</th>
         <th>Семестр</th>
         <th></th>
         </tr>
@@ -26,6 +27,7 @@
                 <td> {{ d.Lab }} </td>
                 <td> {{ d.KSR }} </td>
                 <td> {{ d.SRS }} </td>
+                <td> {{ d.control_hours }} </td>
                 <td> {{ d.semestr }} </td>
                 <td> <a href="{% url 'disciplines:update_details' d.id %}"><input type="submit" value="Изменить"
                                                                                    class="btn btn-secondary"></a></td>
