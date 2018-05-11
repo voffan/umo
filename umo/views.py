@@ -1,7 +1,7 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
-from .models import Person, Teacher, Student, GroupList, BRSpoints, CheckPoint, Discipline, ExamMarks
+from .models import Person, Teacher, Student, GroupList, BRSpoints, CheckPoint, Discipline, ExamMarks, BRS, Mark, MarkSymbol, Exam
 from umo.forms import AddTeacherForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django import template
@@ -88,7 +88,7 @@ def student_delete(request):
 
 
 # def student_edit(request,student_id):
-#     if request.method == "POST":
+#     if request.method == "POST":ts.create()
 #         pass
 #     gl = GroupList.objects.get(pk=student_id)
 #     form = StudentCreateView(instance=gl)
@@ -121,13 +121,15 @@ def delete_teacher(request):
         return HttpResponseRedirect(reverse('teachers:list_teachers'))
 
 class BRSPointsListView(ListView):
-    model = BRSpoints
-    context_object_name = 'brs_students_list'
+    model = GroupList
+    context_object_name = 'students_list'
     success_url = reverse_lazy('disciplines:disciplines_list')
     template_name = "brs_students.html"
 
     def get_queryset(self):
-        return BRSpoints.objects.filter(brs__discipline__id = self.kwargs['pk']).filter(CheckPoint__id = 1)
+        disc = Discipline.objects.get(id = self.kwargs['pk'])
+        return GroupList.objects.filter(group__program = disc.program)
+        #return BRSpoints.objects.filter(brs__discipline__id = self.kwargs['pk']).filter(CheckPoint__id = 1)
 
     def get_context_data(self, **kwargs):
         context = super(BRSPointsListView, self).get_context_data(**kwargs)
@@ -143,8 +145,26 @@ class BRSPointsListView(ListView):
             i = 0
             for ch in checkpoint:
                 i = i + 1
-                dict[str(st.id)][str(i)] = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).get(student = st)
-            dict[str(st.id)]['6'] = ExamMarks.objects.filter(exam__discipline__id = discipline.id).get(student = st)
+                try:
+                    dict[str(st.id)][str(i)] = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).get(student = st)
+                except BRSpoints.DoesNotExist:
+                    dict[str(st.id)][str(i)] = BRSpoints()
+                    dict[str(st.id)][str(i)].student = st
+                    dict[str(st.id)][str(i)].CheckPoint = ch
+                    dict[str(st.id)][str(i)].points = 0.0
+                    dict[str(st.id)][str(i)].brs = BRS.objects.filter(discipline__id = discipline.id).first()
+                    dict[str(st.id)][str(i)].save()
+            try:
+                dict[str(st.id)]['6'] = ExamMarks.objects.filter(exam__discipline__id = discipline.id).get(student = st)
+            except ExamMarks.DoesNotExist:
+                dict[str(st.id)]['6'] = ExamMarks()
+                dict[str(st.id)]['6'].student = st
+                dict[str(st.id)]['6'].inPoints = 0.0
+                dict[str(st.id)]['6'].examPoints = 0.0
+                dict[str(st.id)]['6'].mark = Mark.objects.all().first()
+                dict[str(st.id)]['6'].markSymbol = MarkSymbol.objects.all().first()
+                dict[str(st.id)]['6'].exam = Exam.objects.filter(discipline__id = discipline.id).first()
+                dict[str(st.id)]['6'].save()
         context['dict'] = dict
         return context
 

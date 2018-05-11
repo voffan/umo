@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}Контрольный лист{% endblock %}
 {% block content %}
+    <style type="text/css">
+        input[type=text] { width: 75%; }
+    </style>
     <h1>Контрольный лист | {{ discipline.Name }}</h1>
     <form method="post">
     {% csrf_token %}
@@ -18,11 +21,10 @@
                     <th scope="col">Всего баллов</th>
                     <th scope="col">Оценка прописью</th>
                     <th scope="col">Буквенный эквивалент оценки</th>
-                    <th scope="col">Подпись преподавателя</th>
                 </tr>
             </thead>
             <tbody>
-                {% for i in brs_students_list %}
+                {% for i in students_list %}
                 <tr>
                     <td> {{ i.id }} <input id="studid" type="hidden" name="studid" value="{{ i.student.id }}"></td>
                     <td> {{ i.student.FIO }} </td>
@@ -59,7 +61,6 @@
                             {% endif %}
                         {% endif %}
                     {% endfor %}
-                    <td>  </td>
                 </tr>
                 {% endfor %}
             </tbody>
