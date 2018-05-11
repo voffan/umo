@@ -37,28 +37,8 @@
                             <td><input id="points4" type="text" name="points4" maxlength="255" value="{{ value.4.points }}"></td>
                             <td><input id="points6" type="text" name="points6" maxlength="255" value="{{ value.6.examPoints }}"></td>
                             <td><input id="points5" type="text" name="points5" maxlength="255" value="{{ value.5.points }}"></td>
-                            {% if value.5.points >= 95 %}
-                                <td> превосходно </td>
-                                <td> A </td>
-                            {% elif value.5.points >= 85 %}
-                                <td> отлично </td>
-                                <td> B </td>
-                            {% elif value.5.points >= 75 %}
-                                <td> очень хорошо </td>
-                                <td> C </td>
-                            {% elif value.5.points >= 65 %}
-                                <td> хорошо </td>
-                                <td> D </td>
-                            {% elif value.5.points >= 55 %}
-                                <td> удовлетворительно </td>
-                                <td> E </td>
-                            {% elif value.5.points >= 25 %}
-                                <td> неудовлетворительно с возможной пересдачей </td>
-                                <td> FX </td>
-                            {% else %}
-                                <td> неудовлетворительно с повторным изучением дисциплины </td>
-                                <td> F </td>
-                            {% endif %}
+                            <td> {{ value.6.mark.name }} </td>
+                            <td> {{ value.6.markSymbol.name }} </td>
                         {% endif %}
                     {% endfor %}
                 </tr>
