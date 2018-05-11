@@ -161,8 +161,19 @@ class BRSPointsListView(ListView):
                 dict[str(st.id)]['6'].student = st
                 dict[str(st.id)]['6'].inPoints = 0.0
                 dict[str(st.id)]['6'].examPoints = 0.0
-                dict[str(st.id)]['6'].mark = Mark.objects.all().first()
-                dict[str(st.id)]['6'].markSymbol = MarkSymbol.objects.all().first()
+                try:
+                    dict[str(st.id)]['6'].markSymbol = MarkSymbol.objects.get(name='F')
+                except:
+                    dict[str(st.id)]['6'].markSymbol = MarkSymbol()
+                    dict[str(st.id)]['6'].markSymbol.name = 'F'
+                    dict[str(st.id)]['6'].markSymbol.save()
+                try:
+                    dict[str(st.id)]['6'].mark = Mark.objects.get(name='неудовлетворительно с повторным изучением дисциплины')
+                except:
+                    dict[str(st.id)]['6'].mark = Mark()
+                    dict[str(st.id)]['6'].mark.name = 'неудовлетворительно с повторным изучением дисциплины'
+                    dict[str(st.id)]['6'].mark.save()
+                    dict[str(st.id)]['6'].save()
                 dict[str(st.id)]['6'].exam = Exam.objects.filter(discipline__id = discipline.id).first()
                 dict[str(st.id)]['6'].save()
         context['dict'] = dict
@@ -191,5 +202,39 @@ class BRSPointsListView(ListView):
             exammarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id).get(student = st)
             exammarks.examPoints = float(points[5][i].replace(',','.'))
             exammarks.inPoints = float(points[3][i].replace(',','.'))
+            totalPoints = exammarks.examPoints + exammarks.inPoints
+            if (totalPoints >= 95):
+                tempMarkSymbol = 'A'
+                tempMark = 'превосходно'
+            elif (totalPoints >= 85):
+                tempMarkSymbol = 'B'
+                tempMark = 'отлично'
+            elif (totalPoints >= 75):
+                tempMarkSymbol = 'C'
+                tempMark = 'очень хорошо'
+            elif (totalPoints >= 65):
+                tempMarkSymbol = 'D'
+                tempMark = 'хорошо'
+            elif (totalPoints >= 55):
+                tempMarkSymbol = 'E'
+                tempMark = 'неудовлетворительно'
+            elif (totalPoints >= 25):
+                tempMarkSymbol = 'FX'
+                tempMark = 'неудовлетворительно с возможной пересдачей'
+            else:
+                tempMarkSymbol = 'F'
+                tempMark = 'неудовлетворительно с повторным изучением дисциплины'
+            try:
+                exammarks.markSymbol = MarkSymbol.objects.get(name = tempMarkSymbol)
+            except:
+                exammarks.markSymbol = MarkSymbol()
+                exammarks.markSymbol.name = tempMarkSymbol
+                exammarks.markSymbol.save()
+            try:
+                exammarks.mark = Mark.objects.get(name = tempMark)
+            except:
+                exammarks.mark = Mark()
+                exammarks.mark.name = tempMark
+                exammarks.mark.save()
             exammarks.save()
         return HttpResponseRedirect(self.success_url)
