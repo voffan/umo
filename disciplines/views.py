@@ -197,16 +197,19 @@ def export_to_excel(request):
         students = group.grouplist_set.all()
         subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
         _row = 3
-        _column = 2
-        ws.cell(row=1, column=1).value = group.Name
-        ws.cell(row=2, column=1).value = 'Всего часов:'
+        _column = 3
+        i = 1
+        ws.cell(row=1, column=2).value = group.Name
+        ws.cell(row=2, column=2).value = 'Всего часов/ЗЕТ'
         for s in subjects:
             ws.cell(row=1, column=_column).value = s.Name
             ws.cell(row=2, column=_column).value = str(s.disciplinedetails_set.get().total_hours)
             _column += 1
         for gl in students:
-            ws.cell(row=_row, column=1).value = gl.student.FIO
-            _column = 2
+            ws.cell(row=_row, column=1).value = str(i)+'.'
+            ws.cell(row=_row, column=2).value = gl.student.FIO
+            _column = 3
+            i += 1
             for s in subjects:
                 mark = ExamMarks.objects.filter(student__id=gl.student.id, exam__discipline__id=s.id).first()
                 if mark is not None:
