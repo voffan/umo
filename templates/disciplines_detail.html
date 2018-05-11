@@ -11,12 +11,13 @@
                         <thead>
                         <tr>
                         <th scope="col">Предмет</th>
-                        <th scope="col">Кол-во часов</th>
+                        <th scope="col">ЗЕТ</th>
                         <th scope="col">Кол-во лекций</th>
                         <th scope="col">Кол-во практики</th>
-                        <th scope="col">Кол-в лаб. работ</th>
-                        <th scope="col">Кол-в КСР</th>
-                        <th scope="col">Кол-в СРС</th>
+                        <th scope="col">Кол-во лаб. работ</th>
+                        <th scope="col">Кол-во КСР</th>
+                        <th scope="col">Кол-во СРС</th>
+                        <th scope="col">Кол-во часов</th>
                         <th scope="col">Семестр</th>
                         </tr>
                         </thead>
@@ -29,6 +30,7 @@
                                 <td> {{ form.object.Lab }} </td>
                                 <td> {{ form.object.KSR }} </td>
                                 <td> {{ form.object.SRS }} </td>
+                                <td> {{ form.object.control_hours }} </td>
                                 <td> {{ form.object.semestr }} </td>
                             </tr>
                         </tbody>

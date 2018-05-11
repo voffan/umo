@@ -81,23 +81,27 @@ class Discipline(models.Model):
 
 
 class DisciplineDetails(models.Model):
-    Credit = models.CharField(verbose_name="количество часов", max_length=200, db_index=True, blank=False, null=False)
+    Credit = models.IntegerField(verbose_name="ЗЕТ", db_index=True, blank=False, null=False)
     Lecture = models.IntegerField(verbose_name="количество лекции", db_index=True, blank=False, null=False)
     Practice = models.IntegerField(verbose_name="количество практики", db_index=True, blank=False, null=False)
     Lab = models.IntegerField(verbose_name="количество лабораторных работ", db_index=True, blank=False, null=False)
     KSR = models.IntegerField(verbose_name="количество контрольно-самостоятельных работ", db_index=True, blank=False,
                               null=False)
     SRS = models.IntegerField(verbose_name="количество срс", db_index=True, blank=False, null=False)
+    control_hours = models.IntegerField(verbose_name="кол-во часов", db_index=True, blank=False, null=False)
     semestr = models.ForeignKey('Semestr', verbose_name="Семестр", db_index=True, blank=False, null=False)
     subject = models.ForeignKey(Discipline, verbose_name="Предмет", db_index=True, blank=False, null=False)
 
     def __str__(self):
             return self.subject.Name
 
+    @property
+    def total_hours(self):
+        return self.Lecture + self.Practice + self.Lab + self.KSR + self.SRS + self.control_hours
+
 
 class Control(models.Model):
     controltype = models.CharField(verbose_name="тип контроля", max_length=100, db_index=True, blank=False, null=False)
-    hours = models.CharField(verbose_name="кол-во часов", max_length=100, db_index=True, null=False)
 
     def __str__(self):
             return self.controltype
