@@ -12,5 +12,7 @@ urlpatterns = [
     url(r'(?P<pk>[0-9]+)/update_details/$', views.DisciplineDetailsUpdate.as_view(), name='update_details'),
     url(r'^export/$', views.export_to_excel, name='export'),
     url(r'^excel/$', views.excel, name='excel'),
+    url(r'^vedomost/$', views.vedomost, name='vedomost'),
+    url(r'^vedomost_list/$', views.vedomost_list, name='vedomost_list'),
     url(r'^$', views.DisciplineList.as_view(), name='disciplines_list'),
 ]

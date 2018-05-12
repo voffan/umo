@@ -1,9 +1,10 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
-from .models import Person, Teacher, Student, GroupList
+from .models import Person, Teacher, Student, GroupList, BRSpoints, CheckPoint, Discipline, ExamMarks, BRS, Mark, MarkSymbol, Exam
 from umo.forms import AddTeacherForm
 from django.http import HttpResponseRedirect, HttpResponse
+from django import template
 from django.template import RequestContext
 
 
@@ -87,7 +88,7 @@ def student_delete(request):
 
 
 # def student_edit(request,student_id):
-#     if request.method == "POST":
+#     if request.method == "POST":ts.create()
 #         pass
 #     gl = GroupList.objects.get(pk=student_id)
 #     form = StudentCreateView(instance=gl)
@@ -118,3 +119,122 @@ def delete_teacher(request):
         teacher_ = Teacher.objects.get(pk=request.POST['teacher'])
         teacher_.delete()
         return HttpResponseRedirect(reverse('teachers:list_teachers'))
+
+class BRSPointsListView(ListView):
+    model = GroupList
+    context_object_name = 'students_list'
+    success_url = reverse_lazy('disciplines:disciplines_list')
+    template_name = "brs_students.html"
+
+    def get_queryset(self):
+        disc = Discipline.objects.get(id = self.kwargs['pk'])
+        return GroupList.objects.filter(group__program = disc.program)
+        #return BRSpoints.objects.filter(brs__discipline__id = self.kwargs['pk']).filter(CheckPoint__id = 1)
+
+    def get_context_data(self, **kwargs):
+        context = super(BRSPointsListView, self).get_context_data(**kwargs)
+        checkpoint = CheckPoint.objects.all()
+        student = Student.objects.all()
+        context['checkpoint'] = checkpoint
+        discipline = Discipline.objects.get(id=self.kwargs['pk'])
+        context['discipline'] = discipline
+        dict = {}
+        for st in student:
+            dict[str(st.id)] = {}
+            dict[str(st.id)]['key'] = st.id
+            i = 0
+            for ch in checkpoint:
+                i = i + 1
+                try:
+                    dict[str(st.id)][str(i)] = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).get(student = st)
+                except BRSpoints.DoesNotExist:
+                    dict[str(st.id)][str(i)] = BRSpoints()
+                    dict[str(st.id)][str(i)].student = st
+                    dict[str(st.id)][str(i)].CheckPoint = ch
+                    dict[str(st.id)][str(i)].points = 0.0
+                    dict[str(st.id)][str(i)].brs = BRS.objects.filter(discipline__id = discipline.id).first()
+                    dict[str(st.id)][str(i)].save()
+            try:
+                dict[str(st.id)]['6'] = ExamMarks.objects.filter(exam__discipline__id = discipline.id).get(student = st)
+            except ExamMarks.DoesNotExist:
+                dict[str(st.id)]['6'] = ExamMarks()
+                dict[str(st.id)]['6'].student = st
+                dict[str(st.id)]['6'].inPoints = 0.0
+                dict[str(st.id)]['6'].examPoints = 0.0
+                try:
+                    dict[str(st.id)]['6'].markSymbol = MarkSymbol.objects.get(name='F')
+                except:
+                    dict[str(st.id)]['6'].markSymbol = MarkSymbol()
+                    dict[str(st.id)]['6'].markSymbol.name = 'F'
+                    dict[str(st.id)]['6'].markSymbol.save()
+                try:
+                    dict[str(st.id)]['6'].mark = Mark.objects.get(name='неудовлетворительно с повторным изучением дисциплины')
+                except:
+                    dict[str(st.id)]['6'].mark = Mark()
+                    dict[str(st.id)]['6'].mark.name = 'неудовлетворительно с повторным изучением дисциплины'
+                    dict[str(st.id)]['6'].mark.save()
+                    dict[str(st.id)]['6'].save()
+                dict[str(st.id)]['6'].exam = Exam.objects.filter(discipline__id = discipline.id).first()
+                dict[str(st.id)]['6'].save()
+        context['dict'] = dict
+        return context
+
+    def post(self, request, *args, **kwargs):
+        studid = request.POST.getlist('studid')
+        points = []
+        points.append(request.POST.getlist('points1'))
+        points.append(request.POST.getlist('points2'))
+        points.append(request.POST.getlist('points3'))
+        points.append(request.POST.getlist('points4'))
+        points.append(request.POST.getlist('points5'))
+        points.append(request.POST.getlist('points6'))
+        arr_size = len(studid)
+        checkpoint = CheckPoint.objects.all()
+        discipline = Discipline.objects.get(id=self.kwargs['pk'])
+        for i in range(0, arr_size):
+            st = Student.objects.get(id = studid[i])
+            k = 0
+            for ch in checkpoint:
+                brspoints = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).get(student = st)
+                brspoints.points = float(points[k][i].replace(',','.'))
+                brspoints.save()
+                k = k + 1
+            exammarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id).get(student = st)
+            exammarks.examPoints = float(points[5][i].replace(',','.'))
+            exammarks.inPoints = float(points[3][i].replace(',','.'))
+            totalPoints = exammarks.examPoints + exammarks.inPoints
+            if (totalPoints >= 95):
+                tempMarkSymbol = 'A'
+                tempMark = 'превосходно'
+            elif (totalPoints >= 85):
+                tempMarkSymbol = 'B'
+                tempMark = 'отлично'
+            elif (totalPoints >= 75):
+                tempMarkSymbol = 'C'
+                tempMark = 'очень хорошо'
+            elif (totalPoints >= 65):
+                tempMarkSymbol = 'D'
+                tempMark = 'хорошо'
+            elif (totalPoints >= 55):
+                tempMarkSymbol = 'E'
+                tempMark = 'неудовлетворительно'
+            elif (totalPoints >= 25):
+                tempMarkSymbol = 'FX'
+                tempMark = 'неудовлетворительно с возможной пересдачей'
+            else:
+                tempMarkSymbol = 'F'
+                tempMark = 'неудовлетворительно с повторным изучением дисциплины'
+            try:
+                exammarks.markSymbol = MarkSymbol.objects.get(name = tempMarkSymbol)
+            except:
+                exammarks.markSymbol = MarkSymbol()
+                exammarks.markSymbol.name = tempMarkSymbol
+                exammarks.markSymbol.save()
+            try:
+                exammarks.mark = Mark.objects.get(name = tempMark)
+            except:
+                exammarks.mark = Mark()
+                exammarks.mark.name = tempMark
+                exammarks.mark.save()
+            exammarks.save()
+        return HttpResponseRedirect(self.success_url)
