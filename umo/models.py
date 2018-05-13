@@ -244,10 +244,10 @@ class Exam(models.Model):
 class ExamMarks(models.Model):
     student = models.ForeignKey(Student, db_index=True, blank=False, null=False)
     inPoints = models.FloatField(verbose_name="Баллы за срез", db_index=True, blank=False, null=False, max_length=255)
-    examPoints = models.FloatField(verbose_name="Баллы за экзамен", db_index=True, blank=False, null=False,
+    examPoints = models.FloatField(verbose_name="Баллы за экзамен", db_index=True, blank=True, null=True,
                                    max_length=255)
     mark = models.ForeignKey(Mark, db_index=True, blank=False, null=False)
-    markSymbol = models.ForeignKey(MarkSymbol, db_index=True, blank=False, null=False)
+    markSymbol = models.ForeignKey(MarkSymbol, db_index=True, blank=True, null=True)
     exam = models.ForeignKey(Exam, db_index=True, blank=False, null=False)
 
     def __str__(self):
