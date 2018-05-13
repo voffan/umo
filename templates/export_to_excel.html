@@ -8,15 +8,15 @@
                     <h1 class="title">Экран успеваемости</h1>
                     <p></p>
                     <div class="col-lg-3 col-lg-offset-12">
-                        <label>Группа:</label>
-                    <select name="dropdown1 " class="form-control">
+                        <label for="dropdown1">Группа:</label>
+                    <select name="dropdown1" id="dropdown1" class="form-control">
                         {% for groupname in groupname %}
                             <option value="{{ groupname.Name }}">{{ groupname.Name}}</option>
                         {% endfor %}
                     </select>
                         <p></p>
-                        <label>Семестр:</label>
-                    <select name="dropdown2" class="form-control">
+                        <label for="dropdown2">Семестр:</label>
+                    <select name="dropdown2" id="dropdown2" class="form-control">
                         {% for semestrname in semestrname %}
                             <option value="{{ semestrname.name }}">{{ semestrname.name}}</option>
                         {% endfor %}
