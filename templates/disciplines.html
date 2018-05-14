@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}Список предметов{% endblock %}
+{% block title %}Список дисциплин{% endblock %}
 {% block content %}
-    <h1>Список предметов</h1>
-    <table id="disciplines_table" class="table table-bordered">
+    <h1>Список дисциплин</h1>
+    <table id="my_table" class="table table-bordered">
         <thead class="thead-light">
         <tr>
-        <th>Предмет</th>
+        <th>Дисциплина</th>
         <th>Код</th>
         <th>Специализация</th>
         <th>Преподаватель</th>
@@ -36,7 +36,7 @@
                             </button>
                           </div>
                           <div class="modal-body">
-                            <p>Вы уверены что хотите удалить данный предмет?</p>
+                            <p>Вы уверены что хотите удалить данную дисциплину?</p>
                           </div>
                           <div class="modal-footer">
                               <form action = "{% url 'disciplines:delete' %}" method="post">
@@ -58,5 +58,5 @@
         </tbody>
     </table>
 
-    <a href="{% url 'disciplines:disciplines_add' %}" class="btn btn-success">Добавить новый предмет</a>
+    <a href="{% url 'disciplines:disciplines_add' %}" class="btn btn-success">Добавить новую дисциплину</a>
 {% endblock %}

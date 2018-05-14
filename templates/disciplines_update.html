@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-{% block title %}Изменение предмета{% endblock %}
+{% block title %}Изменение дисциплины{% endblock %}
 {% block content %}
     <div class="container">
         <form action="" method="post">
             {% csrf_token %}
             <div class="row">
                 <div class="col-md-6 offset-md-3">
-                    <h1>Изменение предмета </h1>
+                    <h1>Изменение дисциплины</h1>
                     {% for field in form.visible_fields %}
                         <div class="form-group">
                             {{ field.label_tag }}

@@ -7,15 +7,10 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher
 
 
 # Create your views here.
-# def list(request):
-#     all = Discipline.objects.all()
-#     return render(request, 'disciplines.html', {'disciplines': all})
-
-
 # def add_discipline(request):
 #     if request.method == 'POST':
 #         form = AddDisciplineForm(request.POST)
@@ -33,6 +28,18 @@ class DisciplineList(ListView):
 
     def get_queryset(self):
         return Discipline.objects.all()
+
+
+def list_disc(request):
+    teacher_id = request.GET['dropdown1']
+    teacher = Teacher.objects.get(pk=teacher_id)
+    disciplines = teacher.discipline_set.all()
+    return render(request, 'disc_list.html', {'discipline_list': disciplines})
+
+
+def teacher_choose(request):
+    teacher_name = Teacher.objects.all()
+    return render(request, 'disciplines_teacher.html', {'teacher_name': teacher_name})
 
 
 class DisciplineCreate(CreateView):
@@ -103,6 +110,7 @@ class DetailsCreate(CreateView):
         'Lab',
         'KSR',
         'SRS',
+        'control_hours',
         'semestr',
     ]
 

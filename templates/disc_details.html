@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}Детали предметов{% endblock %}
+{% block title %}Детали дисциплин{% endblock %}
 {% block content %}
-    <h1>Детали предметов</h1>
-    <table id="disc_details_table" class="table table-bordered">
+    <h1>Детали дисциплин</h1>
+    <table id="my_table" class="table table-bordered">
         <thead class="thead-light">
         <tr>
-        <th>Предмет</th>
+        <th>Дисциплина</th>
         <th>ЗЕТ</th>
         <th>Кол-во лекций</th>
         <th>Кол-во практики</th>
@@ -35,6 +35,6 @@
             {% endfor %}
         </tbody>
     </table>
-    <a href="{% url 'disciplines:details_add' %}" class="btn btn-success">Добавить детали предмета</a>
-    <a href="{% url 'disciplines:disciplines_list' %}" class="btn btn-primary">Вернуться в список предметов</a>
+    <a href="{% url 'disciplines:details_add' %}" class="btn btn-success">Добавить детали дисциплины</a>
+    <a href="{% url 'disciplines:disciplines_list' %}" class="btn btn-primary">Вернуться в список дисциплин</a>
 {% endblock %}

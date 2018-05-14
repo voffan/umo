@@ -24,7 +24,7 @@
                         <a class="nav-link" href="{% url 'student_changelist' %}">Список студентов</a>
                     </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'disciplines:disciplines_list' %}">Список предметов</a>
+                        <a class="nav-link" href="{% url 'disciplines:teacher' %}">Список дисциплин</a>
                     </li>
                     <li class="nav-item active">
                         <a class="nav-link" href="{% url 'disciplines:excel' %}">Экран успеваемости</a>
@@ -67,34 +67,7 @@
     <script src="{% static 'js/dataTables.bootstrap4.min.js' %}"></script>
     <script>
         $(document).ready( function () {
-        $('#disciplines_table').DataTable( {
-        "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
-                }
-            } );
-        } );
-    </script>
-    <script>
-        $(document).ready( function () {
-        $('#disc_details_table').DataTable( {
-        "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
-                }
-            } );
-        } );
-    </script>
-    <script>
-        $(document).ready( function () {
-        $('#students_table').DataTable( {
-        "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
-                }
-            } );
-        } );
-    </script>
-    <script>
-        $(document).ready( function () {
-        $('#teachers_list').DataTable( {
+        $('#my_table').DataTable( {
         "language": {
                 "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
                 }

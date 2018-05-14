@@ -90,7 +90,7 @@ class DisciplineDetails(models.Model):
     SRS = models.IntegerField(verbose_name="количество срс", db_index=True, blank=False, null=False)
     control_hours = models.IntegerField(verbose_name="кол-во часов", db_index=True, blank=False, null=False)
     semestr = models.ForeignKey('Semestr', verbose_name="Семестр", db_index=True, blank=False, null=False)
-    subject = models.ForeignKey(Discipline, verbose_name="Предмет", db_index=True, blank=False, null=False)
+    subject = models.ForeignKey(Discipline, verbose_name="Дисциплина", db_index=True, blank=False, null=False)
 
     def __str__(self):
             return self.subject.Name
