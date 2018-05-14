@@ -1,0 +1,7 @@
+.navbar {
+    font-weight:800;
+}
+
+.navbar-inverse .navbar-nav > .active > a {
+    bacground-color: #ff7878;
+}
