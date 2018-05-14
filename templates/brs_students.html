@@ -46,5 +46,7 @@
             </tbody>
         </table>
         <button type="submit" class="btn btn-success">Сохранить</button>
+        <a href="{% url 'disciplines:vedomost' %}" class="btn btn-primary">Скачать ведомость</a>
+        <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>
     </form>
 {% endblock %}

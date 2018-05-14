@@ -10,19 +10,16 @@
         <th>Специализация</th>
         <th>Преподаватель</th>
         <th>Тип</th>
-        <th></th>
         </tr>
         </thead>
         <tbody>
             {% for discipline in discipline_list %}
             <tr>
-                <td> <a href="{% url 'disciplines:detail' discipline.id %}">{{ discipline.Name }}</a> </td>
+                <td> <a href="{% url 'brs_studentlist' discipline.id %}">{{ discipline.Name }}</a> </td>
                 <td> {{ discipline.code }} </td>
                 <td> {{ discipline.program }} </td>
                 <td> {{ discipline.lecturer }} </td>
                 <td> {{ discipline.control }} </td>
-                <td> <a href="{% url 'brs_studentlist' discipline.id %}"><input type="submit" value="Успеваемость"
-                                                                                   class="btn btn-success"></a></td>
             </tr>
             {% endfor %}
         </tbody>

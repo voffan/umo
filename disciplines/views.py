@@ -432,7 +432,3 @@ def vedomost(request):
 
     return response
 
-
-def vedomost_list(request):
-    return render(request, 'vedomost.html')
-
