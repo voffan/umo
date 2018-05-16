@@ -5,12 +5,14 @@
         input[type=text] { width: 75%; }
     </style>
     <h1>Контрольный лист | {{ discipline.Name }}</h1>
+    <p align="right" id="brs_list_filter"><label><b>Группа:</b></label><br></p>
     <form method="post">
     {% csrf_token %}
-        <table id="my_table" class="table table-bordered">
+        <table id="brs_list" class="table table-bordered">
             <thead class="thead-light">
                 <tr>
                     <th scope="col">№</th>
+                    <th scope="col">Группа</th>
                     <th scope="col">Фамилия и инициалы</th>
                     <th scope="col">№ Зачетной книжки</th>
                     <th scope="col">1 контр. срез</th>
@@ -26,9 +28,14 @@
             <tbody>
                 {% for i in students_list %}
                 <tr>
-                    <td> {{ i.id }} <input id="studid" type="hidden" name="studid" value="{{ i.student.id }}"></td>
+                    <td></td>
+                    {% for gr in grouplist %}
+                        {% if gr.student.id == i.student.id %}
+                            <td> {{ gr.group.Name }}</td>
+                        {% endif %}
+                    {% endfor %}
                     <td> {{ i.student.FIO }} </td>
-                    <td> {{ i.student.StudentID }} </td>
+                    <td> {{ i.student.StudentID }} <input id="studid" type="hidden" name="studid" value="{{ i.student.id }}"></td>
                     {% for key, value in dict.items %}
                         {% if value.key == i.student.id %}
                             <td><input id="points1" type="text" name="points1" maxlength="255" value="{{ value.1.points }}"></td>

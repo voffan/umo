@@ -7,6 +7,7 @@
     <table id="students_list" class="table table-bordered">
         <thead class="thead-light">
             <tr>
+                <th scope="col">№</th>
                 <th scope="col">Номер зачетной книжки</th>
                 <th scope="col">ФИО</th>
                 <th scope="col">Группа</th>
@@ -16,6 +17,7 @@
         <tbody>
             {% for i in student_list %}
             <tr>
+                <td> </td>
                 <td> {{ i.student.StudentID }} </td>
                 <td> <a href="{% url 'student_edit' i.id %}"> {{ i.student.FIO }} </a> </td>
                 <td> {{ i.group.Name }} </td>
@@ -23,7 +25,7 @@
                     <form action="delete/" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="item_id" value="{{ i.student.id }}" />
-                        <input type="submit" value="Удалить" class="btn btn-danger">
+                        <p align="center"><input type="submit" value="Удалить" class="btn btn-danger"></p>
                     </form>
                 </td>
             </tr>

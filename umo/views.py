@@ -66,6 +66,11 @@ class StudentCreateView(CreateView):
     success_url = reverse_lazy('student_changelist')
     template_name = "student_form.html"
 
+    def get_context_data(self, **kwargs):
+        context = super(StudentCreateView, self).get_context_data(**kwargs)
+        context['title'] = "Добавление студента"
+        return context
+
     def form_valid(self, form):
         student_ = Student.objects.create()
         student_.FIO = form.data.get('fio')
@@ -82,8 +87,7 @@ def student_delete(request):
     if request.method == 'POST':
         student_ = Student.objects.get(id = request.POST['item_id'])
         grouplist_ = GroupList.objects.get(student__id = student_.id)
-        grouplist_.delete()
-        student_.delete()
+        grouplist_.active = False
         return HttpResponseRedirect(reverse_lazy('student_changelist'))
 
 
@@ -91,8 +95,13 @@ class StudentUpdateView(UpdateView):
     model = GroupList
     fields = ['group']
     success_url = reverse_lazy('student_changelist')
-    template_name = "student_update.html"
+    template_name = "student_form.html"
     context_object_name = 'student_list'
+
+    def get_context_data(self, **kwargs):
+        context = super(StudentUpdateView, self).get_context_data(**kwargs)
+        context['title'] = "Изменение студента"
+        return context
 
     def form_valid(self, form):
         student_ = self.object.student
@@ -156,6 +165,7 @@ class BRSPointsListView(ListView):
         context['checkpoint'] = checkpoint
         discipline = Discipline.objects.get(id=self.kwargs['pk'])
         context['discipline'] = discipline
+        context['grouplist'] = GroupList.objects.all()
         student = Student.objects.all()
         dict = {}
         for st in student:
@@ -213,15 +223,19 @@ class BRSPointsListView(ListView):
         for i in range(0, arr_size):
             st = Student.objects.get(id = studid[i])
             k = 0
+
             for ch in checkpoint:
                 brspoints = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).get(student = st)
                 brspoints.points = float(points[k][i].replace(',','.'))
                 brspoints.save()
                 k = k + 1
+
             exammarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id).get(student = st)
             exammarks.examPoints = float(points[5][i].replace(',','.'))
             exammarks.inPoints = float(points[3][i].replace(',','.'))
+
             totalPoints = exammarks.examPoints + exammarks.inPoints
+
             if (totalPoints >= 95):
                 tempMarkSymbol = 'A'
                 tempMark = 'отл'
@@ -236,24 +250,27 @@ class BRSPointsListView(ListView):
                 tempMark = 'хор'
             elif (totalPoints >= 55):
                 tempMarkSymbol = 'E'
-                tempMark = 'удов'
+                tempMark = 'удовл'
             elif (totalPoints >= 25):
                 tempMarkSymbol = 'FX'
                 tempMark = 'неуд'
             else:
                 tempMarkSymbol = 'F'
                 tempMark = 'неуд'
+
             try:
                 exammarks.markSymbol = MarkSymbol.objects.get(name = tempMarkSymbol)
             except:
                 exammarks.markSymbol = MarkSymbol()
                 exammarks.markSymbol.name = tempMarkSymbol
                 exammarks.markSymbol.save()
+
             try:
                 exammarks.mark = Mark.objects.get(name = tempMark)
             except:
                 exammarks.mark = Mark()
                 exammarks.mark.name = tempMark
                 exammarks.mark.save()
+
             exammarks.save()
         return HttpResponseRedirect(self.success_url)
