@@ -76,11 +76,29 @@
     <script src="{% static 'js/dataTables.bootstrap4.min.js' %}"></script>
     <script>
         $(document).ready( function () {
-        $('#my_table').DataTable( {
-        "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
+            $('#my_table').DataTable( {
+                "dom": 'rtipS',
+                "info": false,
+                "paging": false
+            });
+            $('#students_list').DataTable({
+                "dom": 'rtipS',
+                "info": false,
+                "paging": false,
+                initComplete: function () {
+                   var column = this.api().column(2);
+                   var select = $('<select class="filter"><option value=""></option></select>')
+                       .appendTo('#student_list_filter')
+                       .on('change', function () {
+                          var val = $(this).val();
+                          column.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
+                       });
+
+                   column.data().unique().sort().each(function (d, j) {
+                       select.append('<option value="' + d + '">' + d + '</option>');
+                   });
                 }
-            } );
+            });
         } );
     </script>
 </html>

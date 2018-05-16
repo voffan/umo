@@ -2,14 +2,16 @@
 {% block title %}Список студентов{% endblock %}
 {% block content %}
     <h1>Список студентов</h1>
-    <table id="my_table" class="table table-bordered">
-        <thead>
-        <tr>
-        <th scope="col">Номер зачетной книжки</th>
-        <th scope="col">ФИО</th>
-        <th scope="col">Группа</th>
-        <th scope="col"></th>
-        </tr>
+    <p align="right" id="student_list_filter"><label><b>Группа:</b></label><br></p>
+
+    <table id="students_list" class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col">Номер зачетной книжки</th>
+                <th scope="col">ФИО</th>
+                <th scope="col">Группа</th>
+                <th scope="col"></th>
+            </tr>
         </thead>
         <tbody>
             {% for i in student_list %}
@@ -20,10 +22,8 @@
                 <td>
                     <form action="delete/" method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="item_id" value="{{ i.student.StudentID }}" />
-                        <button type="submit" value="delete item" class="btn btn-danger btn-sm">
-                            <h4>&times;</h4>
-                        </button>
+                        <input type="hidden" name="item_id" value="{{ i.student.id }}" />
+                        <input type="submit" value="Удалить" class="btn btn-danger">
                     </form>
                 </td>
             </tr>

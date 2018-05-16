@@ -80,19 +80,11 @@ class StudentCreateView(CreateView):
 
 def student_delete(request):
     if request.method == 'POST':
-        student_ = Student.objects.get(StudentID = request.POST['item_id'])
+        student_ = Student.objects.get(id = request.POST['item_id'])
         grouplist_ = GroupList.objects.get(student__id = student_.id)
         grouplist_.delete()
         student_.delete()
         return HttpResponseRedirect(reverse_lazy('student_changelist'))
-
-
-# def student_edit(request,student_id):
-#     if request.method == "POST":ts.create()
-#         pass
-#     gl = GroupList.objects.get(pk=student_id)
-#     form = StudentCreateView(instance=gl)
-#     return render(request, 'student_form.html', {'form': form})
 
 
 class StudentUpdateView(UpdateView):
@@ -120,6 +112,7 @@ def delete_teacher(request):
         teacher_.delete()
         return HttpResponseRedirect(reverse('teachers:list_teachers'))
 
+
 class BRSPointsListView(ListView):
     model = GroupList
     context_object_name = 'students_list'
@@ -129,15 +122,41 @@ class BRSPointsListView(ListView):
     def get_queryset(self):
         disc = Discipline.objects.get(id = self.kwargs['pk'])
         return GroupList.objects.filter(group__program = disc.program)
-        #return BRSpoints.objects.filter(brs__discipline__id = self.kwargs['pk']).filter(CheckPoint__id = 1)
 
     def get_context_data(self, **kwargs):
         context = super(BRSPointsListView, self).get_context_data(**kwargs)
         checkpoint = CheckPoint.objects.all()
-        student = Student.objects.all()
+        if (checkpoint.count() < 5):
+            if (checkpoint.count() > 0):
+                i = 0
+                for ch in checkpoint:
+                    i = i + 1
+                    if (i == 1):
+                        ch.Name = "Первый срез"
+                    elif (i == 2):
+                        ch.Name = "Второй срез"
+                    elif (i == 3):
+                        ch.Name = "Рубежный срез"
+                    else:
+                        ch.Name = "Рубежный срез с премиальными баллами"
+                    ch.save()
+            for i in range(checkpoint.count(), 5):
+                ch = CheckPoint()
+                if (i == 1):
+                    ch.Name = "Первый срез"
+                elif (i == 2):
+                    ch.Name = "Второй срез"
+                elif (i == 3):
+                    ch.Name = "Рубежный срез"
+                elif (i == 4):
+                    ch.Name = "Рубежный срез с премиальными баллами"
+                else:
+                    ch.Name = "Всего баллов"
+                ch.save()
         context['checkpoint'] = checkpoint
         discipline = Discipline.objects.get(id=self.kwargs['pk'])
         context['discipline'] = discipline
+        student = Student.objects.all()
         dict = {}
         for st in student:
             dict[str(st.id)] = {}
@@ -168,10 +187,10 @@ class BRSPointsListView(ListView):
                     dict[str(st.id)]['6'].markSymbol.name = 'F'
                     dict[str(st.id)]['6'].markSymbol.save()
                 try:
-                    dict[str(st.id)]['6'].mark = Mark.objects.get(name='неудовлетворительно с повторным изучением дисциплины')
+                    dict[str(st.id)]['6'].mark = Mark.objects.get(name='неуд')
                 except:
                     dict[str(st.id)]['6'].mark = Mark()
-                    dict[str(st.id)]['6'].mark.name = 'неудовлетворительно с повторным изучением дисциплины'
+                    dict[str(st.id)]['6'].mark.name = 'неуд'
                     dict[str(st.id)]['6'].mark.save()
                     dict[str(st.id)]['6'].save()
                 dict[str(st.id)]['6'].exam = Exam.objects.filter(discipline__id = discipline.id).first()
@@ -205,25 +224,25 @@ class BRSPointsListView(ListView):
             totalPoints = exammarks.examPoints + exammarks.inPoints
             if (totalPoints >= 95):
                 tempMarkSymbol = 'A'
-                tempMark = 'превосходно'
+                tempMark = 'отл'
             elif (totalPoints >= 85):
                 tempMarkSymbol = 'B'
-                tempMark = 'отлично'
+                tempMark = 'отл'
             elif (totalPoints >= 75):
                 tempMarkSymbol = 'C'
-                tempMark = 'очень хорошо'
+                tempMark = 'хор'
             elif (totalPoints >= 65):
                 tempMarkSymbol = 'D'
-                tempMark = 'хорошо'
+                tempMark = 'хор'
             elif (totalPoints >= 55):
                 tempMarkSymbol = 'E'
-                tempMark = 'неудовлетворительно'
+                tempMark = 'удов'
             elif (totalPoints >= 25):
                 tempMarkSymbol = 'FX'
-                tempMark = 'неудовлетворительно с возможной пересдачей'
+                tempMark = 'неуд'
             else:
                 tempMarkSymbol = 'F'
-                tempMark = 'неудовлетворительно с повторным изучением дисциплины'
+                tempMark = 'неуд'
             try:
                 exammarks.markSymbol = MarkSymbol.objects.get(name = tempMarkSymbol)
             except:

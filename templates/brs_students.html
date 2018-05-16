@@ -8,7 +8,7 @@
     <form method="post">
     {% csrf_token %}
         <table id="my_table" class="table table-bordered">
-            <thead>
+            <thead class="thead-light">
                 <tr>
                     <th scope="col">№</th>
                     <th scope="col">Фамилия и инициалы</th>
@@ -17,7 +17,7 @@
                     <th scope="col">2 контр. срез</th>
                     <th scope="col">Рубежный срез до начала экз. сессии</th>
                     <th scope="col">Рубежный срез с учетом премиальных баллов и отработок</th>
-                    <th scope="col">Баллы за экзамен</th>
+                    <th scope="col">{{ discipline.control.controltype }}</th>
                     <th scope="col">Всего баллов</th>
                     <th scope="col">Оценка прописью</th>
                     <th scope="col">Буквенный эквивалент оценки</th>
