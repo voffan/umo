@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Exam
 
 
 # Create your views here.
@@ -355,15 +355,20 @@ def vedomost(request):
 
     # данные для строк
     group_id = 1
-    semestr = 2
+    disc_id = 1
     group = Group.objects.get(pk=group_id)
+    exam = Exam.objects.get(discipline__id=disc_id)
     students = group.grouplist_set.all()
-    subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
     _row = 10
     _column = 3
+
     ws.cell(row=1, column=1).value = 'Ведомость текущей и промежуточной аттестации'
-    ws.cell(row=2, column=1).value = 'Семестр 2'
-    ws.cell(row=3, column=1).value = group.Name
+    ws.cell(row=2, column=1).value = 'Семестр: '+str(exam.semestr.name)+'      '+exam.eduperiod.beginyear+'-'+exam.eduperiod.endyear
+    ws.cell(row=3, column=1).value = 'Тип контроля: ' + exam.controlType.name
+    ws.cell(row=4, column=1).value = 'Группа: '+group.Name
+    ws.cell(row=5, column=1).value = 'Дисциплина: '+exam.discipline.Name
+    ws.cell(row=6, column=1).value = 'ФИО преподавателя: '+exam.discipline.lecturer.FIO
+    ws.cell(row=7, column=1).value = 'Дата проведения зачета/экзамена: ' + exam.examDate
     ws.cell(row=9, column=1).value = 'Фамилия, имя, отчество'
     ws.cell(row=9, column=2).value = '№ зачетной книжки'
     ws.cell(row=9, column=3).value = 'Сумма баллов'
@@ -375,11 +380,13 @@ def vedomost(request):
     for gl in students:
         ws.cell(row=_row, column=1).value = gl.student.FIO
         ws.cell(row=_row, column=2).value = gl.student.StudentID
-        # for s in subjects:
-        #     mark = ExamMarks.objects.filter(student__id=gl.student.id, exam__discipline__id=s.id).first()
-        #     if mark is not None:
-        #         ws.cell(row=_row, column=_column).value = mark.mark.name
-        #     _column += 1
+        mark = ExamMarks.objects.filter(student__id=gl.student.id, exam__discipline__id=disc_id).first()
+        if mark is not None:
+            ws.cell(row=_row, column=_column).value = str(mark.inPoints)
+            ws.cell(row=_row, column=_column+1).value = str(mark.examPoints)
+            ws.cell(row=_row, column=_column+2).value = str(mark.inPoints+mark.examPoints)
+            ws.cell(row=_row, column=_column + 3).value = mark.mark.name
+            ws.cell(row=_row, column=_column + 4).value = mark.markSymbol.name
         _row += 1
 
     # шрифты
