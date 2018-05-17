@@ -206,13 +206,13 @@ def export_to_excel(request):
     align_center = Alignment(horizontal='center',
                              vertical='center',
                              text_rotation=0,
-                             wrap_text=False,
+                             wrap_text=True,
                              shrink_to_fit=False,
                              indent=0)
     align_vertical = Alignment(horizontal='left',
                                vertical='bottom',
                                text_rotation=90,
-                               wrap_text=False,
+                               wrap_text=True,
                                shrink_to_fit=False,
                                indent=0)
 

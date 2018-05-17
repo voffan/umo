@@ -472,6 +472,15 @@ class BRSPointsListView(ListView):
                 # value * коэфициент
                 ws.column_dimensions[col].width = value * 1.5
 
+            # перетягивание ячеек
+            for cellObj in ws['G9:G35']:
+                for cell in cellObj:
+                    if cell.value:
+                        dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
+            for col, value in dims.items():
+                # value * коэфициент
+                ws.column_dimensions[col].width = value * 1.5
+
             # сохранение файла в выбранную директорию
             response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             response['Content-Disposition'] = 'attachment; filename=vedomost.xlsx'
