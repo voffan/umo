@@ -136,7 +136,7 @@ class EkranListView(ListView):
     model = GroupList
     context_object_name = 'students_list'
     success_url = reverse_lazy('disciplines:disciplines_list')
-    template_name = "brs_students.html"
+    template_name = "ekran.html"
 
     def get_queryset(self):
         return GroupList.objects.filter(group__id=self.kwargs['pk'])
@@ -146,9 +146,9 @@ class EkranListView(ListView):
         group = Group.objects.get(id=self.kwargs['pk'])
         context['group'] = group
         students = GroupList.objects.filter(group=group)
-        semestr = Semestr.objects.get(id == self.kwargs['sk'])
+        semestr = Semestr.objects.get(id=self.kwargs['sk'])
         context['semestr'] = semestr
-        subjects = group.program.discipline__set.filter(disciplinedetails__semestr__name=semestr)
+        subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
         context['subjects'] = subjects
 
         totalhours = []
