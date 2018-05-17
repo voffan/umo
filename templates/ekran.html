@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Контрольный лист{% endblock %}
+{% block content %}
+    <style type="text/css">
+        input[type=text] { width: 75%; }
+    </style>
+    <h1>Контрольный лист | {{ discipline.Name }}</h1>
+    <form method="post">
+    {% csrf_token %}
+    <p align="right" id="brs_list_filter"><label><b>Группа:</b></label><br></p>
+        <table id="brs_list" class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th></th>
+                    <th>{{ group.Name }} семестр {{ semestr.name }}</th>
+                    {% for subject in subjects %}
+                    <th>{{ subject.Name }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td>Всего часов/ЗЕТ</td>
+                    {% for item in totalhours %}
+                    <th>{{ item }}</th>
+                    {% endfor %}
+                </tr>
+                {% for gl in students_list %}
+                <tr>
+                    <td></td>
+                    <td> {{ gl.student.FIO }} </td>
+                    {% for key1, value1 in dict.items %}
+                        {% if value1.key = gl.student.id %}
+                            {% for key2, value2 in value1.items %}
+                                <td> {{ value1.value2.mark.name }} </td>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-success" name="save" value="save">Сохранить</button>
+        <button type="submit" class="btn btn-success" name="vedomost" value="vedomost">Скачать ведомость</button>
+        <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>
+    </form>
+{% endblock %}

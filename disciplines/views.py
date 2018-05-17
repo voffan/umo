@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Exam
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Exam, GroupList
 
 
 # Create your views here.
@@ -130,6 +130,43 @@ class DisciplineDetailsUpdate(UpdateView):
         'control_hours',
         'semestr',
     ]
+
+
+class EkranListView(ListView):
+    model = GroupList
+    context_object_name = 'students_list'
+    success_url = reverse_lazy('disciplines:disciplines_list')
+    template_name = "brs_students.html"
+
+    def get_queryset(self):
+        return GroupList.objects.filter(group__id=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(EkranListView, self).get_context_data(**kwargs)
+        group = Group.objects.get(id=self.kwargs['pk'])
+        context['group'] = group
+        students = GroupList.objects.filter(group=group)
+        semestr = Semestr.objects.get(id == self.kwargs['sk'])
+        context['semestr'] = semestr
+        subjects = group.program.discipline__set.filter(disciplinedetails__semestr__name=semestr)
+        context['subjects'] = subjects
+
+        totalhours = []
+        for s in subjects:
+            totalhours.append(str(s.disciplinedetails_set.get().total_hours))
+        context['totalhours'] = totalhours
+
+        dict = {}
+        for gl in students:
+            dict[str(gl.id)] = {}
+            dict[str(gl.id)]['key'] = gl.id
+            i = 0
+            for s in subjects:
+                i += 1
+                dict[str(gl.id)][str(i)] = ExamMarks.objects.filter(student__id=gl.student.id,
+                                                                    exam__discipline__id=s.id).first()
+        context['exam_marks'] = dict
+        return context
 
 
 def export_to_excel(request):

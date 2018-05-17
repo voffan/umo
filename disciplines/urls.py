@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^add/$', views.DisciplineCreate.as_view(), name='disciplines_add'),
     url(r'(?P<pk>[0-9]+)/update/$', views.DisciplineUpdate.as_view(), name='update'),
     url(r'^delete/$', views.discipline_delete, name='delete'),
+    url(r'^ekran/(?P<pk>[0-9]+)/(?P<sk>[0-9]+)/$', views.EkranListView.as_view(), name='ekran'),
     url(r'(?P<pk>[0-9]+)/$', views.discipline_detail, name='detail'),
     url(r'^details_list/$', views.DisciplineDetailsList.as_view(), name='details_list'),
     url(r'^add_details/$', views.DetailsCreate.as_view(), name='details_add'),
