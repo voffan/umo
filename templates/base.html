@@ -121,7 +121,7 @@
                 "paging": false,
                 initComplete: function () {
                    var column = this.api().column(1);
-                   var select = $('<select class="filter"><option value=""></option></select>')
+                   var select = $('<select class="filter" name="selected_group"><option value="">-----------</option></select>')
                        .appendTo('#brs_list_filter')
                        .on('change', function () {
                           var val = $(this).val();

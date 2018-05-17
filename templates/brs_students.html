@@ -5,9 +5,9 @@
         input[type=text] { width: 75%; }
     </style>
     <h1>Контрольный лист | {{ discipline.Name }}</h1>
-    <p align="right" id="brs_list_filter"><label><b>Группа:</b></label><br></p>
     <form method="post">
     {% csrf_token %}
+    <p align="right" id="brs_list_filter"><label><b>Группа:</b></label><br></p>
         <table id="brs_list" class="table table-bordered">
             <thead class="thead-light">
                 <tr>
@@ -43,7 +43,7 @@
                             <td><input id="points3" type="text" name="points3" maxlength="255" value="{{ value.3.points }}"></td>
                             <td><input id="points4" type="text" name="points4" maxlength="255" value="{{ value.4.points }}"></td>
                             <td><input id="points6" type="text" name="points6" maxlength="255" value="{{ value.6.examPoints }}"></td>
-                            <td><input id="points5" type="text" name="points5" maxlength="255" value="{{ value.5.points }}"></td>
+                            <td> {{ value.5.points }} </td>
                             <td> {{ value.6.mark.name }} </td>
                             <td> {{ value.6.markSymbol.name }} </td>
                         {% endif %}
@@ -52,8 +52,8 @@
                 {% endfor %}
             </tbody>
         </table>
-        <button type="submit" class="btn btn-success">Сохранить</button>
-        <a href="{% url 'disciplines:vedomost' %}" class="btn btn-primary">Скачать ведомость</a>
+        <button type="submit" class="btn btn-success" name="save" value="save">Сохранить</button>
+        <button type="submit" class="btn btn-success" name="vedomost" value="vedomost">Скачать ведомость</button>
         <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>
     </form>
 {% endblock %}
