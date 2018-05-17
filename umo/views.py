@@ -124,14 +124,27 @@ def delete_teacher(request):
         return HttpResponseRedirect(reverse('teachers:list_teachers'))
 
 def get_mark(value):
-    if (value >= 95):
+    if (value >= 85):
         return 'отл'
-    elif (value >= 75):
+    elif (value >= 65):
         return 'хор'
     elif (value >= 55):
         return 'удовл'
     else:
         return 'неуд'
+
+def get_mark_vedomost(inPoints, examPoints):
+    if (inPoints < 45):
+        return 'Не допущен'
+    value = inPoints + examPoints
+    if (value >= 85):
+        return 'Отлично'
+    elif (value >= 65):
+        return 'Хорошо'
+    elif (value >= 55):
+        return 'Удовлетворительно'
+    else:
+        return 'Неудовлетворительно'
 
 def get_markSymbol(value):
     if (value >= 95):
@@ -192,6 +205,7 @@ class BRSPointsListView(ListView):
                 ch.save()
         context['checkpoint'] = checkpoint
         discipline = Discipline.objects.get(id=self.kwargs['pk'])
+        context['control_type'] = 'Баллы ' + discipline.control.controltype.lower()
         context['discipline'] = discipline
         context['grouplist'] = GroupList.objects.all()
         student = Student.objects.all()
@@ -391,7 +405,7 @@ class BRSPointsListView(ListView):
                 ws.cell(row=_row, column=_column + 1).value = str(float(exampoints[i].replace(',', '.'))).replace('.', ',')
                 totalpoints = float(inpoints[i].replace(',', '.')) + float(exampoints[i].replace(',', '.'))
                 ws.cell(row=_row, column=_column + 2).value = str(totalpoints).replace('.', ',')
-                ws.cell(row=_row, column=_column + 3).value = get_mark(totalpoints)
+                ws.cell(row=_row, column=_column + 3).value = get_mark_vedomost(float(inpoints[i].replace(',', '.')), float(exampoints[i].replace(',', '.')))
                 ws.cell(row=_row, column=_column + 4).value = get_markSymbol(totalpoints)
                 _row += 1
 

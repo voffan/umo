@@ -48,16 +48,16 @@ $(document).ready( function () {
                 "paging": false,
                 initComplete: function () {
                    var column = this.api().column(1);
-                   var select = $('<select class="filter" name="selected_group"><option value=""></option></select>')
+                   var select = $('<select class="filter" name="selected_group"></select>')
                        .appendTo('#brs_list_filter')
                        .on('change', function () {
                           var val = $(this).val();
                           column.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
                        });
-
                    column.data().unique().sort().each(function (d, j) {
                        select.append('<option value="' + d + '">' + d + '</option>');
                    });
+                   column.search(select.val ? '^' + select.val() + '$' : select.val, true, false).draw();
                 }
             });
             s.on( 'order.dt search.dt', function () {
