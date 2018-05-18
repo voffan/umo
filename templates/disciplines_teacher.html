@@ -2,25 +2,27 @@
 {% block title %}Выберите преподавателя{% endblock %}
 {% block content %}
 <form action="{% url 'disciplines:disciplines' %}" method="get">
-    <center><h1 class="title">Выберите преподавателя</h1></center>
-    <div class="row justify-content-md-center">
-        <div class="col-md-4">
-            <p></p>
-                <label for="dropdown1" >Кафедра:</label>
+    <h1 class="title">Выберите преподавателя</h1>
+    <br>
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <div class="form-group">
+            <label for="dropdown1" >Кафедра:</label>
             <select name="dropdown1" id="dropdown1" class="form-control">
                 {% for kafedra_name in kafedra_name %}
-                    <option value="{{ kafedra_name.id }}">{{ kafedra_name.name}}</option>
+                    <option text_align="center" value="{{ kafedra_name.id }}">{{ kafedra_name.name}}</option>
                 {% endfor %}
             </select>
-                <br>
-                <label for="dropdown2" >Преподаватель:</label>
+            </div>
+            <div class="form-group">
+            <label for="dropdown2" >Преподаватель:</label>
             <select name="dropdown2" id="dropdown2" class="form-control">
                 {% for teacher_name in teacher_name %}
                     <option value="{{ teacher_name.id }}">{{ teacher_name.FIO}}</option>
                 {% endfor %}
             </select>
-            <br>
-            <p><button type="submit" class="btn btn-success">Показать дисциплины</button></p>
+            </div>
+            <p align="center"><button type="submit" class="btn btn-success">Показать дисциплины</button></p>
         </div>
     </div>
 </form>

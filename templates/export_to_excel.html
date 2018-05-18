@@ -2,25 +2,27 @@
 {% block title %}Экран успеваемости{% endblock %}
 {% block content %}
 <form action="{% url 'disciplines:export' %}" method="get">
-    <center><h1 class="title">Экран успеваемости</h1></center>
-    <div class="row justify-content-md-center">
-        <div class="col-md-4">
-            <p></p>
-                <label for="dropdown1" >Группа:</label>
+    <h1 class="title">Экран успеваемости</h1>
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <br>
+            <div class="form-group">
+            <label for="dropdown1" >Группа:</label>
             <select name="dropdown1" id="dropdown1" class="form-control">
                 {% for groupname in groupname %}
                     <option value="{{ groupname.id }}">{{ groupname.Name}}</option>
                 {% endfor %}
             </select>
-                <p></p>
-                <label for="dropdown2">Семестр:</label>
+            </div>
+            <div class="form-group">
+            <label for="dropdown2">Семестр:</label>
             <select name="dropdown2" id="dropdown2" class="form-control">
                 {% for semestrname in semestrname %}
                     <option value="{{ semestrname.name }}">{{ semestrname.name}}</option>
                 {% endfor %}
             </select>
-            <br>
-            <p><button type="submit" class="btn btn-success">Скачать</button>
+            </div>
+            <p align="center"><button type="submit" class="btn btn-success">Скачать</button>
         </div>
     </div>
 </form>

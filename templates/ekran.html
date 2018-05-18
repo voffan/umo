@@ -2,6 +2,7 @@
 {% block title %}Контрольный лист{% endblock %}
 {% block content %}
     <h1>Экран успеваемости {{ group.Name }}</h1>
+    </br>
     <form method="get">
     {% csrf_token %}
         <table id="ekran" class="table table-bordered">
@@ -17,7 +18,7 @@
             <tbody>
                 {% for gl in students_list %}
                 <tr>
-                    <td></td>
+                    <td> </td>
                     <td> {{ gl.student.FIO }} </td>
                     {% for key1, value1 in exam_marks.items %}
                         {% if value1.key == gl.student.id %}
@@ -32,8 +33,9 @@
                 {% endfor %}
             </tbody>
         </table>
+        <br>
         <button type="submit" class="btn btn-success" name="save" value="save">Сохранить</button>
-        <button type="submit" class="btn btn-success" name="vedomost" value="vedomost">Скачать</button>
+        <button type="submit" class="btn btn-primary" name="vedomost" value="vedomost">Скачать</button>
         <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>
     </form>
 {% endblock %}

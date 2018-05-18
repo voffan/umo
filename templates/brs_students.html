@@ -2,27 +2,27 @@
 {% block title %}Контрольный лист{% endblock %}
 {% block content %}
     <style type="text/css">
-        input[type=text] { width: 75%; }
+        input[type=text] { width: 70%; }
     </style>
     <h1>Контрольный лист | {{ discipline.Name }}</h1>
     <form method="post">
     {% csrf_token %}
     <p align="right" id="brs_list_filter"><label><b>Группа:</b></label><br></p>
-        <table id="brs_list" class="table table-bordered">
+        <table id="brs_list" class="table-bordered">
             <thead class="thead-light">
                 <tr>
-                    <th scope="col">№</th>
-                    <th scope="col">Группа</th>
-                    <th scope="col">ФИО</th>
-                    <th scope="col">№ зачетной книжки</th>
-                    <th scope="col">1 контр. срез</th>
-                    <th scope="col">2 контр. срез</th>
-                    <th scope="col">Рубежный срез до начала экз. сессии</th>
-                    <th scope="col">Рубежный срез с учетом премиальных баллов и отработок</th>
-                    <th scope="col">{{ control_type }}</th>
-                    <th scope="col">Всего баллов</th>
-                    <th scope="col">Оценка прописью</th>
-                    <th scope="col">Буквенный эквивалент оценки</th>
+                    <th>№</th>
+                    <th>Группа</th>
+                    <th>ФИО</th>
+                    <th>№ зачетной книжки</th>
+                    <th>1 контр. срез</th>
+                    <th>2 контр. срез</th>
+                    <th>Рубежный срез до начала экз. сессии</th>
+                    <th>Рубежный срез с учетом премиальных баллов и отработок</th>
+                    <th>{{ control_type }}</th>
+                    <th>Всего баллов</th>
+                    <th>Оценка прописью</th>
+                    <th>Буквенный эквивалент оценки</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,11 +38,11 @@
                     <td> {{ i.student.StudentID }} <input id="studid" type="hidden" name="studid" value="{{ i.student.id }}"></td>
                     {% for key, value in dict.items %}
                         {% if value.key == i.student.id %}
-                            <td><input id="points1" type="text" name="points1" maxlength="255" value="{{ value.1.points }}"></td>
-                            <td><input id="points2" type="text" name="points2" maxlength="255" value="{{ value.2.points }}"></td>
-                            <td><input id="points3" type="text" name="points3" maxlength="255" value="{{ value.3.points }}"></td>
-                            <td><input id="points4" type="text" name="points4" maxlength="255" value="{{ value.4.points }}"></td>
-                            <td><input id="points6" type="text" name="points6" maxlength="255" value="{{ value.6.examPoints }}"></td>
+                            <td><input class="form-control" id="points1" type="text" name="points1" maxlength="255" value="{{ value.1.points }}"></td>
+                            <td><input class="form-control" id="points2" type="text" name="points2" maxlength="255" value="{{ value.2.points }}"></td>
+                            <td><input class="form-control" id="points3" type="text" name="points3" maxlength="255" value="{{ value.3.points }}"></td>
+                            <td><input class="form-control" id="points4" type="text" name="points4" maxlength="255" value="{{ value.4.points }}"></td>
+                            <td><input class="form-control" id="points6" type="text" name="points6" maxlength="255" value="{{ value.6.examPoints }}"></td>
                             <td> {{ value.5.points }} </td>
                             <td> {{ value.6.mark.name }} </td>
                             <td> {{ value.6.markSymbol.name }} </td>
@@ -52,6 +52,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        <br>
         <button type="submit" class="btn btn-success" name="save" value="save">Сохранить</button>
         <button type="submit" class="btn btn-success" name="vedomost" value="vedomost">Скачать ведомость</button>
         <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>

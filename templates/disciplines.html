@@ -2,9 +2,11 @@
 {% block title %}Список дисциплин{% endblock %}
 {% block content %}
     <h1>Список дисциплин</h1>
-    <table id="my_table" class="table table-bordered">
+    <p align="right" id="disciplines_list_filter"><label><b>Специализация</b></label><br></p>
+    <table id="disciplines_list" class="table table-bordered">
         <thead class="thead-light">
         <tr>
+        <th>№</th>
         <th>Дисциплина</th>
         <th>Код</th>
         <th>Специализация</th>
@@ -18,11 +20,14 @@
         <tbody>
             {% for discipline in discipline_list %}
             <tr>
+                <td> </td>
                 <td> <a href="{% url 'disciplines:detail' discipline.id %}">{{ discipline.Name }}</a> </td>
                 <td> {{ discipline.code }} </td>
                 <td> {{ discipline.program }} </td>
                 <td> {{ discipline.lecturer }} </td>
                 <td> {{ discipline.control }} </td>
+                <td> <a href="{% url 'brs_studentlist' discipline.id %}"><input type="submit" value="Успеваемость"
+                                                                                   class="btn btn-primary"></a></td>
                 <td> <a href="{% url 'disciplines:update' discipline.id %}"><input type="submit" value="Изменить"
                                                                                    class="btn btn-secondary"></a></td>
                 <td>
@@ -32,12 +37,10 @@
                          <input type="submit"  value="Удалить" class="btn btn-danger">
                      </form>
                 </td>
-                <td> <a href="{% url 'brs_studentlist' discipline.id %}"><input type="submit" value="Успеваемость"
-                                                                                   class="btn btn-secondary"></a></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
+    <br>
     <a href="{% url 'disciplines:disciplines_add' %}" class="btn btn-success">Добавить новую дисциплину</a>
 {% endblock %}

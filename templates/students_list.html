@@ -3,23 +3,22 @@
 {% block content %}
     <h1>Список студентов</h1>
     <p align="right" id="student_list_filter"><label><b>Группа:</b></label><br></p>
-
     <table id="students_list" class="table table-bordered">
         <thead class="thead-light">
             <tr>
-                <th scope="col">№</th>
-                <th scope="col">Номер зачетной книжки</th>
-                <th scope="col">ФИО</th>
-                <th scope="col">Группа</th>
-                <th scope="col"></th>
+                <th>№</th>
+                <th>ФИО</th>
+                <th>Номер зачетной книжки</th>
+                <th>Группа</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             {% for i in student_list %}
             <tr>
                 <td> </td>
-                <td> {{ i.student.StudentID }} </td>
                 <td> <a href="{% url 'student_edit' i.id %}"> {{ i.student.FIO }} </a> </td>
+                <td> {{ i.student.StudentID }} </td>
                 <td> {{ i.group.Name }} </td>
                 <td>
                     <form action="delete/" method="post">
@@ -32,5 +31,6 @@
             {% endfor %}
         </tbody>
     </table>
+    <br>
     <a href="{% url 'student_add' %}" class="btn btn-success">Добавить нового студента</a>
 {% endblock %}

@@ -7,6 +7,7 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <h1>Детали дисциплины</h1>
+                    <br>
                     <table class="table table-bordered">
                         <thead>
                         <tr>
@@ -35,8 +36,8 @@
                             </tr>
                         </tbody>
                     </table>
-                    <input type="button" class="btn btn-primary" onclick="history.back();" value="Назад"/>
                     <a href="{% url 'disciplines:details_list' %}" class="btn btn-primary">Изменить</a>
+                    <a href="{% url 'disciplines:disciplines_list' %}" class="btn btn-secondary">Назад</a>
                 </div>
             </div>
         </div>

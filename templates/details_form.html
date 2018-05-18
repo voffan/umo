@@ -8,14 +8,15 @@
             <div class="row">
                 <div class="col-md-6 offset-md-3">
                     <h1>Добавление деталей</h1>
+                    <br>
                     {% for field in form.visible_fields %}
                         <div class="form-group">
                             {{ field.label_tag }}
                             {% render_field field class="form-control" %}
                         </div>
                     {% endfor %}
-                    <center><p><button type="submit" class="btn btn-success">Сохранить</button>
-                    <a href= "{% url 'disciplines:details_list' %}" class="btn btn-primary">Отмена</a></p></center>
+                    <p align="center"><button type="submit" class="btn btn-success">Сохранить</button>
+                    <a href= "{% url 'disciplines:details_list' %}" class="btn btn-primary">Отмена</a></p>
                 </div>
             </div>
         </form>
