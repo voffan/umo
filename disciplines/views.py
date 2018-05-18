@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Exam, GroupList
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Exam, GroupList, Kafedra
 
 
 # Create your views here.
@@ -31,15 +31,18 @@ class DisciplineList(ListView):
 
 
 def list_disc(request):
-    teacher_id = request.GET['dropdown1']
+    kafedra_id = request.GET['dropdown1']
+    teacher_id = request.GET['dropdown2']
+    kafedra = Kafedra.objects.get(pk=kafedra_id)
     teacher = Teacher.objects.get(pk=teacher_id)
     disciplines = teacher.discipline_set.all()
     return render(request, 'disc_list.html', {'discipline_list': disciplines})
 
 
 def teacher_choose(request):
+    kafedra_name = Kafedra.objects.all()
     teacher_name = Teacher.objects.all()
-    return render(request, 'disciplines_teacher.html', {'teacher_name': teacher_name})
+    return render(request, 'disciplines_teacher.html', {'kafedra_name': kafedra_name, 'teacher_name': teacher_name})
 
 
 class DisciplineCreate(CreateView):
@@ -237,7 +240,7 @@ def export_to_excel(request):
     group_id = request.GET['dropdown1']
     semestr = request.GET['dropdown2']
     group = Group.objects.get(pk=group_id)
-    students = group.grouplist_set.all()
+    students = group.grouplist_set.all().order_by('student__FIO')
     subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
     _row = 3
     _column = 3

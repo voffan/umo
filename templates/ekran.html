@@ -1,11 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Контрольный лист{% endblock %}
 {% block content %}
-    <style type="text/css">
-        input[type=text] { width: 75%; }
-    </style>
     <h1>Экран успевамеости {{ group.Name }}</h1>
-    <form method="post">
+    <form method="get">
     {% csrf_token %}
         <table id="ekran" class="table table-bordered">
             <thead class="thead-light">
@@ -18,13 +15,6 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td></td>
-                    <td>Всего часов/ЗЕТ</td>
-                    {% for item in totalhours %}
-                    <td>{{ item }}</td>
-                    {% endfor %}
-                </tr>
                 {% for gl in students_list %}
                 <tr>
                     <td></td>
@@ -43,7 +33,7 @@
             </tbody>
         </table>
         <button type="submit" class="btn btn-success" name="save" value="save">Сохранить</button>
-        <button type="submit" class="btn btn-success" name="vedomost" value="vedomost">Скачать ведомость</button>
+        <button type="submit" class="btn btn-success" name="vedomost" value="vedomost">Скачать</button>
         <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>
     </form>
 {% endblock %}

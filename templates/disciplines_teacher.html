@@ -10,6 +10,11 @@
                     <p></p>
                     <div class="col-lg-3 col-lg-offset-12">
                     <select name="dropdown1" id="dropdown1" class="form-control">
+                        {% for kafedra_name in kafedra_name %}
+                            <option value="{{ kafedra_name.id }}">{{ kafedra_name.name}}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="dropdown2" id="dropdown2" class="form-control">
                         {% for teacher_name in teacher_name %}
                             <option value="{{ teacher_name.id }}">{{ teacher_name.FIO}}</option>
                         {% endfor %}
