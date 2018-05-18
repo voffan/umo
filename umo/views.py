@@ -124,44 +124,59 @@ def delete_teacher(request):
         teacher_.delete()
         return HttpResponseRedirect(reverse('teachers:list_teachers'))
 
-def get_mark(value):
-    if (value >= 85):
-        return 'отл'
-    elif (value >= 65):
-        return 'хор'
-    elif (value >= 55):
-        return 'удовл'
+def get_mark(str, value):
+    if (str == 'Зачет'):
+        if (value >= 60):
+            return 'зач'
+        else:
+            return 'нз'
     else:
-        return 'неуд'
+        if (value >= 85):
+            return 'отл'
+        elif (value >= 65):
+            return 'хор'
+        elif (value >= 55):
+            return 'удовл'
+        else:
+            return 'неуд'
 
-def get_mark_vedomost(inPoints, examPoints):
-    if (inPoints < 45):
-        return 'Не допущен'
+def get_mark_vedomost(str, inPoints, examPoints):
     value = inPoints + examPoints
-    if (value >= 85):
-        return 'Отлично'
-    elif (value >= 65):
-        return 'Хорошо'
-    elif (value >= 55):
-        return 'Удовлетворительно'
+    if (str == 'Зачет'):
+        if (value >= 60):
+            return 'Зачтено'
+        else:
+            return 'Не зачтено'
     else:
-        return 'Неудовлетворительно'
+        if (inPoints < 45):
+            return 'Не допущен'
+        if (value >= 85):
+            return 'Отлично'
+        elif (value >= 65):
+            return 'Хорошо'
+        elif (value >= 55):
+            return 'Удовлетворительно'
+        else:
+            return 'Неудовлетворительно'
 
-def get_markSymbol(value):
-    if (value >= 95):
-        return 'A'
-    elif (value >= 85):
-        return 'B'
-    elif (value >= 75):
-        return 'C'
-    elif (value >= 65):
-        return 'D'
-    elif (value >= 55):
-        return 'E'
-    elif (value >= 25):
-        return 'FX'
+def get_markSymbol(str, value):
+    if (str == 'Зачет'):
+        return None
     else:
-        return 'F'
+        if (value >= 95):
+            return 'A'
+        elif (value >= 85):
+            return 'B'
+        elif (value >= 75):
+            return 'C'
+        elif (value >= 65):
+            return 'D'
+        elif (value >= 55):
+            return 'E'
+        elif (value >= 25):
+            return 'FX'
+        else:
+            return 'F'
 
 
 class BRSPointsListView(ListView):
@@ -217,37 +232,55 @@ class BRSPointsListView(ListView):
             i = 0
             for ch in checkpoint:
                 i = i + 1
-                try:
-                    dict[str(st.id)][str(i)] = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).get(student = st)
-                except BRSpoints.DoesNotExist:
-                    dict[str(st.id)][str(i)] = BRSpoints()
-                    dict[str(st.id)][str(i)].student = st
-                    dict[str(st.id)][str(i)].CheckPoint = ch
-                    dict[str(st.id)][str(i)].points = 0.0
-                    dict[str(st.id)][str(i)].brs = BRS.objects.filter(discipline__id = discipline.id).first()
-                    dict[str(st.id)][str(i)].save()
-            try:
-                dict[str(st.id)]['6'] = ExamMarks.objects.filter(exam__discipline__id = discipline.id).get(student = st)
-            except ExamMarks.DoesNotExist:
-                dict[str(st.id)]['6'] = ExamMarks()
-                dict[str(st.id)]['6'].student = st
-                dict[str(st.id)]['6'].inPoints = 0.0
-                dict[str(st.id)]['6'].examPoints = 0.0
-                try:
-                    dict[str(st.id)]['6'].markSymbol = MarkSymbol.objects.get(name='F')
-                except:
-                    dict[str(st.id)]['6'].markSymbol = MarkSymbol()
-                    dict[str(st.id)]['6'].markSymbol.name = 'F'
-                    dict[str(st.id)]['6'].markSymbol.save()
-                try:
-                    dict[str(st.id)]['6'].mark = Mark.objects.get(name='неуд')
-                except:
-                    dict[str(st.id)]['6'].mark = Mark()
-                    dict[str(st.id)]['6'].mark.name = 'неуд'
-                    dict[str(st.id)]['6'].mark.save()
-                    dict[str(st.id)]['6'].save()
-                dict[str(st.id)]['6'].exam = Exam.objects.filter(discipline__id = discipline.id).first()
-                dict[str(st.id)]['6'].save()
+                newBRSpoints = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).filter(student = st).first()
+                if (newBRSpoints is None):
+                    newBRSpoints = BRSpoints()
+                    newBRSpoints.student = st
+                    newBRSpoints.CheckPoint = ch
+                    newBRSpoints.points = 0.0
+                    newBRS = BRS.objects.filter(discipline__id = discipline.id).first()
+                    if (newBRS is None):
+                        newBRS = BRS()
+                        newBRS.discipline = discipline
+                        newBRS.eduperiod = EduPeriod.objects.all().first()
+                        newBRS.semestr = DisciplineDetails.objects.filter(subject=discipline).first().semestr
+                        newBRS.save()
+                    newBRSpoints.brs = newBRS
+                    newBRSpoints.save()
+                dict[str(st.id)][str(i)] = newBRSpoints
+
+            newExamMarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id).filter(student = st).first()
+            if (newExamMarks is None):
+                newMarkSymbol = MarkSymbol.objects.filter(name='F').first()
+                if (newMarkSymbol is None):
+                    newMarkSymbol = MarkSymbol.objects.create(name='F')
+
+                newMark = Mark.objects.filter(name='неуд').first()
+                if (newMark is None):
+                    newMark = Mark.objects.create(name='неуд')
+
+                newExam = Exam.objects.filter(discipline__id = discipline.id).first()
+                if (newExam is None):
+                    newExam = Exam()
+                    newControlType = ControlType.objects.filter(name=discipline.control.controltype).first()
+                    if (newControlType is None):
+                        newControlType = ControlType.objects.create(name = discipline.control.controltype)
+                    newExam.controlType = newControlType
+                    newExam.discipline = discipline
+                    newExam.eduperiod = EduPeriod.objects.all().first()
+                    newExam.examDate = 'не проставлена'
+                    newExam.semestr = DisciplineDetails.objects.filter(subject=discipline).first().semestr
+                    newExam.save()
+
+                newExamMarks = ExamMarks()
+                newExamMarks.student = st
+                newExamMarks.inPoints = 0.0
+                newExamMarks.examPoints = 0.0
+                newExamMarks.markSymbol = newMarkSymbol
+                newExamMarks.mark = newMark
+                newExamMarks.exam = newExam
+                newExamMarks.save()
+            dict[str(st.id)]['6'] = newExamMarks
         context['dict'] = dict
         return context
 
@@ -284,24 +317,24 @@ class BRSPointsListView(ListView):
                         k = 0
                     brspoints.save()
 
-                tempMarkSymbol = get_markSymbol(totalPoints)
-                tempMark = get_mark(totalPoints)
+                tempMarkSymbol = get_markSymbol(discipline.control.controltype, totalPoints)
+                tempMark = get_mark(discipline.control.controltype, totalPoints)
 
-                try:
-                    exammarks.markSymbol = MarkSymbol.objects.get(name=tempMarkSymbol)
-                except:
-                    exammarks.markSymbol = MarkSymbol()
-                    exammarks.markSymbol.name = tempMarkSymbol
-                    exammarks.markSymbol.save()
+                if (tempMarkSymbol is None):
+                    newMarkSymbol = None
+                else:
+                    newMarkSymbol = MarkSymbol.objects.filter(name=tempMarkSymbol).first()
+                    if (newMarkSymbol is None):
+                        newMarkSymbol = MarkSymbol.objects.create(name=tempMarkSymbol)
 
-                try:
-                    exammarks.mark = Mark.objects.get(name=tempMark)
-                except:
-                    exammarks.mark = Mark()
-                    exammarks.mark.name = tempMark
-                    exammarks.mark.save()
+                newMark = Mark.objects.filter(name=tempMark).first()
+                if (newMark is None):
+                    newMark = Mark.objects.create(name=tempMark)
 
+                exammarks.markSymbol = newMarkSymbol
+                exammarks.mark = newMark
                 exammarks.save()
+
             return HttpResponseRedirect(reverse('brs_studentlist', args=(self.kwargs['pk'])))
         elif (request.POST.get('vedomost')):
             # определяем стили
@@ -416,8 +449,8 @@ class BRSPointsListView(ListView):
                 ws.cell(row=_row, column=_column + 1).value = str(float(exampoints[i].replace(',', '.'))).replace('.', ',')
                 totalpoints = float(inpoints[i].replace(',', '.')) + float(exampoints[i].replace(',', '.'))
                 ws.cell(row=_row, column=_column + 2).value = str(totalpoints).replace('.', ',')
-                ws.cell(row=_row, column=_column + 3).value = get_mark_vedomost(float(inpoints[i].replace(',', '.')), float(exampoints[i].replace(',', '.')))
-                ws.cell(row=_row, column=_column + 4).value = get_markSymbol(totalpoints)
+                ws.cell(row=_row, column=_column + 3).value = get_mark_vedomost(exam.controlType.name, float(inpoints[i].replace(',', '.')), float(exampoints[i].replace(',', '.')))
+                ws.cell(row=_row, column=_column + 4).value = get_markSymbol(exam.controlType.name, totalpoints)
                 _row += 1
 
             # шрифты

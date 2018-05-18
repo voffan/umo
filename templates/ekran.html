@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Контрольный лист{% endblock %}
 {% block content %}
-    <h1>Экран успевамеости {{ group.Name }}</h1>
+    <h1>Экран успеваемости {{ group.Name }}</h1>
     <form method="get">
     {% csrf_token %}
         <table id="ekran" class="table table-bordered">
