@@ -1,13 +1,14 @@
 from datetime import *
 
 from django.core.urlresolvers import reverse_lazy, reverse
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Exam, GroupList, Kafedra
+import json
 
 
 # Create your views here.
@@ -172,6 +173,40 @@ class EkranListView(ListView):
         return context
 
 
+def get_data_for_ekran(request):
+    group_id = request.GET.get('group', '')
+    semestr_id = request.GET.get('semestr', '')
+    group = get_object_or_404(Group, pk=group_id)
+    semestr = get_object_or_404(Semestr, pk=semestr_id)
+    grouplist = group.grouplist_set.select_related('student').filter(active=True)
+    subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
+    result={'data':[]}
+    for s in grouplist:
+        m = [s.student.FIO]
+        for gl in subjects:
+            mark = ExamMarks.objects.filter(student__id=s.student.id, exam__discipline__id=gl.id).first()
+            if mark is not None:
+                m.append(mark.mark.name)
+            else:
+                m.append('')
+        result['data'].append(m)
+    return JsonResponse(result)
+
+def subjects(request):
+    group_id = request.GET.get('group', '')
+    semestr_id = request.GET.get('semestr', '')
+    result = {'data':[]}
+    if len(group_id) > 0 and len(semestr_id) > 0:
+        group = get_object_or_404(Group, pk=group_id)
+        semestr = get_object_or_404(Semestr, pk=semestr_id)
+        subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
+
+        for s in subjects:
+            result['data'].append(s.Name)
+    return JsonResponse(result)
+
+
+
 def export_to_excel(request):
     # определяем стили
     font = Font(name='Calibri',
@@ -328,7 +363,10 @@ def export_to_excel(request):
 def excel(request):
     groupname = Group.objects.all()
     semestrname = Semestr.objects.all()
-    return render(request, 'export_to_excel.html', {'groupname': groupname, 'semestrname': semestrname})
+    subjects = Discipline.objects.all()
+
+    group = 'dsd'
+    return render(request, 'export_to_excel.html', {'groupname': groupname, 'semestrname': semestrname, 'group': group})
 
 
 def vedomost(request):
@@ -502,4 +540,3 @@ def vedomost(request):
     wb.save(response)
 
     return response
-

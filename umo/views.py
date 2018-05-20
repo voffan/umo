@@ -381,11 +381,11 @@ class BRSPointsListView(ListView):
                                       wrap_text=True,
                                       shrink_to_fit=False,
                                       indent=0)
-            align_left = Alignment(horizontal='left',
+            align_left = Alignment(horizontal='center',
                                    vertical='bottom',
                                    text_rotation=0,
                                    wrap_text=False,
-                                   shrink_to_fit=False,
+                                   shrink_to_fit=True,
                                    indent=0)
             number_format = 'General'
             protection = Protection(locked=True,
@@ -422,7 +422,7 @@ class BRSPointsListView(ListView):
             _column = 4
             k = 1
 
-            ws.cell(row=1, column=2).value = 'Ведомость текущей и промежуточной аттестации'
+            ws.cell(row=1, column=2).value = 'ФГАОУ ВО «Северо-Восточный федеральный университет им.М.К.Аммосова'
             ws.cell(row=2, column=2).value = 'Семестр: ' + str(
                 exam.semestr.name) + '      ' + exam.eduperiod.beginyear + '-' + exam.eduperiod.endyear
             ws.cell(row=3, column=2).value = 'Тип контроля: ' + exam.controlType.name
@@ -486,6 +486,11 @@ class BRSPointsListView(ListView):
                     # print(cell.coordinate, cell.value)
                     ws[cell.coordinate].alignment = align_center2
 
+            for cellObj in ws['A1:I1']:
+                for cell in cellObj:
+                    # print(cell.coordinate, cell.value)
+                    ws[cell.coordinate].alignment = align_left
+
             # перетягивание ячеек
             dims = {}
             for cellObj in ws['B1:B35']:
@@ -513,6 +518,8 @@ class BRSPointsListView(ListView):
             for col, value in dims.items():
                 # value * коэфициент
                 ws.column_dimensions[col].width = value * 1.5
+
+
 
             # сохранение файла в выбранную директорию
             response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')

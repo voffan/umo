@@ -3,8 +3,6 @@
 {% block content %}
     <h1>Экран успеваемости {{ group.Name }}</h1>
     </br>
-    <form method="get">
-    {% csrf_token %}
         <table id="ekran" class="table table-bordered">
             <thead class="thead-light">
                 <tr>
@@ -37,5 +35,4 @@
         <button type="submit" class="btn btn-success" name="save" value="save">Сохранить</button>
         <button type="submit" class="btn btn-primary" name="vedomost" value="vedomost">Скачать</button>
         <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>
-    </form>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Экран успеваемости{% endblock %}
 {% block content %}
-<form action="{% url 'disciplines:export' %}" method="get">
+<form action="{% url 'disciplines:excel' %}" method="get">
     <h1 class="title">Экран успеваемости</h1>
     <div class="row">
         <div class="col-md-4 offset-md-4">
@@ -23,7 +23,76 @@
             </select>
             </div>
             <p align="center"><button type="submit" class="btn btn-success">Скачать</button>
-        </div>
+          </div>
     </div>
 </form>
+            <br>
+            {{ group }}
+            <table id="table1" class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>{{ group }} семестр {{ semestrname }}</th>
+                        {% for subject in subjects %}
+                        <th>{{ subject.Name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+            </table>
+{% endblock %}
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+
+        //$('#dropdown2').change();
+    } );
+    function LoadTableData(){
+        $('#table1').DataTable( {
+              "ajax": {
+                  "url":"{% url 'disciplines:dataforekran' %}",
+                  "dataType":"json",
+                  "type":"GET",
+                  "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()}
+              },
+        } );
+    }
+    function ClearColumns(){
+
+    }
+    function AddColumns(columns){
+        //clear columns
+        ClearColumns();
+    }
+    $('#dropdown1').on('change',function(){
+        if($('#dropdown2').val().length < 1){
+            alert('Выберете семестр');
+            return;
+        }
+        $.ajax({
+            "url":"{% url 'disciplines:subjects' %}",
+            "method":"GET",
+            "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()},
+            "success":function(data){
+                //add columns to table
+                AddColumns(data['data']);
+                LoadTableData();
+            },
+        });
+    });
+    $('#dropdown2').on('change',function(){
+        if($('#dropdown1').val().length < 1){
+            alert('Выберете группу');
+            return;
+        }
+        $.ajax({
+            "url":"{% url 'disciplines:subjects' %}",
+            "method":"GET",
+            "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()},
+            "success":function(data){
+                //add columns to table
+                AddColumns(data['data']);
+                LoadTableData();
+            },
+        });
+    });
+</script>
 {% endblock %}

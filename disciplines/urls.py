@@ -17,4 +17,7 @@ urlpatterns = [
     url(r'^disciplines_list/$', views.list_disc, name='disciplines'),
     url(r'^all_disciplines/$', views.DisciplineList.as_view(), name='disciplines_list'),
     url(r'^$', views.teacher_choose, name='teacher'),
+    #===================================================
+    url(r'^dataforekran/$', views.get_data_for_ekran, name='dataforekran'),
+    url(r'^subjects/$', views.subjects, name='subjects'),
 ]
