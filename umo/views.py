@@ -1,5 +1,3 @@
-from datetime import *
-
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
@@ -124,6 +122,7 @@ def delete_teacher(request):
         teacher_.delete()
         return HttpResponseRedirect(reverse('teachers:list_teachers'))
 
+
 def get_mark(str, value):
     if (str == 'Зачет'):
         if (value >= 60):
@@ -139,6 +138,7 @@ def get_mark(str, value):
             return 'удовл'
         else:
             return 'неуд'
+
 
 def get_mark_vedomost(str, inPoints, examPoints):
     value = inPoints + examPoints
@@ -158,6 +158,7 @@ def get_mark_vedomost(str, inPoints, examPoints):
             return 'Удовлетворительно'
         else:
             return 'Неудовлетворительно'
+
 
 def get_markSymbol(str, value):
     if (str == 'Зачет'):
@@ -336,16 +337,53 @@ class BRSPointsListView(ListView):
                 exammarks.save()
 
             return HttpResponseRedirect(reverse('brs_studentlist', args=(self.kwargs['pk'])))
-        elif (request.POST.get('vedomost')):
+
+        elif request.POST.get('vedomost'):
             # определяем стили
-            font = Font(name='Calibri',
-                        size=11,
-                        bold=True,
-                        italic=False,
-                        vertAlign=None,
-                        underline='none',
-                        strike=False,
-                        color='FF000000')
+            font_main = Font(name='Times New Roman',
+                             size=12,
+                             bold=False,
+                             italic=False,
+                             vertAlign=None,
+                             underline='none',
+                             strike=False,
+                             color='FF000000')
+
+            font_bold = Font(name='Times New Roman',
+                             size=12,
+                             bold=True,
+                             italic=False,
+                             vertAlign=None,
+                             underline='none',
+                             strike=False,
+                             color='FF000000')
+
+            font_bold_s = Font(name='Times New Roman',
+                               size=10,
+                               bold=True,
+                               italic=False,
+                               vertAlign=None,
+                               underline='none',
+                               strike=False,
+                               color='FF000000')
+
+            font_calibri = Font(name='Calibri',
+                                size=11,
+                                bold=False,
+                                italic=False,
+                                vertAlign=None,
+                                underline='none',
+                                strike=False,
+                                color='FF000000')
+
+            font_arial = Font(name='Arial Cyr',
+                              size=12,
+                              bold=False,
+                              italic=True,
+                              vertAlign=None,
+                              underline='none',
+                              strike=False,
+                              color='FF000000')
 
             fill = PatternFill(fill_type='solid',
                                start_color='c1c1c1',
@@ -370,7 +408,7 @@ class BRSPointsListView(ListView):
                                             color='FF000000')
                             )
             align_center = Alignment(horizontal='center',
-                                     vertical='bottom',
+                                     vertical='center',
                                      text_rotation=0,
                                      wrap_text=False,
                                      shrink_to_fit=False,
@@ -381,11 +419,11 @@ class BRSPointsListView(ListView):
                                       wrap_text=True,
                                       shrink_to_fit=False,
                                       indent=0)
-            align_left = Alignment(horizontal='center',
-                                   vertical='bottom',
+            align_left = Alignment(horizontal='left',
+                                   vertical='center',
                                    text_rotation=0,
                                    wrap_text=False,
-                                   shrink_to_fit=True,
+                                   shrink_to_fit=False,
                                    indent=0)
             number_format = 'General'
             protection = Protection(locked=True,
@@ -401,12 +439,37 @@ class BRSPointsListView(ListView):
             # ws = wb.create_sheet('первая страница', 0)
             ws.title = 'первая страница'
 
-            # значение ячейки
-            # ws['A1'] = "Hello!"
-
-            # текущее время
-            today = datetime.today()
-            today = today.strftime('%d.%m.%Y %S:%M:%H')
+            # объединение ячеек
+            ws.merge_cells('A1:I1')
+            ws.merge_cells('A2:I2')
+            ws.merge_cells('A3:I3')
+            ws.merge_cells('A5:B5')
+            ws.merge_cells('A6:B6')
+            ws.merge_cells('C6:D6')
+            ws.merge_cells('A7:B7')
+            ws.merge_cells('C7:G7')
+            ws.merge_cells('A8:C8')
+            ws.merge_cells('D8:G8')
+            ws.merge_cells('A9:B9')
+            ws.merge_cells('C9:D9')
+            ws.merge_cells('E39:F39')
+            ws.merge_cells('E40:F40')
+            ws.merge_cells('E41:F41')
+            ws.merge_cells('E42:F42')
+            ws.merge_cells('E43:F43')
+            ws.merge_cells('E44:F44')
+            ws.merge_cells('E45:F45')
+            ws.merge_cells('E46:F46')
+            ws.merge_cells('G39:H39')
+            ws.merge_cells('G40:H40')
+            ws.merge_cells('G41:H41')
+            ws.merge_cells('G42:H42')
+            ws.merge_cells('G43:H43')
+            ws.merge_cells('G44:H44')
+            ws.merge_cells('G45:H45')
+            ws.merge_cells('G46:H46')
+            ws.merge_cells('B49:C49')
+            ws.merge_cells('D49:E49')
 
             # данные для строк
             group_name = str(request.POST.get('selected_group'))
@@ -418,30 +481,74 @@ class BRSPointsListView(ListView):
             exampoints = request.POST.getlist('points6')
             arr_size = len(studid)
 
-            _row = 10
+            _row = 12
             _column = 4
             k = 1
 
-            ws.cell(row=1, column=2).value = 'ФГАОУ ВО «Северо-Восточный федеральный университет им.М.К.Аммосова'
-            ws.cell(row=2, column=2).value = 'Семестр: ' + str(
-                exam.semestr.name) + '      ' + exam.eduperiod.beginyear + '-' + exam.eduperiod.endyear
-            ws.cell(row=3, column=2).value = 'Тип контроля: ' + exam.controlType.name
-            ws.cell(row=4, column=2).value = 'Группа: ' + group_name
-            ws.cell(row=5, column=2).value = 'Дисциплина: ' + exam.discipline.Name
-            ws.cell(row=6, column=2).value = 'ФИО преподавателя: ' + exam.discipline.lecturer.FIO
-            ws.cell(row=7, column=2).value = 'Дата проведения зачета/экзамена: ' + exam.examDate
-            ws.cell(row=9, column=1).value = '№'
-            ws.cell(row=9, column=2).value = 'Фамилия, имя, отчество'
-            ws.cell(row=9, column=3).value = '№ зачетной книжки'
-            ws.cell(row=9, column=4).value = 'Сумма баллов'
-            ws.cell(row=9, column=5).value = 'Баллы экзамен'
-            ws.cell(row=9, column=6).value = 'Всего баллов'
-            ws.cell(row=9, column=7).value = 'Оценка прописью'
-            ws.cell(row=9, column=8).value = 'Буквенный эквивалент'
-            ws.cell(row=9, column=9).value = 'Подпись преподавателя'
+            zachteno = 0
+            ne_zachteno = 0
+            ne_attest = 0
+            otl = 0
+            horosho = 0
+            udovl = 0
+            neudovl = 0
+            ne_yavka = 0
+
+            ws.cell(row=1, column=1).value = 'ФГАОУ ВО «Северо-Восточный федеральный университет им.М.К.Аммосова'
+            ws.cell(row=2, column=1).value = 'Институт математики и информатики'
+            ws.cell(row=3, column=1).value = 'Ведомость текущей и промежуточной аттестации'
+            ws.cell(row=5, column=1).value = 'Семестр: ' + str(
+                exam.semestr.name) + ', ' + exam.eduperiod.beginyear + '-' + exam.eduperiod.endyear + ' уч.г.'
+            ws.cell(row=6, column=1).value = 'Форма контроля:'
+            ws.cell(row=6, column=3).value = exam.controlType.name
+            ws.cell(row=6, column=5).value = 'курс 1'
+            ws.cell(row=6, column=6).value = 'группа:'
+            ws.cell(row=6, column=7).value = group_name
+            ws.cell(row=7, column=1).value = 'Дисциплина:'
+            ws.cell(row=7, column=3).value = exam.discipline.Name
+            ws.cell(row=8, column=1).value = 'Фамилия, имя, отчество преподавателя:'
+            ws.cell(row=8, column=4).value = exam.discipline.lecturer.FIO
+            ws.cell(row=9, column=1).value = 'Дата проведения зачета/экзамена:'
+            ws.cell(row=9, column=3).value = exam.examDate
+            ws.cell(row=11, column=1).value = '№'
+            ws.cell(row=11, column=2).value = 'Фамилия, имя, отчество'
+            ws.cell(row=11, column=3).value = '№ зачетной книжки'
+            ws.cell(row=11, column=4).value = 'Сумма баллов за текущую работу-рубеж.срез'
+            ws.cell(row=11, column=5).value = 'Баллы ' + exam.controlType.name + ' (бонусные баллы)'
+            ws.cell(row=11, column=6).value = 'Всего баллов'
+            ws.cell(row=11, column=7).value = 'Оценка прописью'
+            ws.cell(row=11, column=8).value = 'Буквенный эквивалент'
+            ws.cell(row=11, column=9).value = 'Подпись преподавателя'
+            ws.cell(row=39, column=2).value = 'зачтено'
+            ws.cell(row=40, column=2).value = 'не зачтено'
+            ws.cell(row=41, column=2).value = 'не аттест'
+            ws.cell(row=42, column=2).value = '5(отлично)'
+            ws.cell(row=43, column=2).value = '4(хорошо)'
+            ws.cell(row=44, column=2).value = '3(удовл)'
+            ws.cell(row=45, column=2).value = '2(неудовл)'
+            ws.cell(row=46, column=2).value = 'не явка'
+            ws.cell(row=39, column=5).value = 'Сумма баллов'
+            ws.cell(row=40, column=5).value = '95-100'
+            ws.cell(row=41, column=5).value = '85-94,9'
+            ws.cell(row=42, column=5).value = '75-84,9'
+            ws.cell(row=43, column=5).value = '65-74,9'
+            ws.cell(row=44, column=5).value = '55-64,9'
+            ws.cell(row=45, column=5).value = '25-54,9'
+            ws.cell(row=46, column=5).value = '0-24,9'
+            ws.cell(row=39, column=7).value = 'Буквенный эквивалент оценки'
+            ws.cell(row=40, column=7).value = 'A'
+            ws.cell(row=41, column=7).value = 'B'
+            ws.cell(row=42, column=7).value = 'C'
+            ws.cell(row=43, column=7).value = 'D'
+            ws.cell(row=44, column=7).value = 'E'
+            ws.cell(row=45, column=7).value = 'FX'
+            ws.cell(row=46, column=7).value = 'F'
+            ws.cell(row=49, column=2).value = 'Директор ИМИ СВФУ____________________'
+            ws.cell(row=49, column=4).value = 'В.И.Афанасьева'
+
             for i in range(0, arr_size):
                 gl = Student.objects.get(id=studid[i])
-                ws.cell(row=_row, column=1).value = str(k)+'.'
+                ws.cell(row=_row, column=1).value = str(k)
                 k += 1
                 ws.cell(row=_row, column=2).value = gl.FIO
                 ws.cell(row=_row, column=3).value = gl.StudentID
@@ -453,8 +560,128 @@ class BRSPointsListView(ListView):
                 ws.cell(row=_row, column=_column + 4).value = get_markSymbol(exam.controlType.name, totalpoints)
                 _row += 1
 
+            for cellObj in ws['G12:G37']:
+                for cell in cellObj:
+                    if ws[cell.coordinate].value == 'Зачтено':
+                        zachteno = zachteno + 1
+                    elif ws[cell.coordinate].value == 'Не зачтено':
+                        ne_zachteno = ne_zachteno + 1
+                    elif ws[cell.coordinate].value == 'Не аттест':
+                        ne_attest = ne_attest + 1
+                    elif ws[cell.coordinate].value == 'Отлично':
+                        otl = otl + 1
+                    elif ws[cell.coordinate].value == 'Хорошо':
+                        horosho = horosho + 1
+                    elif ws[cell.coordinate].value == 'Удовлетворительно':
+                        udovl = udovl + 1
+                    elif ws[cell.coordinate].value == 'Неудовлетворительно':
+                        neudovl = neudovl + 1
+                    elif ws[cell.coordinate].value == 'Не явка':
+                        ne_yavka = ne_yavka + 1
+
+            ws.cell(row=39, column=3).value = str(zachteno)
+            ws.cell(row=40, column=3).value = str(ne_zachteno)
+            ws.cell(row=41, column=3).value = str(ne_attest)
+            ws.cell(row=42, column=3).value = str(otl)
+            ws.cell(row=43, column=3).value = str(horosho)
+            ws.cell(row=44, column=3).value = str(udovl)
+            ws.cell(row=45, column=3).value = str(neudovl)
+            ws.cell(row=46, column=3).value = str(ne_yavka)
+
             # шрифты
-            ws['B1'].font = font
+            for cellObj in ws['A1:I37']:
+                for cell in cellObj:
+                    ws[cell.coordinate].font = font_main
+
+            for cellObj in ws['G12:G37']:
+                for cell in cellObj:
+                    ws[cell.coordinate].font = font_bold_s
+
+            for cellObj in ws['B12:B37']:
+                for cell in cellObj:
+                    ws[cell.coordinate].font = font_calibri
+
+            for cellObj in ws['H12:H37']:
+                for cell in cellObj:
+                    ws[cell.coordinate].font = font_calibri
+
+            for cellObj in ws['E12:E37']:
+                for cell in cellObj:
+                    ws[cell.coordinate].font = font_bold
+
+            for cellObj in ws['E11:I11']:
+                for cell in cellObj:
+                    ws[cell.coordinate].font = Font(name='Times New Roman',
+                                                  size=9,
+                                                  bold=False,
+                                                  italic=False,
+                                                  vertAlign=None,
+                                                  underline='none',
+                                                  strike=False,
+                                                  color='FF000000')
+
+            ws['A3'].font = font_bold
+            ws['C7'].font = font_bold
+            ws['D8'].font = font_bold
+            ws['F6'].font = font_bold
+            ws['C7'].font = font_arial
+            ws['D8'].font = font_arial
+            ws['G6'].font = Font(name='Arial Cyr',
+                                 size=12,
+                                 bold=False,
+                                 italic=True,
+                                 vertAlign=None,
+                                 underline='single',
+                                 strike=False,
+                                 color='FF000000')
+            ws['C9'].font = Font(name='Calibri',
+                                 size=11,
+                                 bold=False,
+                                 italic=False,
+                                 vertAlign=None,
+                                 underline='single',
+                                 strike=False,
+                                 color='FF000000')
+            ws['A11'].font = Font(name='Times New Roman',
+                                  size=10,
+                                  bold=False,
+                                  italic=False,
+                                  vertAlign=None,
+                                  underline='none',
+                                  strike=False,
+                                  color='FF000000')
+            ws['B11'].font = Font(name='Times New Roman',
+                                  size=10,
+                                  bold=False,
+                                  italic=False,
+                                  vertAlign=None,
+                                  underline='none',
+                                  strike=False,
+                                  color='FF000000')
+            ws['C11'].font = Font(name='Times New Roman',
+                                  size=9,
+                                  bold=False,
+                                  italic=False,
+                                  vertAlign=None,
+                                  underline='none',
+                                  strike=False,
+                                  color='FF000000')
+            ws['D11'].font = Font(name='Times New Roman',
+                                  size=8,
+                                  bold=False,
+                                  italic=False,
+                                  vertAlign=None,
+                                  underline='none',
+                                  strike=False,
+                                  color='FF000000')
+            ws['C6'].font = Font(name='Times New Roman',
+                                 size=14,
+                                 bold=False,
+                                 italic=True,
+                                 vertAlign=None,
+                                 underline='single',
+                                 strike=False,
+                                 color='FF000000')
 
             # увеличиваем все строки по высоте
             max_row = ws.max_row
@@ -465,35 +692,44 @@ class BRSPointsListView(ListView):
                 i += 1
 
             # вручную устанавливаем высоту первой строки
-            rd = ws.row_dimensions[9]
-            rd.height = 64
+            rd = ws.row_dimensions[11]
+            rd.height = 48
 
             # сетка
-            for cellObj in ws['A9:I35']:
+            for cellObj in ws['A11:I37']:
+                for cell in cellObj:
+                    # print(cell.coordinate, cell.value)
+                    ws[cell.coordinate].border = border
+
+            for cellObj in ws['B39:C46']:
+                for cell in cellObj:
+                    # print(cell.coordinate, cell.value)
+                    ws[cell.coordinate].border = border
+
+            for cellObj in ws['E39:H46']:
                 for cell in cellObj:
                     # print(cell.coordinate, cell.value)
                     ws[cell.coordinate].border = border
 
             # выравнивание
-            for cellObj in ws['A1:I35']:
+            for cellObj in ws['A1:I37']:
                 for cell in cellObj:
                     # print(cell.coordinate, cell.value)
                     ws[cell.coordinate].alignment = align_center
 
-            # выравнивание
-            for cellObj in ws['A9:I9']:
+            for cellObj in ws['A11:I11']:
                 for cell in cellObj:
                     # print(cell.coordinate, cell.value)
                     ws[cell.coordinate].alignment = align_center2
 
-            for cellObj in ws['A1:I1']:
+            for cellObj in ws['A5:I9']:
                 for cell in cellObj:
                     # print(cell.coordinate, cell.value)
                     ws[cell.coordinate].alignment = align_left
 
             # перетягивание ячеек
             dims = {}
-            for cellObj in ws['B1:B35']:
+            for cellObj in ws['G11:G37']:
                 for cell in cellObj:
                     if cell.value:
                         dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
@@ -501,8 +737,17 @@ class BRSPointsListView(ListView):
                 # value * коэфициент
                 ws.column_dimensions[col].width = value * 1.5
 
-            # перетягивание ячеек
-            for cellObj in ws['A1:A35']:
+            dims = {}
+            for cellObj in ws['A11:A37']:
+                for cell in cellObj:
+                    if cell.value:
+                        dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
+            for col, value in dims.items():
+                # value * коэфициент
+                ws.column_dimensions[col].width = value * 3
+
+            dims = {}
+            for cellObj in ws['B11:B37']:
                 for cell in cellObj:
                     if cell.value:
                         dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
@@ -510,16 +755,14 @@ class BRSPointsListView(ListView):
                 # value * коэфициент
                 ws.column_dimensions[col].width = value * 1.5
 
-            # перетягивание ячеек
-            for cellObj in ws['G9:G35']:
+            dims = {}
+            for cellObj in ws['D11:D37']:
                 for cell in cellObj:
                     if cell.value:
                         dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
             for col, value in dims.items():
                 # value * коэфициент
-                ws.column_dimensions[col].width = value * 1.5
-
-
+                ws.column_dimensions[col].width = value * 0.25
 
             # сохранение файла в выбранную директорию
             response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')

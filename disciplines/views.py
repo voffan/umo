@@ -204,9 +204,36 @@ def subjects(request):
 
 def export_to_excel(request):
     # определяем стили
+    font_main = Font(name='Times New Roman',
+                size=12,
+                bold=False,
+                italic=False,
+                vertAlign=None,
+                underline='none',
+                strike=False,
+                color='FF000000',
+                )
     font = Font(name='Calibri',
-                size=18,
+                     size=12,
+                     bold=False,
+                     italic=False,
+                     vertAlign=None,
+                     underline='none',
+                     strike=False,
+                     color='FF000000',
+                     )
+    font_bold = Font(name='Times New Roman',
+                size=16,
                 bold=True,
+                italic=False,
+                vertAlign=None,
+                underline='none',
+                strike=False,
+                color='FF000000',
+                )
+    font_small = Font(name='Times New Roman',
+                size=10,
+                bold=False,
                 italic=False,
                 vertAlign=None,
                 underline='none',
@@ -237,6 +264,12 @@ def export_to_excel(request):
                                     color='FF000000')
                     )
     align_center = Alignment(horizontal='center',
+                             vertical='center',
+                             text_rotation=0,
+                             wrap_text=True,
+                             shrink_to_fit=False,
+                             indent=0)
+    align_right = Alignment(horizontal='right',
                              vertical='center',
                              text_rotation=0,
                              wrap_text=True,
@@ -294,7 +327,16 @@ def export_to_excel(request):
         _row += 1
 
     # шрифты
-    ws['B1'].font = font
+    for cellObj in ws['A1:M27']:
+        for cell in cellObj:
+            ws[cell.coordinate].font = font_main
+    for cellObj in ws['C2:M2']:
+        for cell in cellObj:
+            ws[cell.coordinate].font = font_small
+    for cellObj in ws['C1:M1']:
+        for cell in cellObj:
+            ws[cell.coordinate].font = font
+    ws['B1'].font = font_bold
 
     # увеличиваем все строки по высоте
     max_row = ws.max_row
@@ -309,7 +351,7 @@ def export_to_excel(request):
     rd.height = 90
 
     # сетка
-    for cellObj in ws['A1:M20']:
+    for cellObj in ws['A1:M27']:
         for cell in cellObj:
             # print(cell.coordinate, cell.value)
             ws[cell.coordinate].border = border
@@ -325,10 +367,11 @@ def export_to_excel(request):
             ws[cell.coordinate].alignment = align_vertical
 
     ws['B1'].alignment = align_center
+    ws['B2'].alignment = align_right
 
     # перетягивание ячеек
     dims = {}
-    for cellObj in ws['B1:B20']:
+    for cellObj in ws['B1:B27']:
         for cell in cellObj:
             if cell.value:
                 dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
@@ -338,7 +381,7 @@ def export_to_excel(request):
 
     # перетягивание ячеек номеров
     dims = {}
-    for cellObj in ws['A1:A20']:
+    for cellObj in ws['A1:A27']:
         for cell in cellObj:
             if cell.value:
                 dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
