@@ -7,8 +7,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Exam, GroupList, Kafedra
-import json
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Exam, GroupList
 
 
 # Create your views here.
@@ -31,19 +30,15 @@ class DisciplineList(ListView):
         return Discipline.objects.all()
 
 
-def list_disc(request):
-    kafedra_id = request.GET['dropdown1']
-    teacher_id = request.GET['dropdown2']
-    kafedra = Kafedra.objects.get(pk=kafedra_id)
-    teacher = Teacher.objects.get(pk=teacher_id)
+def list_disc(request, pk):
+    teacher = Teacher.objects.get(id=pk)
     disciplines = teacher.discipline_set.all()
     return render(request, 'disc_list.html', {'discipline_list': disciplines})
 
 
-def teacher_choose(request):
-    kafedra_name = Kafedra.objects.all()
-    teacher_name = Teacher.objects.all()
-    return render(request, 'disciplines_teacher.html', {'kafedra_name': kafedra_name, 'teacher_name': teacher_name})
+def list_teachers(request):
+    all = Teacher.objects.all()
+    return render(request, 'disc_teacher.html', {'teachers': all})
 
 
 class DisciplineCreate(CreateView):
@@ -192,6 +187,7 @@ def get_data_for_ekran(request):
         result['data'].append(m)
     return JsonResponse(result)
 
+
 def subjects(request):
     group_id = request.GET.get('group', '')
     semestr_id = request.GET.get('semestr', '')
@@ -204,7 +200,6 @@ def subjects(request):
         for s in subjects:
             result['data'].append(s.Name)
     return JsonResponse(result)
-
 
 
 def export_to_excel(request):
@@ -365,8 +360,7 @@ def excel(request):
     semestrname = Semestr.objects.all()
     subjects = Discipline.objects.all()
 
-    group = 'dsd'
-    return render(request, 'export_to_excel.html', {'groupname': groupname, 'semestrname': semestrname, 'group': group})
+    return render(request, 'export_to_excel.html', {'groupname': groupname, 'semestrname': semestrname, 'subjects': subjects})
 
 
 def vedomost(request):

@@ -14,10 +14,9 @@ urlpatterns = [
     url(r'^export/$', views.export_to_excel, name='export'),
     url(r'^excel/$', views.excel, name='excel'),
     url(r'^vedomost/$', views.vedomost, name='vedomost'),
-    url(r'^disciplines_list/$', views.list_disc, name='disciplines'),
+    url(r'(?P<pk>[0-9]+)/disciplines_list/$', views.list_disc, name='disciplines'),
     url(r'^all_disciplines/$', views.DisciplineList.as_view(), name='disciplines_list'),
-    url(r'^$', views.teacher_choose, name='teacher'),
-    #===================================================
     url(r'^dataforekran/$', views.get_data_for_ekran, name='dataforekran'),
     url(r'^subjects/$', views.subjects, name='subjects'),
+    url(r'^$', views.list_teachers, name='disc_teachers'),
 ]

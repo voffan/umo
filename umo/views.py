@@ -42,7 +42,7 @@ class TeacherDelete(DeleteView):
 
 def list_teachers(request):
     all = Teacher.objects.all()
-    return render(request,'teachers_list.html', {'teachers':all})
+    return render(request, 'teachers_list.html', {'teachers': all})
 
 
 def create_teacher(request):
