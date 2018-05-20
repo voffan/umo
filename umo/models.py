@@ -22,8 +22,7 @@ class EduOrg(models.Model):
     name = models.CharField(verbose_name="название института", max_length=200, db_index=True, blank=False, null=False)
     uni = models.ForeignKey('self', verbose_name="Название университета", db_index=True, null=True, blank=True)
 
-    def __str__(self):
-        return self.name
+    def __str__(self):        return self.name
 
 
 class Kafedra(models.Model):
@@ -59,11 +58,11 @@ class Group(models.Model):
 class Specialization(models.Model):
     name = models.CharField(verbose_name="название специализации", max_length=200, db_index=True, blank=False,
                             null=False)
-    briefname = models.CharField(verbose_name="короткое имя специализации", max_length=200, db_index=True, blank=False,
-                                 null=False)
+    briefname = models.CharField(verbose_name="короткое имя специализации", max_length=200, db_index=True, blank=True,
+                                 null=True)
     code = models.IntegerField(verbose_name="код специализации", db_index=True, blank=False, null=False)
     qual = models.ForeignKey('Qual', verbose_name="Квалификация", db_index=True, blank=False, null=False)
-    level = models.ForeignKey('Level', verbose_name="Уровень", db_index=True, blank=False, null=False)
+    level = models.ForeignKey('Level', verbose_name="Уровень", db_index=True, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -73,8 +72,8 @@ class Discipline(models.Model):
     Name = models.CharField(verbose_name="название дисциплины", max_length=200, db_index=True, blank=False, null=False)
     code = models.IntegerField(verbose_name="код дисциплины", db_index=True, blank=False, null=False)
     program = models.ForeignKey(EduProg, verbose_name="Программа образования", db_index=True, blank=False, null=False)
-    lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=False, null=False)
-    control = models.ForeignKey('Control', verbose_name="Тип контроля", db_index=True, blank=False, null=False)
+    lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True)
+    control = models.ForeignKey('Control', verbose_name="Тип контроля", db_index=True, blank=True, null=True)
 
     def __str__(self):
             return self.Name

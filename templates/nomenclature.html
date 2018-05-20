@@ -2,13 +2,24 @@
 {% block title %}Рабочий учебный план{% endblock %}
 {% block content %}
     <h1>Рабочий учебный план </h1>
-
+    <form action="" method="get">
         {% csrf_token %}
-        <table>
+        <p></p>
+        <a href="{% url 'nomenclatures:upload_file' %}" class="btn btn-success"> Загрузить РУП </a>
+        <p></p>
+        <div>
+            <label>Семестр:</label>
+            <select name="dropdown1" class="form-control">
+            {% for semestrname in semestrname %}
+                <option value="{{ semestrname.name }}">{{ semestrname.name}}</option>
+            {% endfor %}
+            </select>
 
-        </table>
+        </div>
+        <p></p>
+        <button type="submit" class="btn btn-success">Выбрать</button>
         <p></p>
 
-        <a href="{% url 'nomenclatures:upload_file' %}" class="btn btn-success"> Загрузить РУП </a>
+
     </form>
 {% endblock %}
