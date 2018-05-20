@@ -41,12 +41,15 @@
 {% block scripts %}
 <script>
     $(document).ready(function() {
-
-        //$('#dropdown2').change();
+        $('#dropdown1').change();
     } );
+
     function LoadTableData(){
         $('#table1').DataTable( {
-              "ajax": {
+            "dom": 'rtipS',
+            "info": false,
+            "paging": false,
+            "ajax": {
                   "url":"{% url 'disciplines:dataforekran' %}",
                   "dataType":"json",
                   "type":"GET",
@@ -54,41 +57,30 @@
               },
         } );
     }
-    function ClearColumns(){
 
+    function ClearColumns(){
+        $('#table1').dataTable().fnDestroy();
     }
-    function AddColumns(columns){
-        //clear columns
-        ClearColumns();
-    }
+
     $('#dropdown1').on('change',function(){
-        if($('#dropdown2').val().length < 1){
-            alert('Выберете семестр');
-            return;
-        }
         $.ajax({
             "url":"{% url 'disciplines:subjects' %}",
             "method":"GET",
             "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()},
             "success":function(data){
-                //add columns to table
-                AddColumns(data['data']);
+                ClearColumns(data['data']);
                 LoadTableData();
             },
         });
     });
+
     $('#dropdown2').on('change',function(){
-        if($('#dropdown1').val().length < 1){
-            alert('Выберете группу');
-            return;
-        }
         $.ajax({
             "url":"{% url 'disciplines:subjects' %}",
             "method":"GET",
             "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()},
             "success":function(data){
-                //add columns to table
-                AddColumns(data['data']);
+                ClearColumns(data['data']);
                 LoadTableData();
             },
         });
