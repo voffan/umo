@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import *
 
 
 # Create your models here.
@@ -55,6 +56,11 @@ class Group(models.Model):
     def __str__(self):
         return self.Name
 
+    @property
+    def year(self):
+        now = datetime.now()
+        return int(now.year) - self.beginyear.year
+
 
 class Specialization(models.Model):
     name = models.CharField(verbose_name="название специализации", max_length=200, db_index=True, blank=False,
@@ -108,10 +114,10 @@ class Control(models.Model):
 
 
 class Year(models.Model):
-    year = models.CharField(verbose_name="год поступления", max_length=4, db_index=True, blank=False, null=False)
+    year = models.IntegerField(verbose_name="год поступления", db_index=True, blank=False, null=False)
 
     def __str__(self):
-            return self.year
+            return str(self.year)
 
 
 class Position(models.Model):
@@ -171,7 +177,7 @@ class Mark(models.Model):
 
 
 class MarkSymbol(models.Model):
-    name = models.CharField(verbose_name="Буквенный эквивалент оценки", db_index=True, blank=False, null=False,
+    name = models.CharField(verbose_name="Буквенный эквивалент оценки", db_index=True, blank=True, null=True,
                             max_length=255)
 
     def __str__(self):

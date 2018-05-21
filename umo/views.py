@@ -7,6 +7,7 @@ from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Si
 
 from umo.forms import AddTeacherForm
 from umo.models import *
+from datetime import *
 
 
 # Create your views here.
@@ -439,44 +440,15 @@ class BRSPointsListView(ListView):
             # ws = wb.create_sheet('первая страница', 0)
             ws.title = 'первая страница'
 
-            # объединение ячеек
-            ws.merge_cells('A1:I1')
-            ws.merge_cells('A2:I2')
-            ws.merge_cells('A3:I3')
-            ws.merge_cells('A5:B5')
-            ws.merge_cells('A6:B6')
-            ws.merge_cells('C6:D6')
-            ws.merge_cells('A7:B7')
-            ws.merge_cells('C7:G7')
-            ws.merge_cells('A8:C8')
-            ws.merge_cells('D8:G8')
-            ws.merge_cells('A9:B9')
-            ws.merge_cells('C9:D9')
-            ws.merge_cells('E39:F39')
-            ws.merge_cells('E40:F40')
-            ws.merge_cells('E41:F41')
-            ws.merge_cells('E42:F42')
-            ws.merge_cells('E43:F43')
-            ws.merge_cells('E44:F44')
-            ws.merge_cells('E45:F45')
-            ws.merge_cells('E46:F46')
-            ws.merge_cells('G39:H39')
-            ws.merge_cells('G40:H40')
-            ws.merge_cells('G41:H41')
-            ws.merge_cells('G42:H42')
-            ws.merge_cells('G43:H43')
-            ws.merge_cells('G44:H44')
-            ws.merge_cells('G45:H45')
-            ws.merge_cells('G46:H46')
-            ws.merge_cells('B49:C49')
-            ws.merge_cells('D49:E49')
+            # текущее время
+            p = datetime.now()
 
             # данные для строк
             group_name = str(request.POST.get('selected_group'))
             disc_id = self.kwargs['pk']
             exam = Exam.objects.get(discipline__id=disc_id)
             studid = request.POST.getlist('studid')
-
+            group = Group.objects.get(Name=group_name)
             inpoints = request.POST.getlist('points4')
             exampoints = request.POST.getlist('points6')
             arr_size = len(studid)
@@ -484,6 +456,7 @@ class BRSPointsListView(ListView):
             _row = 12
             _column = 4
             k = 1
+            z = 0
 
             zachteno = 0
             ne_zachteno = 0
@@ -494,6 +467,25 @@ class BRSPointsListView(ListView):
             neudovl = 0
             ne_yavka = 0
 
+            for i in range(0, arr_size):
+                gl = Student.objects.get(id=studid[i])
+                ws.cell(row=_row, column=1).value = str(k)
+                k += 1
+                ws.cell(row=_row, column=2).value = gl.FIO
+                ws.cell(row=_row, column=3).value = gl.StudentID
+                ws.cell(row=_row, column=_column).value = str(float(inpoints[i].replace(',', '.'))).replace('.', ',')
+                ws.cell(row=_row, column=_column + 1).value = str(float(exampoints[i].replace(',', '.'))).replace('.', ',')
+                totalpoints = float(inpoints[i].replace(',', '.')) + float(exampoints[i].replace(',', '.'))
+                ws.cell(row=_row, column=_column + 2).value = str(totalpoints).replace('.', ',')
+                ws.cell(row=_row, column=_column + 3).value = get_mark_vedomost(exam.controlType.name, float(inpoints[i].replace(',', '.')), float(exampoints[i].replace(',', '.')))
+                ws.cell(row=_row, column=_column + 4).value = get_markSymbol(exam.controlType.name, totalpoints)
+                _row += 1
+                z += 1
+
+            zk = z+11
+            zp = z+14
+            zp2 = zp+7
+
             ws.cell(row=1, column=1).value = 'ФГАОУ ВО «Северо-Восточный федеральный университет им.М.К.Аммосова'
             ws.cell(row=2, column=1).value = 'Институт математики и информатики'
             ws.cell(row=3, column=1).value = 'Ведомость текущей и промежуточной аттестации'
@@ -501,7 +493,7 @@ class BRSPointsListView(ListView):
                 exam.semestr.name) + ', ' + exam.eduperiod.beginyear + '-' + exam.eduperiod.endyear + ' уч.г.'
             ws.cell(row=6, column=1).value = 'Форма контроля:'
             ws.cell(row=6, column=3).value = exam.controlType.name
-            ws.cell(row=6, column=5).value = 'курс 1'
+            ws.cell(row=6, column=5).value = 'курс '+str(group.year)
             ws.cell(row=6, column=6).value = 'группа:'
             ws.cell(row=6, column=7).value = group_name
             ws.cell(row=7, column=1).value = 'Дисциплина:'
@@ -519,54 +511,72 @@ class BRSPointsListView(ListView):
             ws.cell(row=11, column=7).value = 'Оценка прописью'
             ws.cell(row=11, column=8).value = 'Буквенный эквивалент'
             ws.cell(row=11, column=9).value = 'Подпись преподавателя'
-            ws.cell(row=39, column=2).value = 'зачтено'
-            ws.cell(row=40, column=2).value = 'не зачтено'
-            ws.cell(row=41, column=2).value = 'не аттест'
-            ws.cell(row=42, column=2).value = '5(отлично)'
-            ws.cell(row=43, column=2).value = '4(хорошо)'
-            ws.cell(row=44, column=2).value = '3(удовл)'
-            ws.cell(row=45, column=2).value = '2(неудовл)'
-            ws.cell(row=46, column=2).value = 'не явка'
-            ws.cell(row=39, column=5).value = 'Сумма баллов'
-            ws.cell(row=40, column=5).value = '95-100'
-            ws.cell(row=41, column=5).value = '85-94,9'
-            ws.cell(row=42, column=5).value = '75-84,9'
-            ws.cell(row=43, column=5).value = '65-74,9'
-            ws.cell(row=44, column=5).value = '55-64,9'
-            ws.cell(row=45, column=5).value = '25-54,9'
-            ws.cell(row=46, column=5).value = '0-24,9'
-            ws.cell(row=39, column=7).value = 'Буквенный эквивалент оценки'
-            ws.cell(row=40, column=7).value = 'A'
-            ws.cell(row=41, column=7).value = 'B'
-            ws.cell(row=42, column=7).value = 'C'
-            ws.cell(row=43, column=7).value = 'D'
-            ws.cell(row=44, column=7).value = 'E'
-            ws.cell(row=45, column=7).value = 'FX'
-            ws.cell(row=46, column=7).value = 'F'
-            ws.cell(row=49, column=2).value = 'Директор ИМИ СВФУ____________________'
-            ws.cell(row=49, column=4).value = 'В.И.Афанасьева'
+            ws.cell(row=zp, column=2).value = 'зачтено'
+            ws.cell(row=zp+1, column=2).value = 'не зачтено'
+            ws.cell(row=zp+2, column=2).value = 'не аттест'
+            ws.cell(row=zp+3, column=2).value = '5(отлично)'
+            ws.cell(row=zp+4, column=2).value = '4(хорошо)'
+            ws.cell(row=zp+5, column=2).value = '3(удовл)'
+            ws.cell(row=zp+6, column=2).value = '2(неудовл)'
+            ws.cell(row=zp2, column=2).value = 'не явка'
+            ws.cell(row=zp, column=5).value = 'Сумма баллов'
+            ws.cell(row=zp+1, column=5).value = '95-100'
+            ws.cell(row=zp+2, column=5).value = '85-94,9'
+            ws.cell(row=zp+3, column=5).value = '75-84,9'
+            ws.cell(row=zp+4, column=5).value = '65-74,9'
+            ws.cell(row=zp+5, column=5).value = '55-64,9'
+            ws.cell(row=zp+6, column=5).value = '25-54,9'
+            ws.cell(row=zp2, column=5).value = '0-24,9'
+            ws.cell(row=zp, column=7).value = 'Буквенный эквивалент оценки'
+            ws.cell(row=zp+1, column=7).value = 'A'
+            ws.cell(row=zp+2, column=7).value = 'B'
+            ws.cell(row=zp+3, column=7).value = 'C'
+            ws.cell(row=zp+4, column=7).value = 'D'
+            ws.cell(row=zp+5, column=7).value = 'E'
+            ws.cell(row=zp+6, column=7).value = 'FX'
+            ws.cell(row=zp2, column=7).value = 'F'
+            ws.cell(row=zp+10, column=2).value = 'Директор ИМИ СВФУ____________________'
+            ws.cell(row=zp+10, column=4).value = 'В.И.Афанасьева'
 
-            for i in range(0, arr_size):
-                gl = Student.objects.get(id=studid[i])
-                ws.cell(row=_row, column=1).value = str(k)
-                k += 1
-                ws.cell(row=_row, column=2).value = gl.FIO
-                ws.cell(row=_row, column=3).value = gl.StudentID
-                ws.cell(row=_row, column=_column).value = str(float(inpoints[i].replace(',', '.'))).replace('.', ',')
-                ws.cell(row=_row, column=_column + 1).value = str(float(exampoints[i].replace(',', '.'))).replace('.', ',')
-                totalpoints = float(inpoints[i].replace(',', '.')) + float(exampoints[i].replace(',', '.'))
-                ws.cell(row=_row, column=_column + 2).value = str(totalpoints).replace('.', ',')
-                ws.cell(row=_row, column=_column + 3).value = get_mark_vedomost(exam.controlType.name, float(inpoints[i].replace(',', '.')), float(exampoints[i].replace(',', '.')))
-                ws.cell(row=_row, column=_column + 4).value = get_markSymbol(exam.controlType.name, totalpoints)
-                _row += 1
+            # объединение ячеек
+            ws.merge_cells('A1:I1')
+            ws.merge_cells('A2:I2')
+            ws.merge_cells('A3:I3')
+            ws.merge_cells('A5:B5')
+            ws.merge_cells('A6:B6')
+            ws.merge_cells('C6:D6')
+            ws.merge_cells('A7:B7')
+            ws.merge_cells('C7:G7')
+            ws.merge_cells('A8:C8')
+            ws.merge_cells('D8:G8')
+            ws.merge_cells('A9:B9')
+            ws.merge_cells('C9:D9')
+            ws.merge_cells('E' + str(zp) + ':F' + str(zp))
+            ws.merge_cells('E' + str(zp + 1) + ':F' + str(zp + 1))
+            ws.merge_cells('E' + str(zp + 2) + ':F' + str(zp + 2))
+            ws.merge_cells('E' + str(zp + 3) + ':F' + str(zp + 3))
+            ws.merge_cells('E' + str(zp + 4) + ':F' + str(zp + 4))
+            ws.merge_cells('E' + str(zp + 5) + ':F' + str(zp + 5))
+            ws.merge_cells('E' + str(zp + 6) + ':F' + str(zp + 6))
+            ws.merge_cells('E' + str(zp + 7) + ':F' + str(zp + 7))
+            ws.merge_cells('G' + str(zp) + ':H' + str(zp))
+            ws.merge_cells('G' + str(zp + 1) + ':H' + str(zp + 1))
+            ws.merge_cells('G' + str(zp + 2) + ':H' + str(zp + 2))
+            ws.merge_cells('G' + str(zp + 3) + ':H' + str(zp + 3))
+            ws.merge_cells('G' + str(zp + 4) + ':H' + str(zp + 4))
+            ws.merge_cells('G' + str(zp + 5) + ':H' + str(zp + 5))
+            ws.merge_cells('G' + str(zp + 6) + ':H' + str(zp + 6))
+            ws.merge_cells('G' + str(zp + 7) + ':H' + str(zp + 7))
+            ws.merge_cells('B' + str(zp + 10) + ':C' + str(zp + 10))
+            ws.merge_cells('D' + str(zp + 10) + ':E' + str(zp + 10))
 
-            for cellObj in ws['G12:G37']:
+            for cellObj in ws['G12:G'+str(zk)]:
                 for cell in cellObj:
                     if ws[cell.coordinate].value == 'Зачтено':
                         zachteno = zachteno + 1
                     elif ws[cell.coordinate].value == 'Не зачтено':
                         ne_zachteno = ne_zachteno + 1
-                    elif ws[cell.coordinate].value == 'Не аттест':
+                    elif ws[cell.coordinate].value == 'Не допущен':
                         ne_attest = ne_attest + 1
                     elif ws[cell.coordinate].value == 'Отлично':
                         otl = otl + 1
@@ -579,33 +589,33 @@ class BRSPointsListView(ListView):
                     elif ws[cell.coordinate].value == 'Не явка':
                         ne_yavka = ne_yavka + 1
 
-            ws.cell(row=39, column=3).value = str(zachteno)
-            ws.cell(row=40, column=3).value = str(ne_zachteno)
-            ws.cell(row=41, column=3).value = str(ne_attest)
-            ws.cell(row=42, column=3).value = str(otl)
-            ws.cell(row=43, column=3).value = str(horosho)
-            ws.cell(row=44, column=3).value = str(udovl)
-            ws.cell(row=45, column=3).value = str(neudovl)
-            ws.cell(row=46, column=3).value = str(ne_yavka)
+            ws.cell(row=zp, column=3).value = str(zachteno)
+            ws.cell(row=zp+1, column=3).value = str(ne_zachteno)
+            ws.cell(row=zp+2, column=3).value = str(ne_attest)
+            ws.cell(row=zp+3, column=3).value = str(otl)
+            ws.cell(row=zp+4, column=3).value = str(horosho)
+            ws.cell(row=zp+5, column=3).value = str(udovl)
+            ws.cell(row=zp+6, column=3).value = str(neudovl)
+            ws.cell(row=zp2, column=3).value = str(ne_yavka)
 
             # шрифты
-            for cellObj in ws['A1:I37']:
+            for cellObj in ws['A1:I'+str(zk)]:
                 for cell in cellObj:
                     ws[cell.coordinate].font = font_main
 
-            for cellObj in ws['G12:G37']:
+            for cellObj in ws['G12:G'+str(zk)]:
                 for cell in cellObj:
                     ws[cell.coordinate].font = font_bold_s
 
-            for cellObj in ws['B12:B37']:
+            for cellObj in ws['B12:B'+str(zk)]:
                 for cell in cellObj:
                     ws[cell.coordinate].font = font_calibri
 
-            for cellObj in ws['H12:H37']:
+            for cellObj in ws['H12:H'+str(zk)]:
                 for cell in cellObj:
                     ws[cell.coordinate].font = font_calibri
 
-            for cellObj in ws['E12:E37']:
+            for cellObj in ws['E12:E'+str(zk)]:
                 for cell in cellObj:
                     ws[cell.coordinate].font = font_bold
 
@@ -696,23 +706,23 @@ class BRSPointsListView(ListView):
             rd.height = 48
 
             # сетка
-            for cellObj in ws['A11:I37']:
+            for cellObj in ws['A11:I'+str(zk)]:
                 for cell in cellObj:
                     # print(cell.coordinate, cell.value)
                     ws[cell.coordinate].border = border
 
-            for cellObj in ws['B39:C46']:
+            for cellObj in ws['B'+str(zp)+':C'+str(zp2)]:
                 for cell in cellObj:
                     # print(cell.coordinate, cell.value)
                     ws[cell.coordinate].border = border
 
-            for cellObj in ws['E39:H46']:
+            for cellObj in ws['E'+str(zp)+':H'+str(zp2)]:
                 for cell in cellObj:
                     # print(cell.coordinate, cell.value)
                     ws[cell.coordinate].border = border
 
             # выравнивание
-            for cellObj in ws['A1:I37']:
+            for cellObj in ws['A1:I3'+str(zk)]:
                 for cell in cellObj:
                     # print(cell.coordinate, cell.value)
                     ws[cell.coordinate].alignment = align_center
@@ -729,7 +739,7 @@ class BRSPointsListView(ListView):
 
             # перетягивание ячеек
             dims = {}
-            for cellObj in ws['G11:G37']:
+            for cellObj in ws['G11:G'+str(zk)]:
                 for cell in cellObj:
                     if cell.value:
                         dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
@@ -738,7 +748,7 @@ class BRSPointsListView(ListView):
                 ws.column_dimensions[col].width = value * 1.5
 
             dims = {}
-            for cellObj in ws['A11:A37']:
+            for cellObj in ws['A11:A'+str(zk)]:
                 for cell in cellObj:
                     if cell.value:
                         dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
@@ -747,7 +757,7 @@ class BRSPointsListView(ListView):
                 ws.column_dimensions[col].width = value * 3
 
             dims = {}
-            for cellObj in ws['B11:B37']:
+            for cellObj in ws['B11:B'+str(zk)]:
                 for cell in cellObj:
                     if cell.value:
                         dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
@@ -756,7 +766,7 @@ class BRSPointsListView(ListView):
                 ws.column_dimensions[col].width = value * 1.5
 
             dims = {}
-            for cellObj in ws['D11:D37']:
+            for cellObj in ws['D11:D'+str(zk)]:
                 for cell in cellObj:
                     if cell.value:
                         dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))

@@ -205,14 +205,14 @@ def subjects(request):
 def export_to_excel(request):
     # определяем стили
     font_main = Font(name='Times New Roman',
-                size=12,
-                bold=False,
-                italic=False,
-                vertAlign=None,
-                underline='none',
-                strike=False,
-                color='FF000000',
-                )
+                     size=12,
+                     bold=False,
+                     italic=False,
+                     vertAlign=None,
+                     underline='none',
+                     strike=False,
+                     color='FF000000',
+                     )
     font = Font(name='Calibri',
                      size=12,
                      bold=False,
@@ -223,23 +223,23 @@ def export_to_excel(request):
                      color='FF000000',
                      )
     font_bold = Font(name='Times New Roman',
-                size=16,
-                bold=True,
-                italic=False,
-                vertAlign=None,
-                underline='none',
-                strike=False,
-                color='FF000000',
-                )
+                     size=16,
+                     bold=True,
+                     italic=False,
+                     vertAlign=None,
+                     underline='none',
+                     strike=False,
+                     color='FF000000',
+                     )
     font_small = Font(name='Times New Roman',
-                size=10,
-                bold=False,
-                italic=False,
-                vertAlign=None,
-                underline='none',
-                strike=False,
-                color='FF000000',
-                )
+                      size=10,
+                      bold=False,
+                      italic=False,
+                      vertAlign=None,
+                      underline='none',
+                      strike=False,
+                      color='FF000000',
+                      )
 
     fill = PatternFill(fill_type='solid',
                        start_color='c1c1c1',
@@ -308,12 +308,15 @@ def export_to_excel(request):
     _row = 3
     _column = 3
     i = 1
+    z = 0
+    x = 0
     ws.cell(row=1, column=2).value = group.Name + ' cеместр ' + semestr
     ws.cell(row=2, column=2).value = 'Всего часов/ЗЕТ'
     for s in subjects:
         ws.cell(row=1, column=_column).value = s.Name
         ws.cell(row=2, column=_column).value = str(s.disciplinedetails_set.get().total_hours)
         _column += 1
+        x += 1
     for gl in students:
         ws.cell(row=_row, column=1).value = str(i) + '.'
         ws.cell(row=_row, column=2).value = gl.student.FIO
@@ -325,15 +328,58 @@ def export_to_excel(request):
                 ws.cell(row=_row, column=_column).value = mark.mark.name
             _column += 1
         _row += 1
+        z += 1
+
+    zk = z + 2
+    xk = x + 2
+
+    if xk == 2:
+        xk2 = 'B'
+    elif xk == 3:
+        xk2 = 'C'
+    elif xk ==4:
+        xk = 'D'
+    elif xk ==5:
+        xk = 'E'
+    elif xk ==6:
+        xk = 'F'
+    elif xk ==7:
+        xk = 'G'
+    elif xk ==8:
+        xk = 'H'
+    elif xk ==9:
+        xk = 'I'
+    elif xk ==10:
+        xk = 'J'
+    elif xk ==11:
+        xk = 'K'
+    elif xk ==12:
+        xk = 'L'
+    elif xk ==13:
+        xk = 'M'
+    elif xk ==14:
+        xk = 'N'
+    elif xk ==15:
+        xk = 'O'
+    elif xk ==16:
+        xk = 'P'
+    elif xk ==17:
+        xk = 'Q'
+    elif xk ==18:
+        xk = 'R'
+    elif xk ==19:
+        xk = 'S'
+    elif xk ==20:
+        xk = 'T'
 
     # шрифты
-    for cellObj in ws['A1:M27']:
+    for cellObj in ws['A1:'+str(xk)+str(zk)]:
         for cell in cellObj:
             ws[cell.coordinate].font = font_main
-    for cellObj in ws['C2:M2']:
+    for cellObj in ws['C2:'+str(xk)+'2']:
         for cell in cellObj:
             ws[cell.coordinate].font = font_small
-    for cellObj in ws['C1:M1']:
+    for cellObj in ws['C1:'+str(xk)+'1']:
         for cell in cellObj:
             ws[cell.coordinate].font = font
     ws['B1'].font = font_bold
@@ -351,18 +397,18 @@ def export_to_excel(request):
     rd.height = 90
 
     # сетка
-    for cellObj in ws['A1:M27']:
+    for cellObj in ws['A1:'+str(xk)+str(zk)]:
         for cell in cellObj:
             # print(cell.coordinate, cell.value)
             ws[cell.coordinate].border = border
 
     # закрашивание столбца
-    for cellObj in ws['A2:M2']:
+    for cellObj in ws['A2:'+str(xk)+'2']:
         for cell in cellObj:
             ws[cell.coordinate].fill = fill
 
     # выравнивание столбца
-    for cellObj in ws['A1:M1']:
+    for cellObj in ws['A1:'+str(xk)+'1']:
         for cell in cellObj:
             ws[cell.coordinate].alignment = align_vertical
 
@@ -371,7 +417,7 @@ def export_to_excel(request):
 
     # перетягивание ячеек
     dims = {}
-    for cellObj in ws['B1:B27']:
+    for cellObj in ws['B1:B'+str(zk)]:
         for cell in cellObj:
             if cell.value:
                 dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
@@ -381,7 +427,7 @@ def export_to_excel(request):
 
     # перетягивание ячеек номеров
     dims = {}
-    for cellObj in ws['A1:A27']:
+    for cellObj in ws['A1:A'+str(zk)]:
         for cell in cellObj:
             if cell.value:
                 dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
