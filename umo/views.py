@@ -244,7 +244,7 @@ class BRSPointsListView(ListView):
                         newBRS = BRS()
                         newBRS.discipline = discipline
                         newBRS.eduperiod = EduPeriod.objects.all().first()
-                        newBRS.semestr = DisciplineDetails.objects.filter(subject=discipline).first().semestr
+                        newBRS.semester = DisciplineDetails.objects.filter(subject=discipline).first().semestr
                         newBRS.save()
                     newBRSpoints.brs = newBRS
                     newBRSpoints.save()

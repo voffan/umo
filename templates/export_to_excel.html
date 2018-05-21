@@ -27,16 +27,8 @@
     </div>
 </form>
             <br>
-            <table id="table1" class="table table-bordered">
-                <thead class="thead-light">
-                    <tr>
-                        <th>ФИО</th>
-                        {% for subject in subjects %}
-                        <th>{{ subject.Name }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-            </table>
+    <div id="tableplace">
+    </div>
 {% endblock %}
 {% block scripts %}
 <script>
@@ -44,8 +36,25 @@
         $('#dropdown1').change();
     } );
 
-    function LoadTableData(){
-        $('#table1').DataTable( {
+    function DestroyTable(){
+        $('#tableplace').find('table.table.table-bordered').remove();
+    }
+
+    function AddTable(columns) {
+        var table = '<table id="table1" class="table table-bordered">\n' +
+            '                <thead class="thead-light">\n' +
+            '                    <tr>\n' +
+            '                        <th>ФИО</th>\n';
+        for(var i=0;i<columns.length;i++){
+            table += '<th>' + columns[i] + '</th>\n';
+        }
+        table += '                    </tr>\n                </thead>\n            </table>';
+        return $('#tableplace').append(table);
+    }
+
+    function LoadTableData(element){
+        console.log('loading data!');
+        $(element).DataTable( {
             "dom": 'rtipS',
             "info": false,
             "paging": false,
@@ -62,15 +71,17 @@
         $('#table1').dataTable().fnDestroy();
     }
 
+    function ReloadTable(data){
+        DestroyTable();
+        LoadTableData(AddTable(data['data']).find('table'));
+    }
+
     $('#dropdown1').on('change',function(){
         $.ajax({
             "url":"{% url 'disciplines:subjects' %}",
             "method":"GET",
             "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()},
-            "success":function(data){
-                ClearColumns(data['data']);
-                LoadTableData();
-            },
+            "success":ReloadTable,
         });
     });
 
@@ -79,10 +90,7 @@
             "url":"{% url 'disciplines:subjects' %}",
             "method":"GET",
             "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()},
-            "success":function(data){
-                ClearColumns(data['data']);
-                LoadTableData();
-            },
+            "success":ReloadTable,
         });
     });
 </script>
