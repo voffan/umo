@@ -70,7 +70,7 @@ class Specialization(models.Model):
 
 class Discipline(models.Model):
     Name = models.CharField(verbose_name="название дисциплины", max_length=200, db_index=True, blank=False, null=False)
-    code = models.IntegerField(verbose_name="код дисциплины", db_index=True, blank=False, null=False)
+    code = models.CharField(verbose_name="код дисциплины", max_length=200, db_index=True, blank=False, null=False)
     program = models.ForeignKey(EduProg, verbose_name="Программа образования", db_index=True, blank=False, null=False)
     lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True)
     control = models.ForeignKey('Control', verbose_name="Тип контроля", db_index=True, blank=True, null=True)
@@ -80,14 +80,14 @@ class Discipline(models.Model):
 
 
 class DisciplineDetails(models.Model):
-    Credit = models.IntegerField(verbose_name="ЗЕТ", db_index=True, blank=False, null=False)
-    Lecture = models.IntegerField(verbose_name="количество лекции", db_index=True, blank=False, null=False)
-    Practice = models.IntegerField(verbose_name="количество практики", db_index=True, blank=False, null=False)
-    Lab = models.IntegerField(verbose_name="количество лабораторных работ", db_index=True, blank=False, null=False)
-    KSR = models.IntegerField(verbose_name="количество контрольно-самостоятельных работ", db_index=True, blank=False,
-                              null=False)
-    SRS = models.IntegerField(verbose_name="количество срс", db_index=True, blank=False, null=False)
-    control_hours = models.IntegerField(verbose_name="кол-во часов", db_index=True, blank=False, null=False)
+    Credit = models.IntegerField(verbose_name="ЗЕТ", db_index=True, blank=True, null=True)
+    Lecture = models.IntegerField(verbose_name="количество лекции", db_index=True, blank=True, null=True)
+    Practice = models.IntegerField(verbose_name="количество практики", db_index=True, blank=True, null=True)
+    Lab = models.IntegerField(verbose_name="количество лабораторных работ", db_index=True, blank=True, null=True)
+    KSR = models.IntegerField(verbose_name="количество контрольно-самостоятельных работ", db_index=True, blank=True,
+                              null=True)
+    SRS = models.IntegerField(verbose_name="количество срс", db_index=True, blank=True, null=True)
+    control_hours = models.IntegerField(verbose_name="кол-во часов", db_index=True, blank=True, null=True)
     semestr = models.ForeignKey('Semestr', verbose_name="Семестр", db_index=True, blank=False, null=False)
     subject = models.ForeignKey(Discipline, verbose_name="Предмет", db_index=True, blank=False, null=False)
 
