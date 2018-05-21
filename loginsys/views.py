@@ -1,6 +1,6 @@
-from django.shortcuts import redirect, render, reverse
-from django.http import HttpResponseRedirect
 from django.contrib import auth
+from django.shortcuts import redirect, render, reverse
+
 from loginsys.forms import RegistrationForm
 
 
@@ -12,7 +12,7 @@ def login(request):
         user = auth.authenticate(username=username, password=password)
         if user is not None:
             auth.login(request, user)
-            return redirect(reverse('disciplines:disciplines_list'))
+            return redirect(reverse('disciplines:disc_teachers'))
         else:
             args['login_error'] = "Внимание, вход на сайт не был произведен. " \
                                   "Возможно, вы ввели неверное имя пользователя или пароль."
@@ -36,12 +36,7 @@ def register(request):
             newuser = auth.authenticate(username=newuser_form.cleaned_data['username'],
                                         password=newuser_form.cleaned_data['password2'])
             auth.login(request, newuser)
-            return HttpResponseRedirect('/auth/register_success/')
+            return redirect(reverse('disciplines:disc_teachers'))
         else:
             args['form'] = newuser_form
     return render(request, 'register.html', args)
-
-
-def register_success(request):
-    args = {}
-    return render(request, 'register_success.html', args)

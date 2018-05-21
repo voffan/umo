@@ -2,62 +2,44 @@
 {% block title %}Список преподавателей{% endblock %}
 {% block content %}
     <h1>Список преподавателей</h1>
-    <table id="teachers_list" class="table table-bordered">
-        <thead>
-        <tr>
-        <th scope="col">ФИО</th>
-        <th scope="col">Должность</th>
-        <th scope="col">Звание</th>
-        <th scope="col">Кафедра</th>
-        <th scope="col">Телефон</th>
-        <th scope="col"></th>
-        </tr>
+    <p align="right" id="teacher_list_filter"><label><b>Кафедра</b></label><br></p>
+    <table id="teacher_list" class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>№</th>
+                <th>ФИО</th>
+                <th>Должность</th>
+                <th>Звание</th>
+                <th>Кафедра</th>
+                <th></th>
+                <th></th>
+            </tr>
         </thead>
         <tbody>
         {% for teacher in teachers %}
             <tr>
+                <td> </td>
                 <td>  <a href="{% url 'teachers:edit_teacher' teacher.id %}">{{ teacher.FIO }} </a> </td>
                 <td> {{ teacher.Position }} </td>
                 <td>
                     {% if teacher.Zvanie %}
-                   {{  teacher.Zvanie }}
+                        {{  teacher.Zvanie }}
                     {% endif %}
                 </td>
                 <td> {{ teacher.cathedra }} </td>
-                <td></td>
-
+                <td> <a href="{% url 'disciplines:disciplines' teacher.id %}"><input type="submit" value="Дисциплины"
+                                                                                   class="btn btn-primary"></a></td>
                 <td>
-                     <div class="modal" id="myModal" tabindex="-1" role="dialog">
-                      <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title">Подтверждение удаления</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                          </div>
-                          <div class="modal-body">
-                            <p>Вы уверены, что хотите удалить?</p>
-                          </div>
-                          <div class="modal-footer">
-                              <form action = "{% url 'teachers:delete_teacher' %}" method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="teacher" value="{{ teacher.id }}" />
-                                <input type="submit" value="Удалить" class="btn btn-danger">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                              </form>
-                           </div>
-                        </div>
-                      </div>
-                    </div>
-                    <button type="button" data-toggle="modal" data-target="#myModal" class="btn btn-danger">Удалить</button>
+                     <form action = "{% url 'teachers:delete_teacher' %}" method="post">
+                         {% csrf_token %}
+                         <input type="hidden" name="teacher" value="{{ teacher.id }}"/>
+                         <input type="submit"  value="Удалить" class="btn btn-danger">
+                     </form>
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
-
-    <a href="{% url 'teachers:create_teacher' %}" class="btn btn-success">
-        Добавить нового сотрудника
-    </a>
+    <br>
+    <a href="{% url 'teachers:create_teacher' %}" class="btn btn-success">Добавить нового сотрудника</a>
 {% endblock %}

@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import *
 
 
 # Create your models here.
@@ -54,6 +55,11 @@ class Group(models.Model):
     def __str__(self):
         return self.Name
 
+    @property
+    def year(self):
+        now = datetime.now()
+        return int(now.year) - self.beginyear.year
+
 
 class Specialization(models.Model):
     name = models.CharField(verbose_name="название специализации", max_length=200, db_index=True, blank=False,
@@ -89,7 +95,7 @@ class DisciplineDetails(models.Model):
     SRS = models.IntegerField(verbose_name="количество срс", db_index=True, blank=True, null=True)
     control_hours = models.IntegerField(verbose_name="кол-во часов", db_index=True, blank=True, null=True)
     semestr = models.ForeignKey('Semestr', verbose_name="Семестр", db_index=True, blank=False, null=False)
-    subject = models.ForeignKey(Discipline, verbose_name="Предмет", db_index=True, blank=False, null=False)
+    subject = models.ForeignKey(Discipline, verbose_name="Дисциплина", db_index=True, blank=False, null=False)
 
     def __str__(self):
             return self.subject.Name
@@ -107,10 +113,10 @@ class Control(models.Model):
 
 
 class Year(models.Model):
-    year = models.CharField(verbose_name="год поступления", max_length=4, db_index=True, blank=False, null=False)
+    year = models.IntegerField(verbose_name="год поступления", db_index=True, blank=False, null=False)
 
     def __str__(self):
-            return self.year
+            return str(self.year)
 
 
 class Position(models.Model):
@@ -170,7 +176,7 @@ class Mark(models.Model):
 
 
 class MarkSymbol(models.Model):
-    name = models.CharField(verbose_name="Буквенный эквивалент оценки", db_index=True, blank=False, null=False,
+    name = models.CharField(verbose_name="Буквенный эквивалент оценки", db_index=True, blank=True, null=True,
                             max_length=255)
 
     def __str__(self):
@@ -243,10 +249,10 @@ class Exam(models.Model):
 class ExamMarks(models.Model):
     student = models.ForeignKey(Student, db_index=True, blank=False, null=False)
     inPoints = models.FloatField(verbose_name="Баллы за срез", db_index=True, blank=False, null=False, max_length=255)
-    examPoints = models.FloatField(verbose_name="Баллы за экзамен", db_index=True, blank=False, null=False,
+    examPoints = models.FloatField(verbose_name="Баллы за экзамен", db_index=True, blank=True, null=True,
                                    max_length=255)
     mark = models.ForeignKey(Mark, db_index=True, blank=False, null=False)
-    markSymbol = models.ForeignKey(MarkSymbol, db_index=True, blank=False, null=False)
+    markSymbol = models.ForeignKey(MarkSymbol, db_index=True, blank=True, null=True)
     exam = models.ForeignKey(Exam, db_index=True, blank=False, null=False)
 
     def __str__(self):

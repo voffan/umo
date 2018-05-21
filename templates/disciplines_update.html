@@ -1,21 +1,22 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-{% block title %}Изменение предмета{% endblock %}
+{% block title %}Редактирование дисциплины{% endblock %}
 {% block content %}
     <div class="container">
         <form action="" method="post">
             {% csrf_token %}
+            <h1>Редактирование дисциплины</h1>
+            <br>
             <div class="row">
                 <div class="col-md-6 offset-md-3">
-                    <h1>Изменение предмета </h1>
                     {% for field in form.visible_fields %}
                         <div class="form-group">
                             {{ field.label_tag }}
                             {% render_field field class="form-control" %}
                         </div>
                     {% endfor %}
-                    <center><p><button type="submit" class="btn btn-success">Сохранить</button>
-                    <a href= "{% url 'disciplines:disciplines_list' %}" class="btn btn-primary">Отмена</a></p></center>
+                    <p align="center"><button type="submit" class="btn btn-success">Сохранить</button>
+                    <a href= "{% url 'disciplines:disciplines_list' %}" class="btn btn-primary">Отмена</a></p>
                 </div>
             </div>
         </form>

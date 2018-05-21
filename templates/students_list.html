@@ -2,33 +2,35 @@
 {% block title %}Список студентов{% endblock %}
 {% block content %}
     <h1>Список студентов</h1>
-    <table id="students_table" class="table table-bordered">
-        <thead>
-        <tr>
-        <th scope="col">Номер зачетной книжки</th>
-        <th scope="col">ФИО</th>
-        <th scope="col">Группа</th>
-        <th scope="col"></th>
-        </tr>
+    <p align="right" id="student_list_filter"><label><b>Группа:</b></label><br></p>
+    <table id="students_list" class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>№</th>
+                <th>ФИО</th>
+                <th>Номер зачетной книжки</th>
+                <th>Группа</th>
+                <th></th>
+            </tr>
         </thead>
         <tbody>
             {% for i in student_list %}
             <tr>
-                <td> {{ i.student.StudentID }} </td>
+                <td> </td>
                 <td> <a href="{% url 'student_edit' i.id %}"> {{ i.student.FIO }} </a> </td>
+                <td> {{ i.student.StudentID }} </td>
                 <td> {{ i.group.Name }} </td>
                 <td>
                     <form action="delete/" method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="item_id" value="{{ i.student.StudentID }}" />
-                        <button type="submit" value="delete item" class="btn btn-danger btn-sm">
-                            <h4>&times;</h4>
-                        </button>
+                        <input type="hidden" name="item_id" value="{{ i.student.id }}" />
+                        <p align="center"><input type="submit" value="Удалить" class="btn btn-danger"></p>
                     </form>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    <br>
     <a href="{% url 'student_add' %}" class="btn btn-success">Добавить нового студента</a>
 {% endblock %}
