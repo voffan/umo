@@ -1,3 +1,5 @@
+from datetime import *
+
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
@@ -7,7 +9,6 @@ from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Si
 
 from umo.forms import AddTeacherForm
 from umo.models import *
-from datetime import *
 
 
 # Create your views here.
@@ -223,7 +224,8 @@ class BRSPointsListView(ListView):
                 ch.save()
         context['checkpoint'] = checkpoint
         discipline = Discipline.objects.get(id=self.kwargs['pk'])
-        context['control_type'] = 'Баллы ' + discipline.control.controltype.lower()
+        exam = Exam.objects.get(discipline__id=self.kwargs['pk'])
+        context['control_type'] = 'Баллы ' + exam.controlType.name
         context['discipline'] = discipline
         context['grouplist'] = GroupList.objects.all()
         student = Student.objects.all()
@@ -264,9 +266,9 @@ class BRSPointsListView(ListView):
                 newExam = Exam.objects.filter(discipline__id = discipline.id).first()
                 if (newExam is None):
                     newExam = Exam()
-                    newControlType = ControlType.objects.filter(name=discipline.control.controltype).first()
+                    newControlType = ControlType.objects.filter(name=exam.controlType.name).first()
                     if (newControlType is None):
-                        newControlType = ControlType.objects.create(name = discipline.control.controltype)
+                        newControlType = ControlType.objects.create(name = exam.controlType.name)
                     newExam.controlType = newControlType
                     newExam.discipline = discipline
                     newExam.eduperiod = EduPeriod.objects.all().first()
@@ -298,6 +300,7 @@ class BRSPointsListView(ListView):
             arr_size = len(studid)
             checkpoint = CheckPoint.objects.all()
             discipline = Discipline.objects.get(id=self.kwargs['pk'])
+            exam = Exam.objects.get(discipline__id=self.kwargs['pk'])
             for i in range(0, arr_size):
                 st = Student.objects.get(id=studid[i])
                 k = 0
@@ -319,8 +322,8 @@ class BRSPointsListView(ListView):
                         k = 0
                     brspoints.save()
 
-                tempMarkSymbol = get_markSymbol(discipline.control.controltype, totalPoints)
-                tempMark = get_mark(discipline.control.controltype, totalPoints)
+                tempMarkSymbol = get_markSymbol(exam.controlType.name, totalPoints)
+                tempMark = get_mark(exam.controlType.name, totalPoints)
 
                 if (tempMarkSymbol is None):
                     newMarkSymbol = None
