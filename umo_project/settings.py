@@ -43,10 +43,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'umo.apps.UmoConfig',
+    'umo.apps.SynchConfig',
     'loginsys',
     'disciplines',
     'bootstrap4',
     'widget_tweaks',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -93,8 +95,20 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'jesus': {
+        'NAME': 'YSUMain',
+        'ENGINE': 'sql_server.pyodbc',
+        'HOST': '10.2.8.6',
+        'USER': 'imi',
+        'PASSWORD': '31412',
+        'OPTIONS': {
+            'driver': 'SQL Server',
+        },
     }
 }
+
+DATABASE_ROUTERS = ['umo_project.routers.DatabaseRouter']
 
 
 # Password validation

@@ -7,11 +7,12 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
+from synch.models import *
 from umo.forms import AddTeacherForm
 from umo.models import *
 
 
-# Create your views here.
+# Create your views.py here.
 class TeacherCreateView(CreateView):
     model = Person, Teacher
     fields = '__all__'
@@ -61,6 +62,42 @@ class StudentListView(ListView):
     context_object_name = 'student_list'
     success_url = reverse_lazy('student_changelist')
     template_name = "students_list.html"
+
+    def get_queryset(self):
+        return GroupList.objects.filter(active=False)
+
+    def post(self, request, *args, **kwargs):
+        if (request.POST.get('synch')):
+            synch_groups = PlnGroupStud.objects.filter(id_pln__id_dop__id_institute=1118)
+            for sg in synch_groups:
+                if Group.objects.filter(id=sg.id_group).first() is not None:
+                    g = Group.objects.filter(id=sg.id_group).first()
+                else:
+                    g = Group()
+                    g.id = sg.id_group
+                g.Name = sg.name
+                g.save()
+
+                synch_people = PeoplePln.objects.filter(id_group=sg.id_group)
+                for sp in synch_people:
+                    if GroupList.objects.filter(id=sp.id_peoplepln).first() is not None:
+                        gl = GroupList.objects.filter(id=sp.id_peoplepln).first()
+                        st = gl.student
+                    else:
+                        gl = GroupList()
+                        gl.id = sp.id_peoplepln
+                        st = Student()
+                        st.id = sp.id_people.id_people
+                    st.FIO = sp.id_people.fio
+                    st.StudentID = str(sp.id_people.id_people)
+                    st.save()
+                    gl.student = st
+                    gl.group = g
+                    gl.active = (sp.id_status == 2)
+                    gl.save()
+        return HttpResponseRedirect(self.success_url)
+
+
 
 
 class StudentCreateView(CreateView):

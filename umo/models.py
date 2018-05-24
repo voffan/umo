@@ -48,9 +48,9 @@ class EduProg(models.Model):
 
 class Group(models.Model):
     Name = models.CharField(verbose_name="название группы", max_length=200, db_index=True, blank=False, null=False)
-    beginyear = models.ForeignKey('Year', verbose_name="Год начала обучения", db_index=True, blank=False, null=False)
-    cathedra = models.ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=False, null=False)
-    program = models.ForeignKey(EduProg, verbose_name="Программа", db_index=True, blank=False, null=False)
+    beginyear = models.ForeignKey('Year', verbose_name="Год начала обучения", db_index=True, blank=True, null=True)
+    cathedra = models.ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True)
+    program = models.ForeignKey(EduProg, verbose_name="Программа", db_index=True, blank=True, null=True)
 
     def __str__(self):
         return self.Name

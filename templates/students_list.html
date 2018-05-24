@@ -23,7 +23,7 @@
                 <td>
                     <form action="delete/" method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="item_id" value="{{ i.student.id }}" />
+                        <input type="hidden" name="item_id" value="{{ i.student.person_ptr.id }}" />
                         <p align="center"><input type="submit" value="Удалить" class="btn btn-danger"></p>
                     </form>
                 </td>
@@ -33,4 +33,8 @@
     </table>
     <br>
     <a href="{% url 'student_add' %}" class="btn btn-success">Добавить нового студента</a>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success" name="synch" value="synch">Синхронизация</button>
+    </form>
 {% endblock %}
