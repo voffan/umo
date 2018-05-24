@@ -79,8 +79,6 @@ class Discipline(models.Model):
     code = models.CharField(verbose_name="код дисциплины", max_length=200, db_index=True, blank=False, null=False)
     program = models.ForeignKey(EduProg, verbose_name="Программа образования", db_index=True, blank=False, null=False)
     lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True)
-    control = models.ForeignKey('Control', verbose_name="Тип контроля", db_index=True, blank=True, null=True)
-
     def __str__(self):
             return self.Name
 
@@ -93,7 +91,6 @@ class DisciplineDetails(models.Model):
     KSR = models.IntegerField(verbose_name="количество контрольно-самостоятельных работ", db_index=True, blank=True,
                               null=True)
     SRS = models.IntegerField(verbose_name="количество срс", db_index=True, blank=True, null=True)
-    control_hours = models.IntegerField(verbose_name="кол-во часов", db_index=True, blank=True, null=True)
     semestr = models.ForeignKey('Semestr', verbose_name="Семестр", db_index=True, blank=False, null=False)
     subject = models.ForeignKey(Discipline, verbose_name="Дисциплина", db_index=True, blank=False, null=False)
 
@@ -106,8 +103,9 @@ class DisciplineDetails(models.Model):
 
 
 class Control(models.Model):
-    controltype = models.CharField(verbose_name="тип контроля", max_length=100, db_index=True, blank=False, null=False)
-
+    discipline_detail = models.ForeignKey('DisciplineDetails',verbose_name="Дисциплина", db_index=True, blank=True, null=True)
+    controltype = models.ForeignKey('ControlType',verbose_name="Тип контроля", db_index=True, blank=True, null=True)
+    control_hours = models.IntegerField(verbose_name="Кол-во часов", default=0, db_index=True, blank=False, null=False)
     def __str__(self):
             return self.controltype
 
@@ -156,7 +154,6 @@ class Qual(models.Model):
 
 class ControlType(models.Model):
     name = models.CharField(verbose_name="Тип контроля", db_index=True, blank=False, null=False, max_length=255)
-
     def __str__(self):
             return self.name
 

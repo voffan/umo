@@ -12,29 +12,25 @@ import os
 
 # Create your views here.
 
-#class RupList(ListView):
-#    template_name = 'nomenclature.html'
-#    context_object_name = 'nomenclature_list'
 
 def rup_list(request):
-    semestrname = Semestr.objects.all()
+    return render(request, 'nomenclature.html')
 
-    return render(request, 'nomenclature.html', {'semestrname': semestrname})
+def vuborka(request):
+    semestr = request.GET['dropdown1']
+    subjects = DisciplineDetails.objects.filter(semestr__name=semestr)
+    teachers = Teacher.objects.filter()
 
-#def vuborka(request):
-#    semestr = request.GET['dropdown1']
-#   subjects = DisciplineDetails.objects.filter(semestr__name=semestr)
-#    teachers = Teacher.objects.filter()
+    if request.method == 'POST':
+        for subject in subjects:
 
-#  if request.method == 'POST':
-#        for subject in subjects:
-
-#            for teacher in teachers:
-#                print()
+            for teacher in teachers:
+                print()
 
 def select_semestr(request):
-    semestr_name = Semestr.objects.all()
-    return render(request, )
+    semestrname = Semestr.objects.all()
+    return render(request, 'select_semestr.html', {'semestrname':semestrname})
+
 
 def upload_file(request):
     if request.method == 'POST':
@@ -45,7 +41,7 @@ def upload_file(request):
             #return default_storage.path(path)
             f=hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
             parseRUP(f)
-            return HttpResponseRedirect(reverse('nomenclatures:rup_list'))
+            return HttpResponseRedirect(reverse('nomenclatures:select_semestr'))
 
     else:
         form = UploadFileForm()

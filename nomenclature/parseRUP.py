@@ -3,7 +3,6 @@ from umo.models import EduOrg, Kafedra, EduProg, Specialization, Discipline, \
 import xml.etree.ElementTree as ET
 
 
-
 def parseRUP(filename):
     #name_file_xml = os.path.join('upload', filename)
     tree = ET.parse(filename)
@@ -38,11 +37,7 @@ def parseRUP(filename):
         name_inst.name = name_institute
         name_inst.uni = EduOrg.objects.filter(name__icontains='свфу').first()
         name_inst.save()
-    else:
-        name_insti = EduOrg()
-        name_insti.name =name_inst
-        name_insti.uni = EduOrg.objects.filter(name__icontains='свфу').first()
-        name_insti.save()
+
 
     kaf = Kafedra.objects.filter(number=code_kaf).first()
     if kaf is None:
@@ -51,14 +46,6 @@ def parseRUP(filename):
         kaf.name = Kafedra.objects.filter(name='Информационные технологии').first()
         kaf.institution = name_inst
         kaf.save()
-    else:
-        kafd = Kafedra()
-        kafd.number = kaf
-        kafd.name = Kafedra.objects.filter(name='Информационные технологии').first()
-        kafd.institution = name_inst
-        kafd.save()
-
-
 
     #e = EduProg()
     sp = Specialization.objects.filter(name=spec_name).first()
@@ -75,19 +62,19 @@ def parseRUP(filename):
             qual.save()
         sp.qual = qual
 
-        level = Level()
-        level.name = ""
-        level.save()
-        sp.level = level
         sp.save()
     #e.specialization = sp
 
-    edu_prog = EduProg.objects.filter(specialization__name=spec_name).first()
+    year = Year.objects.filter(year=yearp).first()
+    if year is None:
+        year = Year()
+        year.year = yearp
+        year.save()
+
+    edu_prog = EduProg.objects.filter(specialization__name=spec_name, year__id = year.id).first()
     if edu_prog is None:
         edu_prog = EduProg()
         edu_prog.specialization = sp
-        edu_prog.save()
-
 
         profil = Profile.objects.filter(name=profil_name).first()
         if profil is None:
@@ -96,14 +83,10 @@ def parseRUP(filename):
             profil.save()
         edu_prog.profile = profil
 
-        year = Year.objects.filter(year=yearp).first()
-        if year is None:
-            year = Year()
-            year.year = yearp
-            year.save()
         edu_prog.year = year
-
+        print(kaf.id)
         edu_prog.cathedra = kaf
+        edu_prog.save()
 
 
     for elem in root[0][1]:
@@ -121,43 +104,28 @@ def parseRUP(filename):
             dis.Name = disname
             dis.code = code_dis
             dis.program = edu_prog
-
-            lect = Teacher()
-            lect.FIO = ""
-            position = Position()
-            position.name = ""
-            position.save()
-            lect.Position = position
-            zvanie = Zvanie()
-            zvanie.name = ""
-            zvanie.save()
-            lect.Zvanie = zvanie
-            lect.cathedra = kaf
-            lect.save()
-
-            dis.lecturer = lect
-            control = Control()
-            control.controltype = ""
-            control.save()
-            dis.control = control
             dis.save()
 
         for details in elem.findall('Сем'):
+
+
             #if details is ('Ном' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Пр') or ('Ном' and 'СРС'):
             data = {'101':0,'102':0,'103':0,'106':0,'107':0,'108':0}
             total_h = 0
             for vz in details.findall('VZ'):
-                if hasattr(vz,'H'):
+                if 'H' in vz.attrib.keys():
                     data[vz.get("ID")] = int(vz.get('H'))
                     total_h += int(vz.get('H'))
             if total_h < 1:
                 continue
-            semestr_nom = '1'
-            if hasattr(details, 'Ном'):
+
+            #semestr_nom = '1'
+            if 'Ном' in details.attrib.keys():
                 semestr_nom = details.get('Ном')
-            zet = 1
-            if hasattr(details, 'ЗЕТ'):
-                zet = int(details.get('ЗЕТ'))
+
+            #zet = 1
+            if 'ЗЕТ' in details.attrib.keys():
+                zet = details.get('ЗЕТ')
 
             d = DisciplineDetails()
             smstr = Semestr.objects.filter(name=semestr_nom).first()
@@ -169,9 +137,9 @@ def parseRUP(filename):
             d.subject = dis
             d.Credit = zet
             d.Lecture = data['101']
-            d.Lab = data ['102']
             d.Practice = data['103']
+            d.Lab = data['102']
             d.KSR = data['106']
             d.SRS = data['107']
-            d.control_hours = ['108']
+            d.control_hours = data['108']
             d.save()
