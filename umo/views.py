@@ -126,7 +126,7 @@ def delete_teacher(request):
 
 
 def get_mark(str, value):
-    if (str == 'Зачет'):
+    if (str.lower() == 'зачет' or str.lower() == 'зачёт'):
         if (value >= 60):
             return 'зач'
         else:
@@ -144,7 +144,7 @@ def get_mark(str, value):
 
 def get_mark_vedomost(str, inPoints, examPoints):
     value = inPoints + examPoints
-    if (str == 'Зачет'):
+    if (str.lower() == 'зачет' or str.lower() == 'зачёт'):
         if (value >= 60):
             return 'Зачтено'
         else:
@@ -163,7 +163,7 @@ def get_mark_vedomost(str, inPoints, examPoints):
 
 
 def get_markSymbol(str, value):
-    if (str == 'Зачет'):
+    if (str.lower() == 'зачет' or str.lower() == 'зачёт'):
         return None
     else:
         if (value >= 95):
@@ -225,7 +225,7 @@ class BRSPointsListView(ListView):
         context['checkpoint'] = checkpoint
         discipline = Discipline.objects.get(id=self.kwargs['pk'])
         exam = Exam.objects.get(discipline__id=self.kwargs['pk'])
-        context['control_type'] = 'Баллы ' + exam.controlType.name
+        context['control_type'] = 'Баллы ' + exam.controlType.name.lower()
         context['discipline'] = discipline
         context['grouplist'] = GroupList.objects.all()
         student = Student.objects.all()
