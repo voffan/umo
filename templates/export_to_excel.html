@@ -23,7 +23,75 @@
             </select>
             </div>
             <p align="center"><button type="submit" class="btn btn-success">Скачать</button>
-        </div>
+          </div>
     </div>
 </form>
+            <br>
+    <div id="tableplace">
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#dropdown1').change();
+    } );
+
+    function DestroyTable(){
+        $('#tableplace').find('table.table.table-bordered').remove();
+    }
+
+    function AddTable(columns) {
+        var table = '<table id="table1" class="table table-bordered">\n' +
+            '                <thead class="thead-light">\n' +
+            '                    <tr>\n' +
+            '                        <th>ФИО</th>\n';
+        for(var i=0;i<columns.length;i++){
+            table += '<th>' + columns[i] + '</th>\n';
+        }
+        table += '                    </tr>\n                </thead>\n            </table>';
+        return $('#tableplace').append(table);
+    }
+
+    function LoadTableData(element){
+        console.log('loading data!');
+        $(element).DataTable( {
+            "dom": 'rtipS',
+            "info": false,
+            "paging": false,
+            "ajax": {
+                  "url":"{% url 'disciplines:dataforekran' %}",
+                  "dataType":"json",
+                  "type":"GET",
+                  "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()}
+              },
+        } );
+    }
+
+    function ClearColumns(){
+        $('#table1').dataTable().fnDestroy();
+    }
+
+    function ReloadTable(data){
+        DestroyTable();
+        LoadTableData(AddTable(data['data']).find('table'));
+    }
+
+    $('#dropdown1').on('change',function(){
+        $.ajax({
+            "url":"{% url 'disciplines:subjects' %}",
+            "method":"GET",
+            "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()},
+            "success":ReloadTable,
+        });
+    });
+
+    $('#dropdown2').on('change',function(){
+        $.ajax({
+            "url":"{% url 'disciplines:subjects' %}",
+            "method":"GET",
+            "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()},
+            "success":ReloadTable,
+        });
+    });
+</script>
 {% endblock %}

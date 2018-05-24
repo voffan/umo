@@ -2,10 +2,9 @@
 {% block title %}Рабочий учебный план{% endblock %}
 {% block content %}
     <h1>Рабочий учебный план </h1>
-    {% csrf_token %}
-    <table>
-
-    </table>
-    <br>
-    <p align="center"><a href="{% url 'nomenclatures:upload_file' %}" class="btn btn-success"> Загрузить РУП </a></p>
+    <form action="" method="get">
+        {% csrf_token %}
+        <br>
+        <p align="center"><a href="{% url 'nomenclatures:upload_file' %}" class="btn btn-success"> Загрузить РУП </a></p>
+    </form>
 {% endblock %}

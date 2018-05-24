@@ -24,7 +24,7 @@
                           Преподавателю
                         </a>
                         <div class="dropdown-menu" aria-labelledby="teacher">
-                          <a class="dropdown-item" href="{% url 'disciplines:teacher' %}">Список дисциплин</a>
+                          <a class="dropdown-item" href="{% url 'disciplines:disc_teachers' %}">Список дисциплин</a>
                         </div>
                     </li>
                     <li class="nav-item dropdown active">
@@ -68,8 +68,9 @@
         </div>
     </body>
     <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'js/dataTables.bootstrap4.min.js' %}"></script>
     <script src="{% static 'js/tables.js' %}"></script>
+    {% block scripts %}{% endblock %}
 </html>

@@ -12,6 +12,7 @@
                 <th>Звание</th>
                 <th>Кафедра</th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -26,6 +27,8 @@
                     {% endif %}
                 </td>
                 <td> {{ teacher.cathedra }} </td>
+                <td> <a href="{% url 'disciplines:disciplines' teacher.id %}"><input type="submit" value="Дисциплины"
+                                                                                   class="btn btn-primary"></a></td>
                 <td>
                      <form action = "{% url 'teachers:delete_teacher' %}" method="post">
                          {% csrf_token %}

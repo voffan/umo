@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Номенклатура предметов{% endblock %}
+{% block content %}
+    <h1>Номенклатура предметов</h1>
+
+    <table id="select_teacher" class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>№</th>
+                <th>Дисциплина</th>
+                <th>Преподаватель</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for discipline in disciplines %}
+
+
+               <label>{{ discipline.Name }} </label>
+                {{ discipline.lecturer}}
+
+
+
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{% url '' %}" class="btn btn-success">Сохранить</a>
+{% endblock %}

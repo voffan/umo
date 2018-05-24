@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Выберите преподавателя{% endblock %}
+{% block content %}
+    <h1>Выберите преподавателя</h1>
+    <p align="right" id="teacher_list_filter"><label><b>Кафедра</b></label><br></p>
+    <table id="teacher_list" class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>№</th>
+                <th>ФИО</th>
+                <th>Должность</th>
+                <th>Звание</th>
+                <th>Кафедра</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for teacher in teachers %}
+            <tr>
+                <td> </td>
+                <td>  <a href="{% url 'disciplines:disciplines' teacher.id %}">{{ teacher.FIO }} </a> </td>
+                <td> {{ teacher.Position }} </td>
+                <td>
+                    {% if teacher.Zvanie %}
+                        {{  teacher.Zvanie }}
+                    {% endif %}
+                </td>
+                <td> {{ teacher.cathedra }} </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

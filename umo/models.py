@@ -1,3 +1,5 @@
+from datetime import *
+
 from django.db import models
 
 
@@ -55,15 +57,20 @@ class Group(models.Model):
     def __str__(self):
         return self.Name
 
+    @property
+    def year(self):
+        now = datetime.now()
+        return int(now.year) - self.beginyear.year
+
 
 class Specialization(models.Model):
     name = models.CharField(verbose_name="название специализации", max_length=200, db_index=True, blank=False,
                             null=False)
-    briefname = models.CharField(verbose_name="короткое имя специализации", max_length=200, db_index=True, blank=False,
-                                 null=False)
+    briefname = models.CharField(verbose_name="короткое имя специализации", max_length=200, db_index=True, blank=True,
+                                 null=True)
     code = models.IntegerField(verbose_name="код специализации", db_index=True, blank=False, null=False)
     qual = models.ForeignKey('Qual', verbose_name="Квалификация", db_index=True, blank=False, null=False)
-    level = models.ForeignKey('Level', verbose_name="Уровень", db_index=True, blank=False, null=False)
+    level = models.ForeignKey('Level', verbose_name="Уровень", db_index=True, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -71,24 +78,22 @@ class Specialization(models.Model):
 
 class Discipline(models.Model):
     Name = models.CharField(verbose_name="название дисциплины", max_length=200, db_index=True, blank=False, null=False)
-    code = models.IntegerField(verbose_name="код дисциплины", db_index=True, blank=False, null=False)
+    code = models.CharField(verbose_name="код дисциплины", max_length=200, db_index=True, blank=False, null=False)
     program = models.ForeignKey(EduProg, verbose_name="Программа образования", db_index=True, blank=False, null=False)
-    lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=False, null=False)
-    control = models.ForeignKey('Control', verbose_name="Тип контроля", db_index=True, blank=False, null=False)
+    lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True)
 
     def __str__(self):
             return self.Name
 
 
 class DisciplineDetails(models.Model):
-    Credit = models.IntegerField(verbose_name="ЗЕТ", db_index=True, blank=False, null=False)
-    Lecture = models.IntegerField(verbose_name="количество лекции", db_index=True, blank=False, null=False)
-    Practice = models.IntegerField(verbose_name="количество практики", db_index=True, blank=False, null=False)
-    Lab = models.IntegerField(verbose_name="количество лабораторных работ", db_index=True, blank=False, null=False)
-    KSR = models.IntegerField(verbose_name="количество контрольно-самостоятельных работ", db_index=True, blank=False,
-                              null=False)
-    SRS = models.IntegerField(verbose_name="количество срс", db_index=True, blank=False, null=False)
-    control_hours = models.IntegerField(verbose_name="кол-во часов", db_index=True, blank=False, null=False)
+    Credit = models.IntegerField(verbose_name="ЗЕТ", db_index=True, blank=True, null=True)
+    Lecture = models.IntegerField(verbose_name="количество лекции", db_index=True, blank=True, null=True)
+    Practice = models.IntegerField(verbose_name="количество практики", db_index=True, blank=True, null=True)
+    Lab = models.IntegerField(verbose_name="количество лабораторных работ", db_index=True, blank=True, null=True)
+    KSR = models.IntegerField(verbose_name="количество контрольно-самостоятельных работ", db_index=True, blank=True,
+                              null=True)
+    SRS = models.IntegerField(verbose_name="количество срс", db_index=True, blank=True, null=True)
     semestr = models.ForeignKey('Semestr', verbose_name="Семестр", db_index=True, blank=False, null=False)
     subject = models.ForeignKey(Discipline, verbose_name="Дисциплина", db_index=True, blank=False, null=False)
 
@@ -97,21 +102,23 @@ class DisciplineDetails(models.Model):
 
     @property
     def total_hours(self):
-        return self.Lecture + self.Practice + self.Lab + self.KSR + self.SRS + self.control_hours
+        return self.Lecture + self.Practice + self.Lab + self.KSR + self.SRS
 
 
 class Control(models.Model):
-    controltype = models.CharField(verbose_name="тип контроля", max_length=100, db_index=True, blank=False, null=False)
+    discipline_detail = models.ForeignKey('DisciplineDetails',verbose_name="Дисциплина", db_index=True, blank=True, null=True)
+    controltype = models.ForeignKey('ControlType', verbose_name="Тип контроля", db_index=True, blank=True, null=True)
+    control_hours = models.IntegerField(verbose_name="Кол-во часов", default=0, db_index=True, blank=False, null=False)
 
     def __str__(self):
-            return self.controltype
+            return self.controltype.name
 
 
 class Year(models.Model):
-    year = models.CharField(verbose_name="год поступления", max_length=4, db_index=True, blank=False, null=False)
+    year = models.IntegerField(verbose_name="год поступления", db_index=True, blank=False, null=False)
 
     def __str__(self):
-            return self.year
+            return str(self.year)
 
 
 class Position(models.Model):
@@ -171,7 +178,7 @@ class Mark(models.Model):
 
 
 class MarkSymbol(models.Model):
-    name = models.CharField(verbose_name="Буквенный эквивалент оценки", db_index=True, blank=False, null=False,
+    name = models.CharField(verbose_name="Буквенный эквивалент оценки", db_index=True, blank=True, null=True,
                             max_length=255)
 
     def __str__(self):
