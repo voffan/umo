@@ -50,7 +50,6 @@ class DisciplineCreate(CreateView):
         'code',
         'program',
         'lecturer',
-        'control',
     ]
 
 
@@ -63,7 +62,6 @@ class DisciplineUpdate(UpdateView):
         'code',
         'program',
         'lecturer',
-        'control',
     ]
 
 
@@ -109,7 +107,6 @@ class DetailsCreate(CreateView):
         'Lab',
         'KSR',
         'SRS',
-        'control_hours',
         'semestr',
     ]
 
@@ -126,7 +123,6 @@ class DisciplineDetailsUpdate(UpdateView):
         'Lab',
         'KSR',
         'SRS',
-        'control_hours',
         'semestr',
     ]
 

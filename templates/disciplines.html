@@ -11,7 +11,6 @@
         <th>Код</th>
         <th>Специализация</th>
         <th>Преподаватель</th>
-        <th>Тип</th>
         <th></th>
         <th></th>
         <th></th>
@@ -25,7 +24,6 @@
                 <td> {{ discipline.code }} </td>
                 <td> {{ discipline.program }} </td>
                 <td> {{ discipline.lecturer }} </td>
-                <td> {{ discipline.control }} </td>
                 <td> <a href="{% url 'brs_studentlist' discipline.id %}"><input type="submit" value="Успеваемость"
                                                                                    class="btn btn-primary"></a></td>
                 <td> <a href="{% url 'disciplines:update' discipline.id %}"><input type="submit" value="Изменить"
