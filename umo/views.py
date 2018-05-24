@@ -64,7 +64,7 @@ class StudentListView(ListView):
     template_name = "students_list.html"
 
     def get_queryset(self):
-        return GroupList.objects.filter(active=False)
+        return GroupList.objects.all()
 
     def post(self, request, *args, **kwargs):
         if (request.POST.get('synch')):

@@ -1,5 +1,4 @@
 from django.db import models
-from bitfield import BitField
 
 class YSUMainModel(models.Model):
     class Meta:
