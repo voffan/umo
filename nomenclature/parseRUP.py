@@ -42,52 +42,51 @@ def parseRUP(filename):
     kaf = Kafedra.objects.filter(number=code_kaf).first()
     if kaf is None:
         kaf = Kafedra()
-        kaf.number = code_kaf
-        kaf.name = Kafedra.objects.filter(name='Информационные технологии').first()
-        kaf.institution = name_inst
-        kaf.save()
+    kaf.number = code_kaf
+    kaf.name = 'Информационные технологии'
+    kaf.institution = name_inst
+    kaf.save()
 
     #e = EduProg()
     sp = Specialization.objects.filter(name=spec_name).first()
     if sp is None:
         sp = Specialization()
-        sp.name = spec_name
-        sp.briefname = ""
-        sp.code = cipher
+    sp.name = spec_name
+    sp.briefname = ""
+    sp.code = cipher
 
-        qual = Qual.objects.filter(name=qual_name).first()
-        if qual is None:
-            qual = Qual()
-            qual.name = qual_name
-            qual.save()
-        sp.qual = qual
+    qual = Qual.objects.filter(name=qual_name).first()
+    if qual is None:
+        qual = Qual()
+    qual.name = qual_name
+    qual.save()
+    sp.qual = qual
 
-        sp.save()
+    sp.save()
     #e.specialization = sp
 
     year = Year.objects.filter(year=yearp).first()
     if year is None:
         year = Year()
-        year.year = yearp
-        year.save()
+    year.year = yearp
+    year.save()
 
     edu_prog = EduProg.objects.filter(specialization__name=spec_name, year__id = year.id).first()
     if edu_prog is None:
         edu_prog = EduProg()
-        edu_prog.specialization = sp
+    edu_prog.specialization = sp
 
-        profil = Profile.objects.filter(name=profil_name).first()
-        if profil is None:
-            profil = Profile()
-            profil.name = profil_name
-            profil.save()
-        edu_prog.profile = profil
+    profil = Profile.objects.filter(name=profil_name).first()
+    if profil is None:
+        profil = Profile()
+        profil.name = profil_name
+        profil.save()
+    edu_prog.profile = profil
 
-        edu_prog.year = year
-        print(kaf.id)
-        edu_prog.cathedra = kaf
-        edu_prog.save()
-
+    edu_prog.year = year
+    print(kaf.id)
+    edu_prog.cathedra = kaf
+    edu_prog.save()
 
     for elem in root[0][1]:
         disname = elem.get('Дис')
@@ -101,10 +100,10 @@ def parseRUP(filename):
         dis = Discipline.objects.filter(Name=disname).first()
         if dis is None:
             dis = Discipline()
-            dis.Name = disname
-            dis.code = code_dis
-            dis.program = edu_prog
-            dis.save()
+        dis.Name = disname
+        dis.code = code_dis
+        dis.program = edu_prog
+        dis.save()
 
         for details in elem.findall('Сем'):
 
@@ -131,8 +130,8 @@ def parseRUP(filename):
             smstr = Semestr.objects.filter(name=semestr_nom).first()
             if smstr is None:
                 smstr = Semestr()
-                smstr.name = semestr_nom
-                smstr.save()
+            smstr.name = semestr_nom
+            smstr.save()
             d.semestr = smstr
             d.subject = dis
             d.Credit = zet
