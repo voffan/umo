@@ -64,12 +64,36 @@ class StudentListView(ListView):
     template_name = "students_list.html"
 
     def get_queryset(self):
-        return GroupList.objects.filter(active=False)
+        return GroupList.objects.filter(active=True)
+
+    def get_context_data(self, **kwargs):
+        context = super(StudentListView, self).get_context_data(**kwargs)
+        synch = Synch.objects.last()
+        if synch is not None:
+            context['date'] = str(synch.date)
+        else:
+            context['date'] = 'нет'
+        return context
 
     def post(self, request, *args, **kwargs):
         if (request.POST.get('synch')):
+            synch = Synch.objects.last()
+            if synch is not None:
+                if synch.finished:
+                    synch = Synch()
+                    synch.finished = False
+            else:
+                synch = Synch()
+                synch.finished = False
+            synch.date = datetime.now()
+            synch.save()
+            synch = Synch.objects.last()
             synch_groups = PlnGroupStud.objects.filter(id_pln__id_dop__id_institute=1118)
             for sg in synch_groups:
+                eduprogyear = PlnEduProgYear.objects.filter(id_pln=sg.id_pln.id_pln).first()
+                if synch.date > eduprogyear.dateend:
+                    continue
+
                 if Group.objects.filter(id=sg.id_group).first() is not None:
                     g = Group.objects.filter(id=sg.id_group).first()
                 else:
@@ -80,6 +104,8 @@ class StudentListView(ListView):
 
                 synch_people = PeoplePln.objects.filter(id_group=sg.id_group)
                 for sp in synch_people:
+                    if sp.id_status != 2:
+                        continue
                     if GroupList.objects.filter(id=sp.id_peoplepln).first() is not None:
                         gl = GroupList.objects.filter(id=sp.id_peoplepln).first()
                         st = gl.student
@@ -93,8 +119,10 @@ class StudentListView(ListView):
                     st.save()
                     gl.student = st
                     gl.group = g
-                    gl.active = (sp.id_status == 2)
+                    gl.active = True
                     gl.save()
+            synch.finished = True
+            synch.save()
         return HttpResponseRedirect(self.success_url)
 
 
@@ -227,7 +255,7 @@ class BRSPointsListView(ListView):
 
     def get_queryset(self):
         disc = Discipline.objects.get(id = self.kwargs['pk'])
-        return GroupList.objects.filter(group__program = disc.program)
+        return GroupList.objects.filter(group__program = disc.program).filter(active=True)
 
     def get_context_data(self, **kwargs):
         context = super(BRSPointsListView, self).get_context_data(**kwargs)
@@ -264,19 +292,19 @@ class BRSPointsListView(ListView):
         exam = Exam.objects.get(discipline__id=self.kwargs['pk'])
         context['control_type'] = 'Баллы ' + exam.controlType.name.lower()
         context['discipline'] = discipline
-        context['grouplist'] = GroupList.objects.all()
-        student = Student.objects.all()
+        grouplist = GroupList.objects.filter(group__program=discipline.program).filter(active=True)
+        context['grouplist'] = grouplist
         dict = {}
-        for st in student:
-            dict[str(st.id)] = {}
-            dict[str(st.id)]['key'] = st.id
+        for gl in grouplist:
+            dict[str(gl.id)] = {}
+            dict[str(gl.id)]['key'] = gl.id
             i = 0
             for ch in checkpoint:
                 i = i + 1
-                newBRSpoints = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).filter(student = st).first()
+                newBRSpoints = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).filter(student = gl.student).first()
                 if (newBRSpoints is None):
                     newBRSpoints = BRSpoints()
-                    newBRSpoints.student = st
+                    newBRSpoints.student = gl.student
                     newBRSpoints.CheckPoint = ch
                     newBRSpoints.points = 0.0
                     newBRS = BRS.objects.filter(discipline__id = discipline.id).first()
@@ -288,9 +316,9 @@ class BRSPointsListView(ListView):
                         newBRS.save()
                     newBRSpoints.brs = newBRS
                     newBRSpoints.save()
-                dict[str(st.id)][str(i)] = newBRSpoints
+                dict[str(gl.id)][str(i)] = newBRSpoints
 
-            newExamMarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id).filter(student = st).first()
+            newExamMarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id).filter(student = gl.student).first()
             if (newExamMarks is None):
                 newMarkSymbol = MarkSymbol.objects.filter(name='F').first()
                 if (newMarkSymbol is None):
@@ -314,14 +342,14 @@ class BRSPointsListView(ListView):
                     newExam.save()
 
                 newExamMarks = ExamMarks()
-                newExamMarks.student = st
+                newExamMarks.student = gl.student
                 newExamMarks.inPoints = 0.0
                 newExamMarks.examPoints = 0.0
                 newExamMarks.markSymbol = newMarkSymbol
                 newExamMarks.mark = newMark
                 newExamMarks.exam = newExam
                 newExamMarks.save()
-            dict[str(st.id)]['6'] = newExamMarks
+            dict[str(gl.id)]['6'] = newExamMarks
         context['dict'] = dict
         return context
 

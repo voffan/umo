@@ -259,3 +259,10 @@ class ExamMarks(models.Model):
 
     def __str__(self):
         return self.student.FIO + ' - ' + self.exam.discipline.Name
+
+class Synch(models.Model):
+    date = models.DateTimeField()
+    finished = models.BooleanField()
+
+    def __str__(self):
+        return 'None'

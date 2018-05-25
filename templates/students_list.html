@@ -33,8 +33,11 @@
     </table>
     <br>
     <a href="{% url 'student_add' %}" class="btn btn-success">Добавить нового студента</a>
+
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-success" name="synch" value="synch">Синхронизация</button>
+        <p><button type="submit" class="btn btn-success" name="synch" value="synch">Синхронизация</button></p>
+
+        <p>Дата последней синхронизации: {{ date }}</p>
     </form>
 {% endblock %}
