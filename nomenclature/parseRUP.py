@@ -23,7 +23,7 @@ def parseRUP(filename):
     name_institute = root[0][0].get('ИмяВуза2')
     name_university = root[0][0].get('ИмяВуза')
     code_kaf = root[0][0].get('КодКафедры')
-    cipher = ''.join(str(i) for i in (root[0][0].get('ПоследнийШифр')).split('.'))
+    cipher = root[0][0].get('ПоследнийШифр')
     yearp = root[0][0].get('ГодНачалаПодготовки')
     print(name_institute)
     print(name_university)
@@ -34,9 +34,9 @@ def parseRUP(filename):
     name_inst = EduOrg.objects.filter(name=name_institute).first()
     if name_inst is None:
         name_inst = EduOrg()
-        name_inst.name = name_institute
-        name_inst.uni = EduOrg.objects.filter(name__icontains='свфу').first()
-        name_inst.save()
+    name_inst.name = name_institute
+    name_inst.uni = EduOrg.objects.filter(name__icontains='свфу').first()
+    name_inst.save()
 
 
     kaf = Kafedra.objects.filter(number=code_kaf).first()
