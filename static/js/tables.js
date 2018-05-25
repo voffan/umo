@@ -7,37 +7,48 @@
             $(document).ready( function () {
                 $('#my_table2').DataTable( {
                     "language": {
-                            "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
-                            }
+                        "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
+                    }
                 } );
             } );
-            var a = $('#students_list').DataTable({
-                "columnDefs": [
-                    {
-                        "targets": [ 0 ],
-                        "searchable": false,
-                        "orderable": false
-                    }
-                ],
-                "order": [[ 1, 'asc' ]],
-                "dom": 'rtipS',
-                "info": false,
-                "paging": false,
-                initComplete: function () {
-                   var column = this.api().column(3);
-                   var select = $('<select class="filter"><option value=""></option></select>')
-                       .appendTo('#student_list_filter')
-                       .on('change', function () {
-                          var val = $(this).val();
-                          column.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
-                       });
+            $(document).ready( function () {
+                var a = $('#students_list').DataTable({
+                    "columnDefs": [
+                        {
+                            "targets": [ 0 ],
+                            "searchable": false,
+                            "orderable": false
+                        }
+                    ],
+                    "language": {
+                        "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
+                    },
+                    "order": [[ 1, 'asc' ]],
+                    "info": false,
+                    "paging": true,
+                    "pageLength": 50,
+                    "bFilter": true,
+                    initComplete: function () {
+                       var column = this.api().column(3);
+                       var select = $('<select class="filter"><option value=""></option></select>')
+                           .appendTo('#student_list_filter')
+                           .on('change', function () {
+                              var val = $(this).val();
+                              column.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
+                           });
 
-                   column.data().unique().sort().each(function (d, j) {
-                       select.append('<option value="' + d + '">' + d + '</option>');
-                   });
-                }
-            });
-             var b = $('#disciplines_list').DataTable({
+                       column.data().unique().sort().each(function (d, j) {
+                           select.append('<option value="' + d + '">' + d + '</option>');
+                       });
+                    }
+                });
+                a.on( 'order.dt search.dt', function () {
+                    a.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                        cell.innerHTML = i+1;
+                    } );
+                } ).draw();
+            } );
+            var b = $('#disciplines_list').DataTable({
                 "columnDefs": [
                     {
                         "targets": [ 0 ],
@@ -133,11 +144,6 @@
                    });
                 }
             });
-            a.on( 'order.dt search.dt', function () {
-                a.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-                    cell.innerHTML = i+1;
-                } );
-            } ).draw();
             b.on( 'order.dt search.dt', function () {
                 b.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
                     cell.innerHTML = i+1;

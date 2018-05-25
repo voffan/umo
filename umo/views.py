@@ -100,6 +100,7 @@ class StudentListView(ListView):
                     g = Group()
                     g.id = sg.id_group
                 g.Name = sg.name
+                g.program = EduProg.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code).first()
                 g.save()
 
                 synch_people = PeoplePln.objects.filter(id_group=sg.id_group)
@@ -289,8 +290,8 @@ class BRSPointsListView(ListView):
                 ch.save()
         context['checkpoint'] = checkpoint
         discipline = Discipline.objects.get(id=self.kwargs['pk'])
-        exam = Exam.objects.get(discipline__id=self.kwargs['pk'])
-        context['control_type'] = 'Баллы ' + exam.controlType.name.lower()
+        control = Control.objects.get(discipline_detail__subject__id=discipline.id)
+        context['control_type'] = 'Баллы ' + control.controltype.name.lower()
         context['discipline'] = discipline
         grouplist = GroupList.objects.filter(group__program=discipline.program).filter(active=True)
         context['grouplist'] = grouplist
@@ -331,9 +332,9 @@ class BRSPointsListView(ListView):
                 newExam = Exam.objects.filter(discipline__id = discipline.id).first()
                 if (newExam is None):
                     newExam = Exam()
-                    newControlType = ControlType.objects.filter(name=exam.controlType.name).first()
+                    newControlType = ControlType.objects.filter(name=control.controltype.name).first()
                     if (newControlType is None):
-                        newControlType = ControlType.objects.create(name = exam.controlType.name)
+                        newControlType = ControlType.objects.create(name=control.controltype.name)
                     newExam.controlType = newControlType
                     newExam.discipline = discipline
                     newExam.eduperiod = EduPeriod.objects.all().first()

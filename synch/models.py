@@ -84,7 +84,7 @@ class PeoplePln(YSUMainModel):
 
 class PlnEduProg(YSUMainModel):
     id_dop = models.IntegerField(primary_key=True, null=False)
-    id_spec = models.IntegerField(null=False)
+    id_spec = models.ForeignKey('PlnSprSpecializ', db_column='id_spec', null=False)
     id_studyform = models.SmallIntegerField(null=False)
     real_studyform = models.SmallIntegerField(null=False)
     duration = models.CharField(max_length=25)
@@ -143,7 +143,7 @@ class PlnEduProgYear(YSUMainModel):
 
 class PlnGroupStud(YSUMainModel):
     id_group = models.IntegerField(primary_key=True, null=False)
-    name = models.CharField(max_length = 30, null=False)
+    name = models.CharField(max_length=30, null=False)
     number_in_group = models.IntegerField(null=False)
     id_pln = models.ForeignKey('PlnEduProgYear', db_column='id_pln', null=False)
     codestream = models.IntegerField(null=False)
@@ -153,3 +153,16 @@ class PlnGroupStud(YSUMainModel):
 
     class Meta(YSUMainModel.Meta):
         db_table = 'pln_group_Stud'
+
+class PlnSprSpecializ(YSUMainModel):
+    id_spec = models.IntegerField(primary_key=True, null=False)
+    id_specialn = models.IntegerField(null=False)
+    name = models.CharField(max_length=250, null=False)
+    shortname = models.CharField(max_length=20, null=False)
+    code = models.CharField(max_length=20, null=False)
+    specialn = models.BooleanField()
+    spec = models.BooleanField()
+    isnapr = models.BooleanField()
+
+    class Meta(YSUMainModel.Meta):
+        db_table = 'pln_spr_Specializ'
