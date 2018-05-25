@@ -16,7 +16,7 @@
                         </div>
                     {% endfor %}
                     <p align="center"><button type="submit" class="btn btn-success">Сохранить</button>
-                    <a href= "{% url 'disciplines:disciplines_list' %}" class="btn btn-primary">Отмена</a></p>
+                    <input type="button" class="btn btn-primary" onclick="history.back();" value="Назад"/></p>
                 </div>
             </div>
         </form>

@@ -37,7 +37,7 @@
                     <td> {{ i.student.FIO }} </td>
                     <td> {{ i.student.StudentID }} <input id="studid" type="hidden" name="studid" value="{{ i.student.id }}"></td>
                     {% for key, value in dict.items %}
-                        {% if value.key == i.student.id %}
+                        {% if value.key == i.id %}
                             <td><input class="form-control" id="points1" type="text" name="points1" maxlength="255" value="{{ value.1.points }}"></td>
                             <td><input class="form-control" id="points2" type="text" name="points2" maxlength="255" value="{{ value.2.points }}"></td>
                             <td><input class="form-control" id="points3" type="text" name="points3" maxlength="255" value="{{ value.3.points }}"></td>

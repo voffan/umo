@@ -1,5 +1,6 @@
-from django.db import models
 from datetime import *
+
+from django.db import models
 
 
 # Create your models here.
@@ -23,7 +24,8 @@ class EduOrg(models.Model):
     name = models.CharField(verbose_name="название института", max_length=200, db_index=True, blank=False, null=False)
     uni = models.ForeignKey('self', verbose_name="Название университета", db_index=True, null=True, blank=True)
 
-    def __str__(self):        return self.name
+    def __str__(self):
+        return self.name
 
 
 class Kafedra(models.Model):
@@ -48,9 +50,9 @@ class EduProg(models.Model):
 
 class Group(models.Model):
     Name = models.CharField(verbose_name="название группы", max_length=200, db_index=True, blank=False, null=False)
-    beginyear = models.ForeignKey('Year', verbose_name="Год начала обучения", db_index=True, blank=False, null=False)
-    cathedra = models.ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=False, null=False)
-    program = models.ForeignKey(EduProg, verbose_name="Программа", db_index=True, blank=False, null=False)
+    beginyear = models.ForeignKey('Year', verbose_name="Год начала обучения", db_index=True, blank=True, null=True)
+    cathedra = models.ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True)
+    program = models.ForeignKey(EduProg, verbose_name="Программа", db_index=True, blank=True, null=True)
 
     def __str__(self):
         return self.Name
@@ -79,6 +81,7 @@ class Discipline(models.Model):
     code = models.CharField(verbose_name="код дисциплины", max_length=200, db_index=True, blank=False, null=False)
     program = models.ForeignKey(EduProg, verbose_name="Программа образования", db_index=True, blank=False, null=False)
     lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True)
+
     def __str__(self):
             return self.Name
 
@@ -99,15 +102,16 @@ class DisciplineDetails(models.Model):
 
     @property
     def total_hours(self):
-        return self.Lecture + self.Practice + self.Lab + self.KSR + self.SRS + self.control_hours
+        return self.Lecture + self.Practice + self.Lab + self.KSR + self.SRS
 
 
 class Control(models.Model):
     discipline_detail = models.ForeignKey('DisciplineDetails',verbose_name="Дисциплина", db_index=True, blank=True, null=True)
-    controltype = models.ForeignKey('ControlType',verbose_name="Тип контроля", db_index=True, blank=True, null=True)
+    controltype = models.ForeignKey('ControlType', verbose_name="Тип контроля", db_index=True, blank=True, null=True)
     control_hours = models.IntegerField(verbose_name="Кол-во часов", default=0, db_index=True, blank=False, null=False)
+
     def __str__(self):
-            return self.controltype
+            return self.controltype.name
 
 
 class Year(models.Model):
@@ -154,6 +158,7 @@ class Qual(models.Model):
 
 class ControlType(models.Model):
     name = models.CharField(verbose_name="Тип контроля", db_index=True, blank=False, null=False, max_length=255)
+
     def __str__(self):
             return self.name
 
@@ -254,3 +259,10 @@ class ExamMarks(models.Model):
 
     def __str__(self):
         return self.student.FIO + ' - ' + self.exam.discipline.Name
+
+class Synch(models.Model):
+    date = models.DateTimeField()
+    finished = models.BooleanField()
+
+    def __str__(self):
+        return 'None'
