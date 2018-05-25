@@ -2,8 +2,8 @@ from django.views.generic import ListView
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .form import UploadFileForm
-from umo.models import Discipline, DisciplineDetails, Semestr, Teacher
+from .form import UploadFileForm, SelectTeacher
+from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Group
 from .parseRUP import parseRUP
 from django.core.files.storage import default_storage
 from django.conf import settings
@@ -16,20 +16,26 @@ import os
 def rup_list(request):
     return render(request, 'nomenclature.html')
 
+
+def subjects_save(request):
+    pass
+
 def vuborka(request):
-    semestr = request.GET['dropdown1']
+    semestr_id = request.GET['dropdown1']
+    semestr = Semestr.objects.get(pk=semestr_id)
     subjects = DisciplineDetails.objects.filter(semestr__name=semestr)
-    teachers = Teacher.objects.filter()
-
+    discipline = Discipline.objects.all()
+    teachers = Teacher.objects.all()
+    i = 1
     if request.method == 'POST':
-        for subject in subjects:
+        subjects_save(request)
+    return render(request, 'select_teacher.html' , {'disciplines': discipline, 'teachers':teachers, 'i':i})
 
-            for teacher in teachers:
-                print()
+
 
 def select_semestr(request):
     semestrname = Semestr.objects.all()
-    return render(request, 'select_semestr.html', {'semestrname':semestrname})
+    return render(request, 'select_semestr.html', {'semestrs':semestrname})
 
 
 def upload_file(request):

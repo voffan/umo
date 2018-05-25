@@ -66,7 +66,7 @@ class Specialization(models.Model):
                             null=False)
     briefname = models.CharField(verbose_name="короткое имя специализации", max_length=200, db_index=True, blank=True,
                                  null=True)
-    code = models.IntegerField(verbose_name="код специализации", db_index=True, blank=False, null=False)
+    code = models.CharField(verbose_name="код специализации", max_length=100, db_index=True, blank=False, null=False)
     qual = models.ForeignKey('Qual', verbose_name="Квалификация", db_index=True, blank=False, null=False)
     level = models.ForeignKey('Level', verbose_name="Уровень", db_index=True, blank=True, null=True)
 

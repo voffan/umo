@@ -3,28 +3,33 @@
 {% block content %}
     <h1>Номенклатура предметов</h1>
 
-    <table id="select_teacher" class="table table-bordered">
-        <thead class="thead-light">
-            <tr>
-                <th>№</th>
-                <th>Дисциплина</th>
-                <th>Преподаватель</th>
-                <th></th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for discipline in disciplines %}
-
-
-               <label>{{ discipline.Name }} </label>
-                {{ discipline.lecturer}}
-
-
-
-        {% endfor %}
-        </tbody>
-    </table>
-    <br>
-    <a href="{% url '' %}" class="btn btn-success">Сохранить</a>
+<form action="" method="post">
+  <table id="select_teacher" class="table table-bordered">
+      <thead class="thead-light">
+      <tr>
+          <th>№</th>
+          <th>Дисциплина</th>
+          <th>Преподаватель</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for discipline in disciplines %}
+      <tr>
+          <td> {{ i }}</td>
+          <td> {{ discipline.Name }}  </td>
+          <td>
+              <select name="dropdown2" class="form-control">
+                  {% for teacher in teachers %}
+                  <option value="{{ teacher.id }}">{{ teacher.FIO }}</option>
+                  {% endfor %}
+              </select>
+          </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+  </table>
+  <br>
+  <p align="center"><button type="submit" class="btn btn-success">Сохранить</button>
+      <a href= "{% url 'nomenclatures:select_semestr' %}" class="btn btn-primary">Отмена</a></p>
+</form>
 {% endblock %}
