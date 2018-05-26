@@ -29,7 +29,7 @@
                     "pageLength": 50,
                     "bFilter": true,
                     initComplete: function () {
-                       var column = this.api().column(3);
+                       var column = this.api().column(2);
                        var select = $('<select class="filter"><option value=""></option></select>')
                            .appendTo('#student_list_filter')
                            .on('change', function () {
