@@ -405,8 +405,7 @@ class BRSPointsListView(ListView):
                 exammarks.markSymbol = newMarkSymbol
                 exammarks.mark = newMark
                 exammarks.save()
-
-            return HttpResponseRedirect(reverse('brs_studentlist', args=(self.kwargs['pk'])))
+            return HttpResponseRedirect(reverse('brs_studentlist', args={int(self.kwargs['pk'])}))
 
         elif request.POST.get('vedomost'):
             # определяем стили
