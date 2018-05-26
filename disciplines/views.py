@@ -1,13 +1,12 @@
 from datetime import *
 
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
-from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher
 
@@ -75,19 +74,13 @@ def discipline_delete(request):
         return HttpResponseRedirect(reverse('disciplines:disciplines_list'))
 
 
-class DisciplineDetail(DetailView):
-    template_name = 'disciplines_detail.html'
-    model = DisciplineDetails
-    context_object_name = 'discipline_detail'
-
-
 def discipline_detail(request, pk):
     if request.method == 'POST':
         pass
-    subject_ = Discipline.objects.get(id=pk)
-    details_ = DisciplineDetails.objects.get(subject__id=subject_.id)
-    form = DisciplineDetail(object=details_)
-    return render(request, 'disciplines_detail.html', {'form': form})
+    subject = Discipline.objects.get(id=pk)
+    name = subject.Name
+    details = DisciplineDetails.objects.filter(subject__id=subject.id)
+    return render(request, 'disciplines_detail.html', {'form': details, 'name': name})
 
 
 class DisciplineDetailsList(ListView):
@@ -275,7 +268,9 @@ def export_to_excel(request):
     ws.cell(row=2, column=2).value = 'Всего часов/ЗЕТ'
     for s in subjects:
         ws.cell(row=1, column=_column).value = s.Name
-        ws.cell(row=2, column=_column).value = str(s.disciplinedetails_set.get().total_hours)
+        details = s.disciplinedetails_set.filter(semestr__name=semestr)
+        for k in details:
+            ws.cell(row=2, column=_column).value = str(k.total_hours)
         _column += 1
         x += 1
     for gl in students:
@@ -295,9 +290,9 @@ def export_to_excel(request):
     xk = x + 2
 
     if xk == 2:
-        xk2 = 'B'
+        xk = 'B'
     elif xk == 3:
-        xk2 = 'C'
+        xk = 'C'
     elif xk ==4:
         xk = 'D'
     elif xk ==5:
