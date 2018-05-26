@@ -1,16 +1,16 @@
-from django.views.generic import ListView
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
-from .form import UploadFileForm, SelectTeacher
-from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, EduProg
-from .parseRUP import parseRUP
-from django.core.files.storage import default_storage
-from django.conf import settings
 import os
-#from somewhere import handle_uploaded_file
 
-# Create your views here.
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.urls import reverse
+
+from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile
+from .form import UploadFileForm
+from .parseRUP import parseRUP
+
+
+#from somewhere import handle_uploaded_file
 
 
 def rup_list(request):
@@ -40,7 +40,7 @@ def vuborka(request):
     specialization = Specialization.objects.get(pk=specialization_id)
     profile = Profile.objects.get(pk=profile_id)
 
-    disc_filtered  = DisciplineDetails.objects.filter(semestr=semestr, subject__program__specialization=specialization, subject__program__profile=profile)
+    disc_filtered = DisciplineDetails.objects.filter(semestr=semestr, subject__program__specialization=specialization, subject__program__profile=profile)
     teachers = Teacher.objects.all()
 
     return render(request, 'select_teacher.html', {'disciplines': disc_filtered, 'teachers':teachers})
@@ -62,7 +62,7 @@ def upload_file(request):
             #return default_storage.path(path)
             f=hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
             parseRUP(f)
-            return HttpResponseRedirect(reverse('nomenclatures:select_semestr'))
+            return HttpResponseRedirect(reverse('nomenclatures:success'))
 
     else:
         form = UploadFileForm()
