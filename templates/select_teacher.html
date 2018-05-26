@@ -2,12 +2,12 @@
 {% block title %}Номенклатура предметов{% endblock %}
 {% block content %}
 <h1>Номенклатура предметов</h1>
+<br>
 <form action="{% url 'nomenclatures:set_teachers_done' %}" method="post">
     {% csrf_token %}
     <table id="ekran" class="table table-bordered">
         <thead class="thead-light">
             <tr>
-                <th>№</th>
                 <th>Дисциплина</th>
                 <th>Преподаватель</th>
             </tr>
@@ -15,7 +15,6 @@
         <tbody>
         {% for discipline in disciplines %}
         <tr>
-            <td></td>
             <td> {{ discipline.subject.Name }} <input id="disc_id" type="hidden" name="disc_id" value="{{ discipline.subject.id }}"></td>
             <td>
                 <select name="teachers" id="teachers" class="form-control">

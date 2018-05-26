@@ -8,7 +8,7 @@ $(document).ready( function () {
 $(document).ready( function () {
     $('#my_table2').DataTable( {
         "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
+            "url": "/static/Russian.json"
         }
     } );
 } );
@@ -22,16 +22,17 @@ $(document).ready( function () {
             }
         ],
         "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
+            "url": "/static/Russian.json"
         },
         "order": [[ 1, 'asc' ]],
         "info": false,
         "paging": true,
-        "pageLength": 50,
+        "pageLength": 100,
+        "lengthChange": false,
         "bFilter": true,
         initComplete: function () {
            var column = this.api().column(2);
-           var select = $('<select class="filter"><option value=""></option></select>')
+           var select = $('<select class="filter"><option value="">-----</option></select>')
                .appendTo('#student_list_filter')
                .on('change', function () {
                   var val = $(this).val();
@@ -41,7 +42,15 @@ $(document).ready( function () {
            column.data().unique().sort().each(function (d, j) {
                select.append('<option value="' + d + '">' + d + '</option>');
            });
+        },
+        "fnDrawCallback": function(oSettings) {
+        if (oSettings._iDisplayLength > oSettings.fnRecordsDisplay()) {
+            $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
         }
+        else {
+            $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+        }
+    }
     });
     table.on( 'order.dt search.dt', function () {
         table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
@@ -58,10 +67,15 @@ $(document).ready( function () {
                 "orderable": false
             }
         ],
+        "language": {
+            "url": "/static/Russian.json"
+        },
         "order": [[ 1, 'asc' ]],
-        "dom": 'rtipS',
-        "info": false,
-        "paging": false,
+        "info": true,
+        "paging": true,
+        "pageLength": 10,
+        "lengthChange": true,
+        "bFilter": true,
         initComplete: function () {
            var column = this.api().column(3);
            var select = $('<select class="filter"><option value=""></option></select>')
@@ -95,7 +109,7 @@ $(document).ready( function () {
                 "orderable": false
             }
         ],
-        "order": [[ 1, 'asc' ]],
+        "order": [[ 2, 'asc' ]],
         "dom": 'rtipS',
         "info": false,
         "paging": false,
@@ -120,27 +134,6 @@ $(document).ready( function () {
     } ).draw();
 } );
 $(document).ready( function () {
-    var table = $('#ekran').DataTable( {
-        "columnDefs": [
-            {
-                "targets": [ 0 ],
-                "searchable": false,
-                "orderable": false
-            }
-        ],
-        "order": [[ 1, 'asc' ]],
-        "dom": 'rtipS',
-        "info": false,
-        "paging": false,
-        "fixedHeader": true
-    });
-    table.on( 'order.dt search.dt', function () {
-        table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-            cell.innerHTML = i+1;
-        } );
-    } ).draw();
-} );
-$(document).ready( function () {
     var table = $('#teacher_list').DataTable({
         "columnDefs": [
             {
@@ -149,10 +142,15 @@ $(document).ready( function () {
                 "orderable": false
             }
         ],
+        "language": {
+            "url": "/static/Russian.json"
+        },
         "order": [[ 1, 'asc' ]],
-        "dom": 'rtipS',
-        "info": false,
-        "paging": false,
+        "info": true,
+        "paging": true,
+        "pageLength": 10,
+        "lengthChange": true,
+        "bFilter": true,
         initComplete: function () {
            var column = this.api().column(4);
            var select = $('<select class="filter"><option value=""></option></select>')

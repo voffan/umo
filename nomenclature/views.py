@@ -40,6 +40,8 @@ def vuborka(request):
     specialization = Specialization.objects.get(pk=specialization_id)
     profile = Profile.objects.get(pk=profile_id)
 
+    disc_filtered = DisciplineDetails.objects.filter(semestr=semestr, subject__program__specialization=specialization, subject__program__profile=profile)
+    teachers = Teacher.objects.all()
     disc_filtered  = DisciplineDetails.objects.filter(semestr=semestr, subject__program__specialization=specialization, subject__program__profile=profile)
     teachers = Teacher.objects.all().order_by('FIO')
 
@@ -62,7 +64,7 @@ def upload_file(request):
             #return default_storage.path(path)
             f=hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
             parseRUP(f)
-            return HttpResponseRedirect(reverse('nomenclatures:select_semestr'))
+            return HttpResponseRedirect(reverse('nomenclatures:success'))
 
     else:
         form = UploadFileForm()

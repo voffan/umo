@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block title %}Экран успеваемости{% endblock %}
-{% block content %}
+{% block content2 %}
 <form action="{% url 'disciplines:export' %}" method="get">
     <h1 class="title">Экран успеваемости</h1>
     <div class="row">
-        <div class="col-md-4 offset-md-4">
+        <div class="col-md-2 offset-md-5">
             <br>
             <div class="form-group">
             <label for="dropdown1" >Группа:</label>
@@ -37,12 +37,12 @@
     } );
 
     function DestroyTable(){
-        $('#tableplace').find('table.table.table-bordered').remove();
+        $('#tableplace').find('table.table-bordered').remove();
     }
 
     function AddTable(columns) {
-        var table = '<table id="table1" class="table table-bordered">\n' +
-            '                <thead class="thead-light">\n' +
+        var table = '<table id="table1" class="table-bordered">\n' +
+            '                <thead>\n' +
             '                    <tr>\n' +
             '                        <th>ФИО</th>\n';
         for(var i=0;i<columns.length;i++){
