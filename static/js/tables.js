@@ -8,7 +8,7 @@ $(document).ready( function () {
 $(document).ready( function () {
     $('#my_table2').DataTable( {
         "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
+            "url": "/static/Russian.json"
         }
     } );
 } );
@@ -22,7 +22,7 @@ $(document).ready( function () {
             }
         ],
         "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Russian.json"
+            "url": "/static/Russian.json"
         },
         "order": [[ 1, 'asc' ]],
         "info": false,
@@ -32,7 +32,7 @@ $(document).ready( function () {
         "bFilter": true,
         initComplete: function () {
            var column = this.api().column(2);
-           var select = $('<select class="filter"><option value=""></option></select>')
+           var select = $('<select class="filter"><option value="">-----</option></select>')
                .appendTo('#student_list_filter')
                .on('change', function () {
                   var val = $(this).val();
