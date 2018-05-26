@@ -6,32 +6,32 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <h1>Детали дисциплины</h1>
+                    <h1>Детали дисциплины: {{name}}</h1>
                     <br>
                     <table class="table table-bordered">
                         <thead>
                         <tr>
-                        <th scope="col">Дисциплина</th>
-                        <th scope="col">ЗЕТ</th>
-                        <th scope="col">Кол-во лекций</th>
-                        <th scope="col">Кол-во практики</th>
-                        <th scope="col">Кол-во лаб. работ</th>
-                        <th scope="col">Кол-во КСР</th>
-                        <th scope="col">Кол-во СРС</th>
-                        <th scope="col">Семестр</th>
+                        <th>Семестр</th>
+                        <th>ЗЕТ</th>
+                        <th>Кол-во лекций</th>
+                        <th>Кол-во практики</th>
+                        <th>Кол-во лаб. работ</th>
+                        <th>Кол-во КСР</th>
+                        <th>Кол-во СРС</th>
                         </tr>
                         </thead>
                         <tbody>
+                        {% for s in form %}
                             <tr>
-                                <td> {{ form.object.subject }} </td>
-                                <td> {{ form.object.Credit }} </td>
-                                <td> {{ form.object.Lecture }} </td>
-                                <td> {{ form.object.Practice }} </td>
-                                <td> {{ form.object.Lab }} </td>
-                                <td> {{ form.object.KSR }} </td>
-                                <td> {{ form.object.SRS }} </td>
-                                <td> {{ form.object.semestr }} </td>
+                                <td> {{ s.semestr }} </td>
+                                <td> {{ s.Credit }} </td>
+                                <td> {{ s.Lecture }} </td>
+                                <td> {{ s.Practice }} </td>
+                                <td> {{ s.Lab }} </td>
+                                <td> {{ s.KSR }} </td>
+                                <td> {{ s.SRS }} </td>
                             </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                     <a href="{% url 'disciplines:details_list' %}" class="btn btn-primary">Изменить</a>

@@ -1,5 +1,3 @@
-from datetime import *
-
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
@@ -554,6 +552,16 @@ class BRSPointsListView(ListView):
             zp = z+14
             zp2 = zp+7
 
+            if group.year is None:
+               year = 'отсутствует'
+            else:
+                year = group.year
+
+            if exam.discipline.lecturer is None:
+               fio = 'отсутствует'
+            else:
+                fio = exam.discipline.lecturer.FIO
+
             ws.cell(row=1, column=1).value = 'ФГАОУ ВО «Северо-Восточный федеральный университет им.М.К.Аммосова'
             ws.cell(row=2, column=1).value = 'Институт математики и информатики'
             ws.cell(row=3, column=1).value = 'Ведомость текущей и промежуточной аттестации'
@@ -561,13 +569,13 @@ class BRSPointsListView(ListView):
                 exam.semestr.name) + ', ' + exam.eduperiod.beginyear + '-' + exam.eduperiod.endyear + ' уч.г.'
             ws.cell(row=6, column=1).value = 'Форма контроля:'
             ws.cell(row=6, column=3).value = exam.controlType.name
-            ws.cell(row=6, column=5).value = 'курс '+str(group.year)
+            ws.cell(row=6, column=5).value = 'курс '+str(year)
             ws.cell(row=6, column=6).value = 'группа:'
             ws.cell(row=6, column=7).value = group_name
             ws.cell(row=7, column=1).value = 'Дисциплина:'
             ws.cell(row=7, column=3).value = exam.discipline.Name
             ws.cell(row=8, column=1).value = 'Фамилия, имя, отчество преподавателя:'
-            ws.cell(row=8, column=4).value = exam.discipline.lecturer.FIO
+            ws.cell(row=8, column=4).value = fio
             ws.cell(row=9, column=1).value = 'Дата проведения зачета/экзамена:'
             ws.cell(row=9, column=3).value = exam.examDate
             ws.cell(row=11, column=1).value = '№'

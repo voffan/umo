@@ -98,7 +98,7 @@ class DisciplineDetails(models.Model):
     subject = models.ForeignKey(Discipline, verbose_name="Дисциплина", db_index=True, blank=False, null=False)
 
     def __str__(self):
-            return self.subject.Name
+            return self.subject.Name + ' - ' + self.semestr.name + ' семестр'
 
     @property
     def total_hours(self):
@@ -111,7 +111,8 @@ class Control(models.Model):
     control_hours = models.IntegerField(verbose_name="Кол-во часов", default=0, db_index=True, blank=False, null=False)
 
     def __str__(self):
-            return self.controltype.name
+            return self.controltype.name + ' - ' + self.discipline_detail.subject.Name + ' - ' \
+                   + self.discipline_detail.semestr.name + ' семестр'
 
 
 class Year(models.Model):
@@ -259,6 +260,7 @@ class ExamMarks(models.Model):
 
     def __str__(self):
         return self.student.FIO + ' - ' + self.exam.discipline.Name
+
 
 class Synch(models.Model):
     date = models.DateTimeField()
