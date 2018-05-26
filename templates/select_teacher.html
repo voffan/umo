@@ -1,35 +1,39 @@
 {% extends 'base.html' %}
 {% block title %}Номенклатура предметов{% endblock %}
 {% block content %}
-    <h1>Номенклатура предметов</h1>
-
-<form action="" method="post">
-  <table id="select_teacher" class="table table-bordered">
-      <thead class="thead-light">
-      <tr>
-          <th>№</th>
-          <th>Дисциплина</th>
-          <th>Преподаватель</th>
-      </tr>
-      </thead>
-      <tbody>
-      {% for discipline in disciplines %}
-      <tr>
-          <td> {{ i }}</td>
-          <td> {{ discipline.Name }}  </td>
-          <td>
-              <select name="dropdown2" class="form-control">
-                  {% for teacher in teachers %}
-                  <option value="{{ teacher.id }}">{{ teacher.FIO }}</option>
-                  {% endfor %}
-              </select>
-          </td>
-      </tr>
-      {% endfor %}
-      </tbody>
-  </table>
-  <br>
-  <p align="center"><button type="submit" class="btn btn-success">Сохранить</button>
-      <a href= "{% url 'nomenclatures:select_semestr' %}" class="btn btn-primary">Отмена</a></p>
+<h1>Номенклатура предметов</h1>
+<form action="{% url 'nomenclatures:set_teachers_done' %}" method="post">
+    {% csrf_token %}
+    <table id="ekran" class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>№</th>
+                <th>Дисциплина</th>
+                <th>Преподаватель</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for discipline in disciplines %}
+        <tr>
+            <td></td>
+            <td> {{ discipline.subject.Name }} <input id="disc_id" type="hidden" name="disc_id" value="{{ discipline.subject.id }}"></td>
+            <td>
+                <select name="teachers" id="teachers" class="form-control">
+                    {% for teacher in teachers %}
+                        {% if discipline.subject.lecturer.id == teacher.id %}
+                            <option selected value="{{ teacher.id }}">{{ teacher.FIO }}</option>
+                        {% else %}
+                            <option value="{{ teacher.id }}">{{ teacher.FIO }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <p align="center"><button type="submit" class="btn btn-success">Сохранить</button>
+    <a href= "{% url 'nomenclatures:select_semestr' %}" class="btn btn-primary">Отмена</a></p>
 </form>
 {% endblock %}

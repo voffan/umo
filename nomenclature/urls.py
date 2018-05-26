@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^list/$', views.rup_list, name='rup_list' ),
     url(r'^upload_file/$', views.upload_file, name='upload_file'),
     url(r'^select_semestr/$', views.select_semestr, name='select_semestr'),
-    url(r'^setteachers/$', views.vuborka, name='setteachers')
+    url(r'^set_teachers/$', views.vuborka, name='set_teachers'),
+    url(r'^set_teachers/done/$', views.subjects_save, name='set_teachers_done')
 ]

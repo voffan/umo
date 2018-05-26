@@ -2,30 +2,30 @@
 {% block title %}Рабочий учебный план{% endblock %}
 {% block content %}
 
-<form action="{% url 'nomenclatures:setteachers' %}" method="get">
+<form action="{% url 'nomenclatures:set_teachers' %}" method="get">
     <h1 class="title">Создания номенклатуры предметов</h1>
     <div class="row">
         <div class="col-md-4 offset-md-4">
             <br>
             <div class="form-group">
-            <label for="dropdown1" >Семестр:</label>
-            <select name="dropdown1" id="dropdown1" class="form-control">
+            <label for="semestr" >Семестр:</label>
+            <select name="semestr" id="semestr" class="form-control">
                 {% for semestr in semestrs %}
                     <option value="{{ semestr.id }}">{{ semestr.name}}</option>
                 {% endfor %}
             </select>
             </div>
             <div class="form-group">
-            <label for="dropdown3">Направления подготовки:</label>
-            <select name="dropdown3" id="dropdown3" class="form-control">
+            <label for="specialization">Направления подготовки:</label>
+            <select name="specialization" id="specialization" class="form-control">
                 {% for specialization in specializations %}
                     <option value="{{ specialization.id }}">{{ specialization.name}}</option>
                 {% endfor %}
             </select>
             </div>
             <div class="form-group">
-            <label for="dropdown4">Профиль:</label>
-            <select name="dropdown4" id="dropdown4" class="form-control">
+            <label for="profile">Профиль:</label>
+            <select name="profile" id="profile" class="form-control">
                 {% for profile in profiles %}
                     <option value="{{ profile.id }}">{{ profile.name}}</option>
                 {% endfor %}

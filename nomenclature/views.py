@@ -1,6 +1,6 @@
 from django.views.generic import ListView
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from .form import UploadFileForm, SelectTeacher
 from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, EduProg
@@ -18,32 +18,32 @@ def rup_list(request):
 
 
 def subjects_save(request):
-    pass
+    subjects = request.POST.getlist('disc_id')
+    teachers = request.POST.getlist('teachers')
+    for i in range(0, len(subjects)):
+        subj = Discipline.objects.get(pk=subjects[i])
+        subj.lecturer = Teacher.objects.get(pk=teachers[i])
+        subj.save()
+
+    return redirect('nomenclatures:select_semestr')
+
 
 def vuborka(request):
-    semestr_id = request.GET['dropdown1']
+    try:
+        semestr_id = request.GET['semestr']
+        specialization_id = request.GET['specialization']
+        profile_id = request.GET['profile']
+    except:
+        return redirect('nomenclatures:select_semestr')
+
     semestr = Semestr.objects.get(pk=semestr_id)
-
-    specialization_id = request.GET['dropdown3']
     specialization = Specialization.objects.get(pk=specialization_id)
-
-    profile_id = request.GET['dropdown4']
     profile = Profile.objects.get(pk=profile_id)
 
-    program =Discipline.objects.filter(program__specialization=specialization, program__profile=profile)
-
-    semestr_choice  = DisciplineDetails.objects.filter(semestr__name=semestr)
+    disc_filtered  = DisciplineDetails.objects.filter(semestr=semestr, subject__program__specialization=specialization, subject__program__profile=profile)
     teachers = Teacher.objects.all()
-    i = 1
 
-    disp = Discipline.objects.all()
-    #discipline = DisciplineDetails.objects.filter(semestr__name=semestr_choice, subject__program__specialization__name=program, subject__Name=disp)
-
-
-    if request.method == 'POST':
-        subjects_save(request)
-    return render(request, 'select_teacher.html' , {'disciplines': disp, 'teachers':teachers, 'i':i})
-
+    return render(request, 'select_teacher.html', {'disciplines': disc_filtered, 'teachers':teachers})
 
 
 def select_semestr(request):
@@ -67,6 +67,7 @@ def upload_file(request):
     else:
         form = UploadFileForm()
     return render(request, 'rup_upload.html', {'form': form})
+
 
 def hadle_uploaded_file(filename, file):
      s=os.path.join('upload', filename)
