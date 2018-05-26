@@ -6,6 +6,8 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher
 
@@ -53,7 +55,8 @@ class DisciplineCreate(CreateView):
     ]
 
 
-class DisciplineUpdate(UpdateView):
+class DisciplineUpdate(PermissionRequiredMixin, UpdateView):
+    permission_required = 'discipline.Can change discipline'
     template_name = 'disciplines_update.html'
     success_url = reverse_lazy('disciplines:disciplines_list')
     model = Discipline
