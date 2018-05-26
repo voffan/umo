@@ -288,67 +288,76 @@ class BRSPointsListView(ListView):
                 ch.save()
         context['checkpoint'] = checkpoint
         discipline = Discipline.objects.get(id=self.kwargs['pk'])
-        control = Control.objects.get(discipline_detail__subject__id=discipline.id)
+        control = Control.objects.filter(discipline_detail__subject__id=discipline.id).first()
         context['control_type'] = 'Баллы ' + control.controltype.name.lower()
         context['discipline'] = discipline
+        discipline_details = DisciplineDetails.objects.filter(subject=discipline)
+        semester = []
+        for d in discipline_details:
+            semester.append(d.semestr)
+        context['semester'] = semester
         grouplist = GroupList.objects.filter(group__program=discipline.program).filter(active=True)
         context['grouplist'] = grouplist
         dict = {}
-        for gl in grouplist:
-            dict[str(gl.id)] = {}
-            dict[str(gl.id)]['key'] = gl.id
-            i = 0
-            for ch in checkpoint:
-                i = i + 1
-                newBRSpoints = BRSpoints.objects.filter(brs__discipline__id = discipline.id).filter(CheckPoint = ch).filter(student = gl.student).first()
-                if (newBRSpoints is None):
-                    newBRSpoints = BRSpoints()
-                    newBRSpoints.student = gl.student
-                    newBRSpoints.CheckPoint = ch
-                    newBRSpoints.points = 0.0
-                    newBRS = BRS.objects.filter(discipline__id = discipline.id).first()
-                    if (newBRS is None):
-                        newBRS = BRS()
-                        newBRS.discipline = discipline
-                        newBRS.eduperiod = EduPeriod.objects.all().first()
-                        newBRS.semester = DisciplineDetails.objects.filter(subject=discipline).first().semestr
-                        newBRS.save()
-                    newBRSpoints.brs = newBRS
-                    newBRSpoints.save()
-                dict[str(gl.id)][str(i)] = newBRSpoints
+        for s in semester:
+            dict[s.name] = {}
+            dict[s.name]['key'] = s.name
+            control = Control.objects.filter(discipline_detail__subject__id=discipline.id, discipline_detail__semestr=s).first()
+            for gl in grouplist:
+                dict[s.name][str(gl.id)] = {}
+                dict[s.name][str(gl.id)]['key'] = gl.id
+                i = 0
+                for ch in checkpoint:
+                    i = i + 1
+                    newBRSpoints = BRSpoints.objects.filter(brs__discipline__id = discipline.id, brs__semester=s).filter(CheckPoint = ch).filter(student = gl.student).first()
+                    if (newBRSpoints is None):
+                        newBRSpoints = BRSpoints()
+                        newBRSpoints.student = gl.student
+                        newBRSpoints.CheckPoint = ch
+                        newBRSpoints.points = 0.0
+                        newBRS = BRS.objects.filter(discipline__id = discipline.id, semester=s).first()
+                        if (newBRS is None):
+                            newBRS = BRS()
+                            newBRS.discipline = discipline
+                            newBRS.eduperiod = EduPeriod.objects.all().first()
+                            newBRS.semester = s
+                            newBRS.save()
+                        newBRSpoints.brs = newBRS
+                        newBRSpoints.save()
+                    dict[s.name][str(gl.id)][str(i)] = newBRSpoints
 
-            newExamMarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id).filter(student = gl.student).first()
-            if (newExamMarks is None):
-                newMarkSymbol = MarkSymbol.objects.filter(name='F').first()
-                if (newMarkSymbol is None):
-                    newMarkSymbol = MarkSymbol.objects.create(name='F')
+                newExamMarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id, exam__semestr=s).filter(student = gl.student).first()
+                if (newExamMarks is None):
+                    newMarkSymbol = MarkSymbol.objects.filter(name='F').first()
+                    if (newMarkSymbol is None):
+                        newMarkSymbol = MarkSymbol.objects.create(name='F')
 
-                newMark = Mark.objects.filter(name='неуд').first()
-                if (newMark is None):
-                    newMark = Mark.objects.create(name='неуд')
+                    newMark = Mark.objects.filter(name='неуд').first()
+                    if (newMark is None):
+                        newMark = Mark.objects.create(name='неуд')
 
-                newExam = Exam.objects.filter(discipline__id = discipline.id).first()
-                if (newExam is None):
-                    newExam = Exam()
-                    newControlType = ControlType.objects.filter(name=control.controltype.name).first()
-                    if (newControlType is None):
-                        newControlType = ControlType.objects.create(name=control.controltype.name)
-                    newExam.controlType = newControlType
-                    newExam.discipline = discipline
-                    newExam.eduperiod = EduPeriod.objects.all().first()
-                    newExam.examDate = 'не проставлена'
-                    newExam.semestr = DisciplineDetails.objects.filter(subject=discipline).first().semestr
-                    newExam.save()
+                    newExam = Exam.objects.filter(discipline__id = discipline.id, semestr=s).first()
+                    if (newExam is None):
+                        newExam = Exam()
+                        newControlType = ControlType.objects.filter(name=control.controltype.name).first()
+                        if (newControlType is None):
+                            newControlType = ControlType.objects.create(name=control.controltype.name)
+                        newExam.controlType = newControlType
+                        newExam.discipline = discipline
+                        newExam.eduperiod = EduPeriod.objects.all().first()
+                        newExam.examDate = 'не проставлена'
+                        newExam.semestr = s
+                        newExam.save()
 
-                newExamMarks = ExamMarks()
-                newExamMarks.student = gl.student
-                newExamMarks.inPoints = 0.0
-                newExamMarks.examPoints = 0.0
-                newExamMarks.markSymbol = newMarkSymbol
-                newExamMarks.mark = newMark
-                newExamMarks.exam = newExam
-                newExamMarks.save()
-            dict[str(gl.id)]['6'] = newExamMarks
+                    newExamMarks = ExamMarks()
+                    newExamMarks.student = gl.student
+                    newExamMarks.inPoints = 0.0
+                    newExamMarks.examPoints = 0.0
+                    newExamMarks.markSymbol = newMarkSymbol
+                    newExamMarks.mark = newMark
+                    newExamMarks.exam = newExam
+                    newExamMarks.save()
+                dict[s.name][str(gl.id)]['6'] = newExamMarks
         context['dict'] = dict
         return context
 
@@ -361,22 +370,23 @@ class BRSPointsListView(ListView):
             points.append(request.POST.getlist('points3'))
             points.append(request.POST.getlist('points4'))
             points.append(request.POST.getlist('points6'))
+            semester = request.POST.getlist('semester')
             arr_size = len(studid)
             checkpoint = CheckPoint.objects.all()
             discipline = Discipline.objects.get(id=self.kwargs['pk'])
-            exam = Exam.objects.get(discipline__id=self.kwargs['pk'])
+            exam = Exam.objects.get(discipline__id=self.kwargs['pk'], semestr__id=semester[0])
             for i in range(0, arr_size):
                 st = Student.objects.get(id=studid[i])
                 k = 0
 
-                exammarks = ExamMarks.objects.filter(exam__discipline__id=discipline.id).get(student=st)
+                exammarks = ExamMarks.objects.filter(exam__discipline__id=discipline.id, exam__semestr__id=semester[i]).get(student=st)
                 exammarks.examPoints = float(points[4][i].replace(',', '.'))
                 exammarks.inPoints = float(points[3][i].replace(',', '.'))
 
                 totalPoints = exammarks.examPoints + exammarks.inPoints
 
                 for ch in checkpoint:
-                    brspoints = BRSpoints.objects.filter(brs__discipline__id=discipline.id).filter(CheckPoint=ch).get(
+                    brspoints = BRSpoints.objects.filter(brs__discipline__id=discipline.id, brs__semester__id=semester[i]).filter(CheckPoint=ch).get(
                         student=st)
                     if (k != 4):
                         brspoints.points = float(points[k][i].replace(',', '.'))
@@ -512,11 +522,12 @@ class BRSPointsListView(ListView):
             # данные для строк
             group_name = str(request.POST.get('selected_group'))
             disc_id = self.kwargs['pk']
-            exam = Exam.objects.get(discipline__id=disc_id)
             studid = request.POST.getlist('studid')
             group = Group.objects.get(Name=group_name)
             inpoints = request.POST.getlist('points4')
             exampoints = request.POST.getlist('points6')
+            semester = request.POST.getlist('semester')
+            exam = Exam.objects.get(discipline__id=disc_id, semester_id=semester[0])
             arr_size = len(studid)
 
             _row = 12

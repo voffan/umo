@@ -100,7 +100,7 @@ $(document).ready( function () {
     var table = $('#brs_list').DataTable({
         "columnDefs": [
             {
-                "targets": [ 1 ],
+                "targets": [ 1, 2 ],
                 "visible": false
             },
             {
@@ -109,22 +109,35 @@ $(document).ready( function () {
                 "orderable": false
             }
         ],
-        "order": [[ 2, 'asc' ]],
+        "order": [[ 3, 'asc' ]],
         "dom": 'rtipS',
         "info": false,
         "paging": false,
         initComplete: function () {
-           var column = this.api().column(1);
-           var select = $('<select class="filter" name="selected_group"></select>')
-               .appendTo('#brs_list_filter')
+            var column1 = this.api().column(2);
+            var select1 = $('<select class="filter" name="selected_semestr"></select>')
+               .appendTo('#brs_list_filter1')
                .on('change', function () {
                   var val = $(this).val();
-                  column.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
+                  column1.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
                });
-           column.data().unique().sort().each(function (d, j) {
-               select.append('<option value="' + d + '">' + d + '</option>');
-           });
-           column.search(select.val ? '^' + select.val() + '$' : select.val, true, false).draw();
+            column1.data().unique().sort().each(function (d, j) {
+               select1.append('<option value="' + d + '">' + d + '</option>');
+            });
+            
+            var column2 = this.api().column(1);
+            var select2 = $('<select class="filter" name="selected_group"></select>')
+               .appendTo('#brs_list_filter2')
+               .on('change', function () {
+                  var val = $(this).val();
+                  column2.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
+               });
+            column2.data().unique().sort().each(function (d, j) {
+               select2.append('<option value="' + d + '">' + d + '</option>');
+            });
+
+            column1.search(select1.val ? '^' + select1.val() + '$' : select1.val, true, false).draw();
+            column2.search(select2.val ? '^' + select2.val() + '$' : select2.val, true, false).draw();
         }
     });
     table.on( 'order.dt search.dt', function () {
