@@ -1,5 +1,5 @@
 from umo.models import EduOrg, Kafedra, EduProg, Specialization, Discipline, \
-    DisciplineDetails, Profile, Year, Semestr, Qual, Level, Teacher, Control, Position, Zvanie
+    DisciplineDetails, Profile, Year, Semestr, Qual, Level, Teacher, Control, Position, Zvanie, ControlType
 import xml.etree.ElementTree as ET
 
 
@@ -106,8 +106,6 @@ def parseRUP(filename):
         dis.save()
 
         for details in elem.findall('Сем'):
-
-
             #if details is ('Ном' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Пр') or ('Ном' and 'СРС'):
             data = {'101':0,'102':0,'103':0,'106':0,'107':0,'108':0}
             total_h = 0
@@ -126,6 +124,18 @@ def parseRUP(filename):
             if 'ЗЕТ' in details.attrib.keys():
                 zet = details.get('ЗЕТ')
 
+            z = '1'
+            if 'Зач' in details.attrib.keys():
+                z = details.get('Зач')
+
+            exam = '1'
+            if 'Экз' in details.attrib.keys():
+                exam = details.get('Экз')
+
+            zO = '1'
+            if 'ЗачО' in details.attrib.keys():
+                zO = details.get('ЗачО')
+
             d = DisciplineDetails()
             smstr = Semestr.objects.filter(name=semestr_nom).first()
             if smstr is None:
@@ -140,5 +150,28 @@ def parseRUP(filename):
             d.Lab = data['102']
             d.KSR = data['106']
             d.SRS = data['107']
-            d.control_hours = data['108']
+            #d.control_hours = data['108']
             d.save()
+
+            c = Control()
+            c.discipline_detail = d
+            control = ControlType.objects.filter(name=z).first()
+            if control is None:
+                control = ControlType()
+            control.name = 'Зачет'
+            control.save()
+
+            control = ControlType.objects.filter(name=exam).first()
+            if control is None:
+                control = ControlType()
+            control.name = 'Экзамен'
+            control.save()
+
+            control = ControlType.objects.filter(name=zO).first()
+            if control is None:
+                control = ControlType()
+            control.name = 'Зачет с оценкой'
+            control.save()
+            c.controltype = control
+            c.control_hours = data['108']
+            c.save()
