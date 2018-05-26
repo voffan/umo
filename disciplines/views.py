@@ -1,6 +1,5 @@
 from datetime import *
 
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
@@ -9,18 +8,6 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
 
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher
-
-
-# Create your views here.
-# def add_discipline(request):
-#     if request.method == 'POST':
-#         form = AddDisciplineForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return HttpResponseRedirect('/disciplines/list/')
-#         return render(request, 'disciplines_form.html', {'form': form})
-#     form = AddDisciplineForm()
-#     return render(request, 'disciplines_form.html', {'form': form})
 
 
 class DisciplineList(ListView):
@@ -54,8 +41,7 @@ class DisciplineCreate(CreateView):
     ]
 
 
-class DisciplineUpdate(PermissionRequiredMixin, UpdateView):
-    permission_required = 'discipline.Can change discipline'
+class DisciplineUpdate(UpdateView):
     template_name = 'disciplines_update.html'
     success_url = reverse_lazy('disciplines:disciplines_list')
     model = Discipline
