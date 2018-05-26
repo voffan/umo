@@ -401,8 +401,8 @@ def export_to_excel(request):
 
 
 def excel(request):
-    groupname = Group.objects.all()
-    semestrname = Semestr.objects.all()
-    subjects = Discipline.objects.all()
+    groupname = Group.objects.all().order_by('Name')
+    semestrname = Semestr.objects.all().order_by('name')
+    subjects = Discipline.objects.all().order_by('Name')
 
     return render(request, 'export_to_excel.html', {'groupname': groupname, 'semestrname': semestrname, 'subjects': subjects})
