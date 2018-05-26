@@ -1,16 +1,16 @@
+from django.views.generic import ListView
 from django.shortcuts import render, redirect
-import os
-
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
-
-from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile
-from .form import UploadFileForm
+from .form import UploadFileForm, SelectTeacher
+from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, EduProg
 from .parseRUP import parseRUP
-
-
+from django.core.files.storage import default_storage
+from django.conf import settings
+import os
 #from somewhere import handle_uploaded_file
+
+# Create your views here.
 
 
 def rup_list(request):
@@ -42,15 +42,17 @@ def vuborka(request):
 
     disc_filtered = DisciplineDetails.objects.filter(semestr=semestr, subject__program__specialization=specialization, subject__program__profile=profile)
     teachers = Teacher.objects.all()
+    disc_filtered  = DisciplineDetails.objects.filter(semestr=semestr, subject__program__specialization=specialization, subject__program__profile=profile)
+    teachers = Teacher.objects.all().order_by('FIO')
 
     return render(request, 'select_teacher.html', {'disciplines': disc_filtered, 'teachers':teachers})
 
 
 def select_semestr(request):
-    semestrname = Semestr.objects.all()
-    specialization_name = Specialization.objects.all()
-    profile_name = Profile.objects.all()
-    return render(request, 'select_semestr.html', {'semestrs':semestrname, 'specializations':specialization_name, 'profiles':profile_name})
+    semestr_list = Semestr.objects.all().order_by('name')
+    specialization_list = Specialization.objects.all().order_by('name')
+    profile_list = Profile.objects.all().order_by('name')
+    return render(request, 'select_semestr.html', {'semestrs':semestr_list, 'specializations':specialization_list, 'profiles':profile_list})
 
 
 def upload_file(request):
