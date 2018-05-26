@@ -27,7 +27,8 @@ $(document).ready( function () {
         "order": [[ 1, 'asc' ]],
         "info": false,
         "paging": true,
-        "pageLength": 50,
+        "pageLength": 100,
+        "lengthChange": false,
         "bFilter": true,
         initComplete: function () {
            var column = this.api().column(2);
@@ -41,7 +42,15 @@ $(document).ready( function () {
            column.data().unique().sort().each(function (d, j) {
                select.append('<option value="' + d + '">' + d + '</option>');
            });
+        },
+        "fnDrawCallback": function(oSettings) {
+        if (oSettings._iDisplayLength > oSettings.fnRecordsDisplay()) {
+            $(oSettings.nTableWrapper).find('.dataTables_paginate').hide();
         }
+        else {
+            $(oSettings.nTableWrapper).find('.dataTables_paginate').show();
+        }
+    }
     });
     table.on( 'order.dt search.dt', function () {
         table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
