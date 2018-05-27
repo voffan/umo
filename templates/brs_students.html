@@ -4,15 +4,17 @@
     <style type="text/css">
         input[type=text] { width: 70%; }
     </style>
-    <h1>Контрольный лист | {{ discipline.Name }}</h1>
+    <h1>Контрольный лист: {{ discipline.Name }}</h1>
     <form method="post">
-    {% csrf_token %}
-    <p align="right" id="brs_list_filter"><label><b>Группа:</b></label><br></p>
+        {% csrf_token %}
+        <p align="right" id="brs_list_filter1"><label><b>Семестр:</b></label><br></p>
+        <p align="right" id="brs_list_filter2"><label><b>Группа:</b></label><br></p>
         <table id="brs_list" class="table-bordered">
             <thead class="thead-light">
                 <tr>
                     <th>№</th>
                     <th>Группа</th>
+                    <th>Семестр</th>
                     <th>ФИО</th>
                     <th>№ зачетной книжки</th>
                     <th>1 контр. срез</th>
@@ -26,29 +28,36 @@
                 </tr>
             </thead>
             <tbody>
-                {% for i in students_list %}
-                <tr>
-                    <td></td>
-                    {% for gr in grouplist %}
-                        {% if gr.student.id == i.student.id %}
-                            <td> {{ gr.group.Name }}</td>
-                        {% endif %}
+                {% for s in semester %}
+                    {% for i in students_list %}
+                    <tr>
+                        <td></td>
+                        {% for gr in grouplist %}
+                            {% if gr.student.id == i.student.id %}
+                                <td> {{ gr.group.Name }}</td>
+                            {% endif %}
+                        {% endfor %}
+                        <td> {{ s.name }} </td>
+                        <td> {{ i.student.FIO }} <input id="semester" type="hidden" name="semester" value="{{ s.id }}"></td>
+                        <td> {{ i.student.StudentID }} <input id="studid" type="hidden" name="studid" value="{{ i.student.id }}"></td>
+                        {% for key, value in dict.items %}
+                            {% if value.key == s.name %}
+                                {% for key2, value2 in value.items %}
+                                    {% if value2.key == i.id %}
+                                        <td><input class="form-control" id="points1" type="text" name="points1" maxlength="255" value="{{ value2.1.points }}"></td>
+                                        <td><input class="form-control" id="points2" type="text" name="points2" maxlength="255" value="{{ value2.2.points }}"></td>
+                                        <td><input class="form-control" id="points3" type="text" name="points3" maxlength="255" value="{{ value2.3.points }}"></td>
+                                        <td><input class="form-control" id="points4" type="text" name="points4" maxlength="255" value="{{ value2.4.points }}"></td>
+                                        <td><input class="form-control" id="points6" type="text" name="points6" maxlength="255" value="{{ value2.6.examPoints }}"></td>
+                                        <td> {{ value2.5.points }} </td>
+                                        <td> {{ value2.6.mark.name }} </td>
+                                        <td> {{ value2.6.markSymbol.name }} </td>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                    <td> {{ i.student.FIO }} </td>
-                    <td> {{ i.student.StudentID }} <input id="studid" type="hidden" name="studid" value="{{ i.student.id }}"></td>
-                    {% for key, value in dict.items %}
-                        {% if value.key == i.id %}
-                            <td><input class="form-control" id="points1" type="text" name="points1" maxlength="255" value="{{ value.1.points }}"></td>
-                            <td><input class="form-control" id="points2" type="text" name="points2" maxlength="255" value="{{ value.2.points }}"></td>
-                            <td><input class="form-control" id="points3" type="text" name="points3" maxlength="255" value="{{ value.3.points }}"></td>
-                            <td><input class="form-control" id="points4" type="text" name="points4" maxlength="255" value="{{ value.4.points }}"></td>
-                            <td><input class="form-control" id="points6" type="text" name="points6" maxlength="255" value="{{ value.6.examPoints }}"></td>
-                            <td> {{ value.5.points }} </td>
-                            <td> {{ value.6.mark.name }} </td>
-                            <td> {{ value.6.markSymbol.name }} </td>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
                 {% endfor %}
             </tbody>
         </table>

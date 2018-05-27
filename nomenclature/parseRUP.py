@@ -136,12 +136,14 @@ def parseRUP(filename):
             if 'ЗачО' in details.attrib.keys():
                 zO = details.get('ЗачО')
 
-            d = DisciplineDetails()
             smstr = Semestr.objects.filter(name=semestr_nom).first()
             if smstr is None:
                 smstr = Semestr()
             smstr.name = semestr_nom
             smstr.save()
+            d = DisciplineDetails.objects.filter(semestr=smstr, subject=dis).first()
+            if d is None:
+                d = DisciplineDetails()
             d.semestr = smstr
             d.subject = dis
             d.Credit = zet
