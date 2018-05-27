@@ -154,7 +154,7 @@ def export_to_excel(request):
                      color='FF000000',
                      )
     font = Font(name='Calibri',
-                     size=12,
+                     size=10,
                      bold=False,
                      italic=False,
                      vertAlign=None,
