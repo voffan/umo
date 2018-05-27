@@ -124,15 +124,15 @@ def parseRUP(filename):
             if 'ЗЕТ' in details.attrib.keys():
                 zet = details.get('ЗЕТ')
 
-            z = '1'
+            z = None
             if 'Зач' in details.attrib.keys():
                 z = details.get('Зач')
 
-            exam = '1'
+            exam = None
             if 'Экз' in details.attrib.keys():
                 exam = details.get('Экз')
 
-            zO = '1'
+            zO = None
             if 'ЗачО' in details.attrib.keys():
                 zO = details.get('ЗачО')
 
@@ -155,22 +155,21 @@ def parseRUP(filename):
 
             c = Control()
             c.discipline_detail = d
-            control = ControlType.objects.filter(name=z).first()
-            if control is None:
-                control = ControlType()
-            control.name = 'Зачет'
-            control.save()
-
-            control = ControlType.objects.filter(name=exam).first()
-            if control is None:
-                control = ControlType()
-            control.name = 'Экзамен'
-            control.save()
-
-            control = ControlType.objects.filter(name=zO).first()
-            if control is None:
-                control = ControlType()
-            control.name = 'Зачет с оценкой'
+            if z is not None:
+                control = ControlType.objects.filter(name='Зачет').first()
+                if control is None:
+                    control = ControlType()
+                control.name = 'Зачет'
+            elif exam is not None:
+                control = ControlType.objects.filter(name='Экзамен').first()
+                if control is None:
+                    control = ControlType()
+                control.name = 'Экзамен'
+            elif zO is not None:
+                control = ControlType.objects.filter(name='Зачет с оценкой').first()
+                if control is None:
+                    control = ControlType()
+                control.name = 'Зачет с оценкой'
             control.save()
             c.controltype = control
             c.control_hours = data['108']
