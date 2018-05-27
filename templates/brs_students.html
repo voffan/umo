@@ -4,8 +4,7 @@
     <style type="text/css">
         input[type=text] { width: 70%; }
     </style>
-    <h1>Контрольный лист</h1>
-    <h2>{{ discipline.Name }}</h2>
+    <h1>Контрольный лист: {{ discipline.Name }}</h1>
     <form method="post">
         {% csrf_token %}
         <p align="right" id="brs_list_filter1"><label><b>Семестр:</b></label><br></p>

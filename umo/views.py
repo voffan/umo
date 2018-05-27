@@ -527,7 +527,7 @@ class BRSPointsListView(ListView):
             inpoints = request.POST.getlist('points4')
             exampoints = request.POST.getlist('points6')
             semester = request.POST.getlist('semester')
-            exam = Exam.objects.get(discipline__id=disc_id, semester_id=semester[0])
+            exam = Exam.objects.get(discipline__id=disc_id, semestr_id=semester[0])
             arr_size = len(studid)
 
             _row = 12
