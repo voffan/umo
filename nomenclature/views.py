@@ -1,22 +1,27 @@
-from django.views.generic import ListView
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
-from .form import UploadFileForm, SelectTeacher
-from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, EduProg
-from .parseRUP import parseRUP
-from django.core.files.storage import default_storage
-from django.conf import settings
 import os
+
+from django.contrib.auth.decorators import permission_required
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.urls import reverse
+
+from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile
+from .form import UploadFileForm
+from .parseRUP import parseRUP
+
+
 #from somewhere import handle_uploaded_file
 
 # Create your views here.
 
 
+@permission_required('umo.add_discipline', login_url='/auth/login')
 def rup_list(request):
     return render(request, 'nomenclature.html')
 
 
+@permission_required('umo.add_discipline', login_url='/auth/login')
 def subjects_save(request):
     subjects = request.POST.getlist('disc_id')
     teachers = request.POST.getlist('teachers')
@@ -28,6 +33,7 @@ def subjects_save(request):
     return redirect('nomenclatures:select_semestr')
 
 
+@permission_required('umo.add_discipline', login_url='/auth/login')
 def vuborka(request):
     try:
         semestr_id = request.GET['semestr']
@@ -48,6 +54,7 @@ def vuborka(request):
     return render(request, 'select_teacher.html', {'disciplines': disc_filtered, 'teachers':teachers})
 
 
+@permission_required('umo.add_discipline', login_url='/auth/login')
 def select_semestr(request):
     semestr_list = Semestr.objects.all().order_by('name')
     specialization_list = Specialization.objects.all().order_by('name')
@@ -55,6 +62,7 @@ def select_semestr(request):
     return render(request, 'select_semestr.html', {'semestrs':semestr_list, 'specializations':specialization_list, 'profiles':profile_list})
 
 
+@permission_required('umo.add_discipline', login_url='/auth/login')
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -71,6 +79,7 @@ def upload_file(request):
     return render(request, 'rup_upload.html', {'form': form})
 
 
+@permission_required('umo.add_discipline', login_url='/auth/login')
 def hadle_uploaded_file(filename, file):
      s=os.path.join('upload', filename)
      with open(s, 'wb+') as destination:

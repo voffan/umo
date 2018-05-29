@@ -1,3 +1,5 @@
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
@@ -10,13 +12,20 @@ from umo.forms import AddTeacherForm
 from umo.models import *
 
 
-# Create your views.py here.
-class TeacherCreateView(CreateView):
-    model = Person, Teacher
-    fields = '__all__'
+@permission_required('umo.add_teacher', login_url='/auth/login')
+def create_teacher(request):
+    if request.method == 'POST':
+        form = AddTeacherForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('teachers:list_teachers'))
+        return render(request, 'teacher_form.html', {'form': form})
+    form = AddTeacherForm()
+    return render(request, 'teacher_form.html', {'form': form})
 
 
-class TeacherUpdate(UpdateView):
+class TeacherUpdate(PermissionRequiredMixin, UpdateView):
+    permission_required = 'umo.change_teacher'
     template_name = 'teacher_edit.html'
     success_url = reverse_lazy('teachers:list_teachers')
     model = Teacher
@@ -34,28 +43,20 @@ class TeacherUpdate(UpdateView):
     }
 
 
-class TeacherDelete(DeleteView):
+class TeacherDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = 'umo.delete_teacher'
     model = Teacher
     success_url = reverse_lazy('teacher')
 
 
+@permission_required('umo.add_teacher', login_url='/auth/login')
 def list_teachers(request):
     all = Teacher.objects.all()
     return render(request, 'teachers_list.html', {'teachers': all})
 
 
-def create_teacher(request):
-     if request.method == 'POST':
-        form = AddTeacherForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('teachers:list_teachers'))
-        return render(request, 'teacher_form.html', {'form': form})
-     form = AddTeacherForm()
-     return render(request, 'teacher_form.html', {'form': form})
-
-
-class StudentListView(ListView):
+class StudentListView(PermissionRequiredMixin, ListView):
+    permission_required = 'umo.add_student'
     model = GroupList
     context_object_name = 'student_list'
     success_url = reverse_lazy('student_changelist')
@@ -125,9 +126,8 @@ class StudentListView(ListView):
         return HttpResponseRedirect(self.success_url)
 
 
-
-
-class StudentCreateView(CreateView):
+class StudentCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = 'umo.add_student'
     model = GroupList
     fields = ['group']
     success_url = reverse_lazy('student_changelist')
@@ -150,6 +150,7 @@ class StudentCreateView(CreateView):
         return super().form_valid(form)
 
 
+@permission_required('umo.delete_student', login_url='/auth/login')
 def student_delete(request):
     if request.method == 'POST':
         student_ = Student.objects.get(id = request.POST['item_id'])
@@ -158,7 +159,8 @@ def student_delete(request):
         return HttpResponseRedirect(reverse_lazy('student_changelist'))
 
 
-class StudentUpdateView(UpdateView):
+class StudentUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = 'umo.change_student'
     model = GroupList
     fields = ['group']
     success_url = reverse_lazy('student_changelist')
@@ -182,6 +184,7 @@ class StudentUpdateView(UpdateView):
         return super().form_valid(form)
 
 
+@permission_required('umo.delete_teacher', login_url='/auth/login')
 def delete_teacher(request):
     if request.method == 'POST':
         teacher_ = Teacher.objects.get(pk=request.POST['teacher'])
