@@ -6,11 +6,13 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, CreateView, UpdateView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
-
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.decorators import permission_required
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher
 
 
-class DisciplineList(ListView):
+class DisciplineList(PermissionRequiredMixin, ListView):
+    permission_required = 'umo.add_discipline'
     template_name = 'disciplines.html'
     context_object_name = 'discipline_list'
 
@@ -29,7 +31,8 @@ def list_teachers(request):
     return render(request, 'disc_teacher.html', {'teachers': all})
 
 
-class DisciplineCreate(CreateView):
+class DisciplineCreate(PermissionRequiredMixin, CreateView):
+    permission_required = 'umo.add_discipline'
     template_name = 'disciplines_form.html'
     success_url = reverse_lazy('disciplines:details_add')
     model = Discipline
@@ -41,7 +44,8 @@ class DisciplineCreate(CreateView):
     ]
 
 
-class DisciplineUpdate(UpdateView):
+class DisciplineUpdate(PermissionRequiredMixin, UpdateView):
+    permission_required = 'umo.change_discipline'
     template_name = 'disciplines_update.html'
     success_url = reverse_lazy('disciplines:disciplines_list')
     model = Discipline
@@ -53,6 +57,7 @@ class DisciplineUpdate(UpdateView):
     ]
 
 
+@permission_required('umo.delete_discipline', login_url='/auth/login')
 def discipline_delete(request):
     if request.method == 'POST':
         discipline_ = Discipline.objects.get(pk=request.POST['discipline'])
@@ -69,7 +74,8 @@ def discipline_detail(request, pk):
     return render(request, 'disciplines_detail.html', {'form': details, 'name': name})
 
 
-class DisciplineDetailsList(ListView):
+class DisciplineDetailsList(PermissionRequiredMixin, ListView):
+    permission_required = 'umo.change_disciplinedetails'
     template_name = 'disc_details.html'
     context_object_name = 'discipline_details'
 
@@ -77,7 +83,8 @@ class DisciplineDetailsList(ListView):
         return DisciplineDetails.objects.all()
 
 
-class DetailsCreate(CreateView):
+class DetailsCreate(PermissionRequiredMixin, CreateView):
+    permission_required = 'umo.add_disciplinedetails'
     template_name = 'details_form.html'
     model = DisciplineDetails
     success_url = reverse_lazy('disciplines:disciplines_list')
@@ -93,7 +100,8 @@ class DetailsCreate(CreateView):
     ]
 
 
-class DisciplineDetailsUpdate(UpdateView):
+class DisciplineDetailsUpdate(PermissionRequiredMixin, UpdateView):
+    permission_required = 'umo.change_disciplinedetails'
     template_name = 'disciplines_update.html'
     success_url = reverse_lazy('disciplines:disciplines_list')
     model = DisciplineDetails
@@ -107,6 +115,7 @@ class DisciplineDetailsUpdate(UpdateView):
         'SRS',
         'semestr',
     ]
+
 
 def get_data_for_ekran(request):
     group_id = request.GET.get('group', '')
@@ -386,6 +395,7 @@ def export_to_excel(request):
     return response
 
 
+@permission_required('umo.add_discipline', login_url='/auth/login')
 def excel(request):
     groupname = Group.objects.all().order_by('Name')
     semestrname = Semestr.objects.all().order_by('-name')

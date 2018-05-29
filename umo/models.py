@@ -122,6 +122,7 @@ class Year(models.Model):
             return str(self.year)
 
 
+
 class Position(models.Model):
     name = models.CharField(verbose_name="Позиция", db_index=True, blank=False, null=False, max_length=255)
 
