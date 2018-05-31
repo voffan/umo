@@ -14,13 +14,14 @@ class AddTeacherForm(ModelForm):
             'FIO',
             'Position',
             'Zvanie',
-            'cathedra'
+            'cathedra',
+            'user'
         ]
         labels = {
             'FIO': _('ФИО'),
             'Position': _('Должность'),
             'Zvanie': _('Звание'),
-            'cathedra': _('Кафедра')
+            'cathedra': _('Кафедра'),
         }
 
 

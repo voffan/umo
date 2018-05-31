@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Успешная регистрация{% endblock %}
+{% block content %}
+    <h1>Регистрация успешно завершена!</h1>
+        <br>
+        <p align="center">Для дальнейшей работы с системой, обратитесь к сис. администратору веб-приложения</p>
+        <p align="center"><a href="{% url 'disciplines:mysubjects' %}" class="btn btn-success"> Мои дисциплины </a></p>
+{% endblock %}

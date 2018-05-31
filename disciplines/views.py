@@ -2,13 +2,14 @@ from datetime import *
 
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, UpdateView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Person
+from django.http import Http404
 
 
 class DisciplineList(PermissionRequiredMixin, ListView):
@@ -26,9 +27,12 @@ def list_disc(request, pk):
     return render(request, 'disc_list.html', {'discipline_list': disciplines})
 
 
-def list_teachers(request):
-    all = Teacher.objects.all()
-    return render(request, 'disc_teacher.html', {'teachers': all})
+def teachers_subjects(request):
+    try:
+        p = Person.objects.get(user__id=request.user.id)
+    except:
+        return render(request, 'disc_error.html')
+    return HttpResponseRedirect(reverse('disciplines:disciplines', kwargs={'pk': p.pk}))
 
 
 class DisciplineCreate(PermissionRequiredMixin, CreateView):
@@ -57,7 +61,7 @@ class DisciplineUpdate(PermissionRequiredMixin, UpdateView):
     ]
 
 
-@permission_required('umo.delete_discipline', login_url='/auth/login')
+@permission_required('umo.delete_discipline', login_url='login')
 def discipline_delete(request):
     if request.method == 'POST':
         discipline_ = Discipline.objects.get(pk=request.POST['discipline'])
@@ -395,7 +399,7 @@ def export_to_excel(request):
     return response
 
 
-@permission_required('umo.add_discipline', login_url='/auth/login')
+@permission_required('umo.add_discipline', login_url='login')
 def excel(request):
     groupname = Group.objects.all().order_by('Name')
     semestrname = Semestr.objects.all().order_by('-name')

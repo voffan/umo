@@ -12,7 +12,7 @@ def login(request):
         user = auth.authenticate(username=username, password=password)
         if user is not None:
             auth.login(request, user)
-            return redirect(reverse('disciplines:disc_teachers'))
+            return redirect(reverse('disciplines:mysubjects'))
         else:
             args['login_error'] = "Внимание, вход на сайт не был произведен. " \
                                   "Возможно, вы ввели неверное имя пользователя или пароль."
@@ -23,7 +23,7 @@ def login(request):
 
 def logout(request):
     auth.logout(request)
-    return redirect("/auth/login")
+    return redirect('login')
 
 
 def register(request):
@@ -36,7 +36,7 @@ def register(request):
             newuser = auth.authenticate(username=newuser_form.cleaned_data['username'],
                                         password=newuser_form.cleaned_data['password2'])
             auth.login(request, newuser)
-            return redirect(reverse('disciplines:disc_teachers'))
+            return render(request, 'register_success.html')
         else:
             args['form'] = newuser_form
     return render(request, 'register.html', args)
