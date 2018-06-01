@@ -9,7 +9,6 @@
                 <th>Дисциплина</th>
                 <th>Код</th>
                 <th>Специализация</th>
-                <th>Преподаватель</th>
                 <th></th>
             </tr>
         </thead>
@@ -19,7 +18,6 @@
                 <td> <a href="{% url 'disciplines:detail' discipline.id %}">{{ discipline.Name }}</a> </td>
                 <td> {{ discipline.code }} </td>
                 <td> {{ discipline.program }} </td>
-                <td> {{ discipline.lecturer }} </td>
                 <td><a href="{% url 'brs_studentlist' discipline.id %}"> <input type="submit" value="Контрольный лист"
                                                                                    class="btn btn-primary"></a></td>
             </tr>

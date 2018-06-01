@@ -1,12 +1,13 @@
 from datetime import *
 
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Create your models here.
 class Person(models.Model):
     FIO = models.CharField(verbose_name="ФИО", max_length=255, db_index=True, blank=False, null=False)
-
+    user = models.ForeignKey(User, verbose_name="Пользователь", db_index=True, blank=True, null=True)
     def __str__(self):
         return self.FIO
 

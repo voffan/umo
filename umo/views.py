@@ -33,7 +33,8 @@ class TeacherUpdate(PermissionRequiredMixin, UpdateView):
             'FIO',
             'Position',
             'Zvanie',
-            'cathedra'
+            'cathedra',
+            'user'
     ]
     labels = {
         'FIO': 'ФИО',

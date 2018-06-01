@@ -1,5 +1,4 @@
 from django.conf.urls import url
-from django.contrib.admin.views.decorators import staff_member_required
 
 from disciplines import views
 
@@ -17,5 +16,5 @@ urlpatterns = [
     url(r'^all_disciplines/$', views.DisciplineList.as_view(), name='disciplines_list'),
     url(r'^dataforekran/$', views.get_data_for_ekran, name='dataforekran'),
     url(r'^subjects/$', views.subjects, name='subjects'),
-    url(r'^$', views.list_teachers, name='disc_teachers'),
+    url(r'^$', views.teachers_subjects, name='mysubjects'),
 ]

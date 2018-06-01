@@ -24,9 +24,10 @@
                           Преподавателю
                         </a>
                         <div class="dropdown-menu" aria-labelledby="teacher">
-                          <a class="dropdown-item" href="{% url 'disciplines:disc_teachers' %}">Список дисциплин</a>
+                          <a class="dropdown-item" href="{% url 'disciplines:mysubjects' %}">Мои дисциплины</a>
                         </div>
                     </li>
+                    {% if perms.umo.add_discipline %}
                     <li class="nav-item dropdown active">
                         <a class="nav-link dropdown-toggle" href="#" id="admin" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                           Начальнику УМО
@@ -43,6 +44,7 @@
 
                         </div>
                     </li>
+                    {% endif %}
                 </ul>
                 <ul class="navbar-nav navbar-right">
                     <li class="nav-item active">
