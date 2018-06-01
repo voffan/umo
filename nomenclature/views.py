@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile
+from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, Control, EduProg
 from .form import UploadFileForm
 from .parseRUP import parseRUP
 
@@ -14,12 +14,6 @@ from .parseRUP import parseRUP
 #from somewhere import handle_uploaded_file
 
 # Create your views here.
-
-
-@permission_required('umo.add_discipline', login_url='/auth/login')
-def rup_list(request):
-    return render(request, 'nomenclature.html')
-
 
 @permission_required('umo.add_discipline', login_url='/auth/login')
 def subjects_save(request):
@@ -62,6 +56,13 @@ def select_semestr(request):
     return render(request, 'select_semestr.html', {'semestrs':semestr_list, 'specializations':specialization_list, 'profiles':profile_list})
 
 
+def nomenclature_discipline(request):
+    discipline_details = DisciplineDetails.objects.all().order_by('semestr')
+    teachers = Teacher.objects.all().order_by('FIO')
+    control = Control.objects.all().order_by('controltype')
+
+    return render(request, 'nomenclature_disciplines.html', {'disciplines':discipline_details, 'teachers':teachers, 'controls':control})
+
 @permission_required('umo.add_discipline', login_url='/auth/login')
 def upload_file(request):
     if request.method == 'POST':
@@ -72,7 +73,7 @@ def upload_file(request):
             #return default_storage.path(path)
             f=hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
             parseRUP(f)
-            return HttpResponseRedirect(reverse('nomenclatures:success'))
+            return render(request, 'nomenclature.html')
 
     else:
         form = UploadFileForm()

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Номенклатура дисциплин{% endblock %}
+{% block content %}
+    <h1>Номенклатура дисциплин </h1>
+    <br>
+    <p align="left" id="nomenclature_dis_filter1"><label><b>Направление:</b></label><br></p>
+    <p align="left" id="nomenclature_dis_filter2"><label><b>Курс:</b></label><br></p>
+    <table id="nomenclature_dis" class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th></th>
+                <th>Направление</th>
+                <th>Курс</th>
+                <th>Дисциплина</th>
+                <th>Семестр</th>
+                <th>Кол-во часов лекции</th>
+                <th>Кол-во часов практич. раб.</th>
+                <th>Кол-во часов лаб. раб.</th>
+                <th>Преподаватель</th>
+                <th>Тип контроля</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for discipline in disciplines %}
+            <tr>
+                <td></td>
+                <td> {{ discipline.subject.program.specialization.name }} </td>
+                <td>
+                    {% if discipline.semestr.name == '1' or discipline.semestr.name == '2' %}
+                        1
+                     {% elif discipline.semestr.name == '3' or discipline.semestr.name == '4' %}
+                        2
+                     {% elif discipline.semestr.name == '5' or discipline.semestr.name == '6' %}
+                        3
+                     {% else %}
+                        4
+                     {% endif %}
+                </td>
+                <td> {{ discipline.subject.Name }} </td>
+                <td> {{ discipline.semestr }} </td>
+                <td>
+                    {% if discipline.Lecture %}
+                        {{ discipline.Lecture }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if discipline.Practice %}
+                        {{ discipline.Practice }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if discipline.Lab %}
+                        {{ discipline.Lab }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% for teacher in teachers %}
+                        {% if discipline.subject.lecturer.id == teacher.id %}
+                            {{ teacher.FIO }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for control in controls %}
+                        {% if discipline.id == control.discipline_detail.id %}
+                            {{ control.controltype }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+{% endblock %}
