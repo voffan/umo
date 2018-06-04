@@ -34,7 +34,9 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    {% if perms.umo.change_disciplinedetails %}
                     <a href="{% url 'disciplines:details_list' %}" class="btn btn-primary">Изменить</a>
+                    {% endif %}
                     <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>
                 </div>
             </div>
