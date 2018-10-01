@@ -77,6 +77,12 @@ class Specialization(models.Model):
         return self.name
 
 
+'''class DisciplineTeacher(models.Model):
+    discipline = models.ForeignKey(Discipline, verbose_name="Дисциплина", db_index=True)
+    teacher = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True)
+    eduperiod = models.ForeignKey(EduPeriod, verbose_name="Период")
+'''
+
 class Discipline(models.Model):
     Name = models.CharField(verbose_name="название дисциплины", max_length=200, db_index=True, blank=False, null=False)
     code = models.CharField(verbose_name="код дисциплины", max_length=200, db_index=True, blank=False, null=False)
