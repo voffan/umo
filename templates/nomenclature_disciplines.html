@@ -11,61 +11,57 @@
                 <th></th>
                 <th>Направление</th>
                 <th>Курс</th>
+                <th>Группа</th>
                 <th>Дисциплина</th>
                 <th>Семестр</th>
-                <th>Кол-во часов лекции</th>
-                <th>Кол-во часов практич. раб.</th>
-                <th>Кол-во часов лаб. раб.</th>
+                <th>Кол-во часов (лекции)</th>
+                <th>Кол-во часов (практич. раб.)</th>
+                <th>Кол-во часов (лаб. раб.)</th>
                 <th>Преподаватель</th>
                 <th>Тип контроля</th>
             </tr>
         </thead>
         <tbody>
-        {% for discipline in disciplines %}
+        {% for course in courses %}
             <tr>
                 <td></td>
-                <td> {{ discipline.subject.program.specialization.name }} </td>
+                <td> {{ course.discipline_detail.discipline.program.specialization.name }} </td>
                 <td>
-                    {% if discipline.semestr.name == '1' or discipline.semestr.name == '2' %}
+                    {% if course.discipline_detail.semestr.name == '1' or course.discipline_detail.semestr.name == '2' %}
                         1
-                     {% elif discipline.semestr.name == '3' or discipline.semestr.name == '4' %}
+                     {% elif course.discipline_detail.semestr.name == '3' or course.discipline_detail.semestr.name == '4' %}
                         2
-                     {% elif discipline.semestr.name == '5' or discipline.semestr.name == '6' %}
+                     {% elif course.discipline_detail.semestr.name == '5' or course.discipline_detail.semestr.name == '6' %}
                         3
                      {% else %}
                         4
                      {% endif %}
                 </td>
-                <td> {{ discipline.subject.Name }} </td>
-                <td> {{ discipline.semestr }} </td>
+                <td> {{ course.group.Name }} </td>
+                <td> {{ course.discipline_detail.discipline.Name }} </td>
+                <td> {{ course.discipline_detail.semestr }} </td>
                 <td>
-                    {% if discipline.Lecture %}
-                        {{ discipline.Lecture }}
+                    {% if course.discipline_detail.Lecture %}
+                        {{ course.discipline_detail.Lecture }}
                     {% endif %}
                 </td>
                 <td>
-                    {% if discipline.Practice %}
-                        {{ discipline.Practice }}
+                    {% if course.discipline_detail.Practice %}
+                        {{ course.discipline_detail.Practice }}
                     {% endif %}
                 </td>
                 <td>
-                    {% if discipline.Lab %}
-                        {{ discipline.Lab }}
+                    {% if course.discipline_detail.Lab %}
+                        {{ course.discipline_detail.Lab }}
                     {% endif %}
                 </td>
                 <td>
-                    {% for teacher in teachers %}
-                        {% if discipline.subject.lecturer.id == teacher.id %}
-                            {{ teacher.FIO }}
-                        {% endif %}
-                    {% endfor %}
+                    {% if course.lecturer %}
+                        {{ course.lecturer.FIO }}
+                    {% endif %}
                 </td>
                 <td>
-                    {% for control in controls %}
-                        {% if discipline.id == control.discipline_detail.id %}
-                            {{ control.controltype }}
-                        {% endif %}
-                    {% endfor %}
+                    {{ course.discipline_detail.controls }}
                 </td>
             </tr>
         {% endfor %}

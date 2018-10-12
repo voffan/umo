@@ -11,17 +11,17 @@ class SelectTeacher(ModelForm):
         model = Discipline
         fields = {
             'Name',
-            'lecturer'
+            #'lecturer'
         }
         labels = {
             'Name': ('Дисциплина'),
-            'lecturer': ('Преподаватель')
+            #'lecturer': ('Преподаватель')
         }
 
     def save(self):
         if self.clean():
             discipline = Discipline()
             discipline.Name = self.cleaned_data['Name']
-            discipline.lecturer = self.cleaned_data['lecturer']
+            #discipline.lecturer = self.cleaned_data['lecturer']
             discipline.save()
             return discipline

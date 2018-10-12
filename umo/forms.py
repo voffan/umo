@@ -63,4 +63,3 @@ class EditTeacherForm(ModelForm):
             teacher.cathedra = self.cleaned_data['cathedra']
             teacher.save()
             return teacher
-

@@ -23,7 +23,7 @@ class DisciplineList(PermissionRequiredMixin, ListView):
 
 def list_disc(request, pk):
     teacher = Teacher.objects.get(id=pk)
-    disciplines = teacher.discipline_set.all()
+    disciplines = teacher.course_set.select_related('discipline_detail').all()
     return render(request, 'disc_list.html', {'discipline_list': disciplines})
 
 

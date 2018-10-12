@@ -1,109 +1,48 @@
+from django.db import transaction
 from umo.models import EduOrg, Kafedra, EduProg, Specialization, Discipline, \
     DisciplineDetails, Profile, Year, Semestr, Qual, Level, Teacher, Control, Position, Zvanie, ControlType
+from umo.objgens import check_edu_org
 import xml.etree.ElementTree as ET
+import re
 
-
+@transaction.atomic
 def parseRUP(filename):
     #name_file_xml = os.path.join('upload', filename)
     tree = ET.parse(filename)
     root = tree.getroot()
-    #specialization = root[0][0][3][0] #тэг Специальность получение названия спец
-    spec_name = ' '.join(root[0][0][3][0].get('Название').split()[1:])
-    print(spec_name)
-
-    #profil = root[0][0][3][1] #тэг Специальность ном2 получения названия профиль
-    profil_name = ' '.join(root[0][0][3][1].get('Название').split()[1:])
-    print(profil_name)
-
+    title = root[0][0]
+    #Уровень образования
+    level = root[0].get('УровеньОбразования')
+    #тэг Специальность получение названия спец
+    spec_name = ' '.join(title.find('Специальности')[0].get('Название').split()[1:])
+    #тэг Специальность ном2 получения названия профиль
+    profile_name = ' '.join(title.find('Специальности')[1].get('Название').split()[1:])
     #qual = root[0][0][7][0] #тэг Квалификация получения квалиф
-    qual_name = ' '.join(root[0][0][7][0].get('Название').split()[1:])
-    print(qual_name)
-
+    qual_name = title.find('Квалификации')[0].get('Название')
     #code = root[0][0] #тэг План получения КодКафедры и ПоследнийШифр
-    name_institute = root[0][0].get('ИмяВуза2')
-    name_university = root[0][0].get('ИмяВуза')
-    code_kaf = root[0][0].get('КодКафедры')
-    cipher = root[0][0].get('ПоследнийШифр')
-    yearp = root[0][0].get('ГодНачалаПодготовки')
-    print(name_institute)
-    print(name_university)
-    print(code_kaf)
-    print(cipher)
-    print(yearp)
+    name_institute = title.get('ИмяВуза2')
+    name_university = re.findall('(?<=\").*(?=\")',title.get('ИмяВуза'))[0]
+    code_kaf = title.get('КодКафедры')
+    code = title.get('ПоследнийШифр')
+    yearp = title.get('ГодНачалаПодготовки')
 
-    name_inst = EduOrg.objects.filter(name=name_institute).first()
-    if name_inst is None:
-        name_inst = EduOrg()
-    name_inst.name = name_institute
-    name_inst.uni = EduOrg.objects.filter(name__icontains='свфу').first()
-    name_inst.save()
+    level,created = Level.objects.get_or_create(name=level)
+    qual, created = Qual.objects.get_or_create(name=qual_name)
+    institute = check_edu_org(name_institute, name_university)
 
+    kaf, created = Kafedra.objects.get_or_create(number=code_kaf, defaults={'name':'', 'institution':institute})
+    year, created = Year.objects.get_or_create(year=yearp)
 
-    kaf = Kafedra.objects.filter(number=code_kaf).first()
-    if kaf is None:
-        kaf = Kafedra()
-    kaf.number = code_kaf
-    kaf.name = 'Информационные технологии'
-    kaf.institution = name_inst
-    kaf.save()
+    sp, created = Specialization.objects.get_or_create(code=code, defaults={'name':spec_name, 'briefname':'', 'qual':qual, 'level':level})
+    profile, created = Profile.objects.get_or_create(name=profile_name, defaults={'spec':sp})
 
-    #e = EduProg()
-    sp = Specialization.objects.filter(name=spec_name).first()
-    if sp is None:
-        sp = Specialization()
-    sp.name = spec_name
-    sp.briefname = ""
-    sp.code = cipher
-
-    qual = Qual.objects.filter(name=qual_name).first()
-    if qual is None:
-        qual = Qual()
-    qual.name = qual_name
-    qual.save()
-    sp.qual = qual
-
-    sp.save()
-    #e.specialization = sp
-
-    year = Year.objects.filter(year=yearp).first()
-    if year is None:
-        year = Year()
-    year.year = yearp
-    year.save()
-
-    edu_prog = EduProg.objects.filter(specialization__name=spec_name, year__id = year.id).first()
-    if edu_prog is None:
-        edu_prog = EduProg()
-    edu_prog.specialization = sp
-
-    profil = Profile.objects.filter(name=profil_name).first()
-    if profil is None:
-        profil = Profile()
-        profil.name = profil_name
-        profil.save()
-    edu_prog.profile = profil
-
-    edu_prog.year = year
-    print(kaf.id)
-    edu_prog.cathedra = kaf
-    edu_prog.save()
+    edu_prog, created = EduProg.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year)
 
     for elem in root[0][1]:
         disname = elem.get('Дис')
-        #code_dis = ''.join(str(i) for i in (elem.get('ИдетификаторДисциплины')).split('.'))
         code_dis = elem.get('ИдетификаторДисциплины')
-        #time_zet = elem.get('ЧасовВЗЕТ')
-        print(disname)
-        print(code_dis)
-        #print(time_zet)
 
-        dis = Discipline.objects.filter(Name=disname).first()
-        if dis is None:
-            dis = Discipline()
-        dis.Name = disname
-        dis.code = code_dis
-        dis.program = edu_prog
-        dis.save()
+        dis, created = Discipline.objects.get_or_create(Name=disname, code=code_dis, program=edu_prog)
 
         for details in elem.findall('Сем'):
             #if details is ('Ном' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Пр') or ('Ном' and 'СРС'):
@@ -117,62 +56,32 @@ def parseRUP(filename):
                 continue
 
             #semestr_nom = '1'
-            if 'Ном' in details.attrib.keys():
-                semestr_nom = details.get('Ном')
+            semestr_nom = details.get('Ном','1')
+            zet = details.get('ЗЕТ','1')
+            z = details.get('Зач', None)
+            exam = details.get('Экз', None)
+            zO = details.get('ЗачО', None)
+            CW = details.get('КР', None)
 
-            #zet = 1
-            if 'ЗЕТ' in details.attrib.keys():
-                zet = details.get('ЗЕТ')
-
-            z = None
-            if 'Зач' in details.attrib.keys():
-                z = details.get('Зач')
-
-            exam = None
-            if 'Экз' in details.attrib.keys():
-                exam = details.get('Экз')
-
-            zO = None
-            if 'ЗачО' in details.attrib.keys():
-                zO = details.get('ЗачО')
-
-            smstr = Semestr.objects.filter(name=semestr_nom).first()
-            if smstr is None:
-                smstr = Semestr()
-            smstr.name = semestr_nom
-            smstr.save()
-            d = DisciplineDetails.objects.filter(semestr=smstr, subject=dis).first()
-            if d is None:
-                d = DisciplineDetails()
-            d.semestr = smstr
-            d.subject = dis
-            d.Credit = zet
-            d.Lecture = data['101']
-            d.Practice = data['103']
-            d.Lab = data['102']
-            d.KSR = data['106']
-            d.SRS = data['107']
-            #d.control_hours = data['108']
-            d.save()
-
-            c = Control()
-            c.discipline_detail = d
+            smstr, created = Semestr.objects.get_or_create(name=semestr_nom)
+            defaults={'Credit':int(zet),
+                                                                  'Lecture' : data['101'],
+                                                                  'Practice' : data['103'],
+                                                                  'Lab' : data['102'],
+                                                                  'KSR' : data['106'],
+                                                                  'SRS' : data['107']}
+            d, created = DisciplineDetails.objects.get_or_create(discipline=dis,
+                                                        semestr=smstr,
+                                                        defaults=defaults)
             if z is not None:
-                control = ControlType.objects.filter(name='Зачет').first()
-                if control is None:
-                    control = ControlType()
-                control.name = 'Зачет'
-            elif exam is not None:
-                control = ControlType.objects.filter(name='Экзамен').first()
-                if control is None:
-                    control = ControlType()
-                control.name = 'Экзамен'
-            elif zO is not None:
-                control = ControlType.objects.filter(name='Зачет с оценкой').first()
-                if control is None:
-                    control = ControlType()
-                control.name = 'Зачет с оценкой'
-            control.save()
-            c.controltype = control
-            c.control_hours = data['108']
-            c.save()
+                control_type, created = ControlType.objects.get_or_create(name='Зачет')
+                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=control_type, defaults={'control_hours': data['108']})
+            if exam is not None:
+                control_type, created = ControlType.objects.get_or_create(name='Экзамен')
+                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=control_type, defaults={'control_hours': data['108']})
+            if zO is not None:
+                control_type, created = ControlType.objects.get_or_create(name='Зачет с оценкой')
+                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=control_type, defaults={'control_hours': data['108']})
+            if CW is not None:
+                control_type, created = ControlType.objects.get_or_create(name='Курсовая работа')
+                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=control_type, defaults={'control_hours': data['108']})

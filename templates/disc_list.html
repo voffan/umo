@@ -15,10 +15,10 @@
         <tbody>
             {% for discipline in discipline_list %}
             <tr>
-                <td> <a href="{% url 'disciplines:detail' discipline.id %}">{{ discipline.Name }}</a> </td>
-                <td> {{ discipline.code }} </td>
-                <td> {{ discipline.program }} </td>
-                <td><a href="{% url 'brs_studentlist' discipline.id %}"> <input type="submit" value="Контрольный лист"
+                <td> <a href="{% url 'disciplines:detail' discipline.id %}">{{ discipline.discipline_detail.discipline.Name }}</a> </td>
+                <td> {{ discipline.discipline_detail.discipline.code }} </td>
+                <td> {{ discipline.discipline_detail.discipline.program }} </td>
+                <td><a href="{% url 'brs_studentlist' discipline.discipline_detail.discipline.id %}"> <input type="submit" value="Контрольный лист"
                                                                                    class="btn btn-primary"></a></td>
             </tr>
             {% endfor %}

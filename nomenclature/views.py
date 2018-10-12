@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, Control, EduProg
+from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, Control, EduProg, Course
 from .form import UploadFileForm
 from .parseRUP import parseRUP
 
@@ -57,11 +57,11 @@ def select_semestr(request):
 
 
 def nomenclature_discipline(request):
-    discipline_details = DisciplineDetails.objects.all().order_by('semestr')
+    courses = Course.objects.select_related('discipline_detail', 'lecturer', 'group').all().order_by('discipline_detail__semestr')
     teachers = Teacher.objects.all().order_by('FIO')
     control = Control.objects.all().order_by('controltype')
 
-    return render(request, 'nomenclature_disciplines.html', {'disciplines':discipline_details, 'teachers':teachers, 'controls':control})
+    return render(request, 'nomenclature_disciplines.html', {'courses':courses, 'teachers':teachers, 'controls':control})
 
 @permission_required('umo.add_discipline', login_url='/auth/login')
 def upload_file(request):
@@ -80,7 +80,7 @@ def upload_file(request):
     return render(request, 'rup_upload.html', {'form': form})
 
 
-@permission_required('umo.add_discipline', login_url='/auth/login')
+#@permission_required('umo.add_discipline', login_url='/auth/login')
 def hadle_uploaded_file(filename, file):
      s=os.path.join('upload', filename)
      with open(s, 'wb+') as destination:

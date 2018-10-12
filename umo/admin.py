@@ -4,7 +4,6 @@ from umo import models
 
 # Register your models here.
 
-admin.site.register(models.BRS)
 admin.site.register(models.BRSpoints)
 admin.site.register(models.CheckPoint)
 admin.site.register(models.Control)
@@ -32,3 +31,5 @@ admin.site.register(models.Student)
 admin.site.register(models.Teacher)
 admin.site.register(models.Year)
 admin.site.register(models.Zvanie)
+admin.site.register(models.Course)
+admin.site.register(models.Synch)
