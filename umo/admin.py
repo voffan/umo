@@ -15,7 +15,15 @@ admin.site.register(models.EduPeriod)
 admin.site.register(models.EduProg)
 admin.site.register(models.Exam)
 admin.site.register(models.ExamMarks)
-admin.site.register(models.Group)
+
+
+@admin.register(models.Group)
+class AdminGroup(admin.ModelAdmin):
+    list_display = ['Name', 'cathedra', 'program']
+    search_fields = ['Name']
+    list_filter = ['program']
+
+
 admin.site.register(models.GroupList)
 admin.site.register(models.Kafedra)
 admin.site.register(models.Level)

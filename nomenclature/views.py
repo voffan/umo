@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect
 import os
 
 from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.views.generic import ListView
 
-from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, Control, EduProg, Course
+from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, Control, EduProg, Course, Group
 from .form import UploadFileForm
 from .parseRUP import parseRUP
 
@@ -89,5 +91,20 @@ def hadle_uploaded_file(filename, file):
      return s
 
 
+class EduProgListView(PermissionRequiredMixin, ListView):
+    permission_required = 'umo.add_eduprog'
+    model = EduProg
+    template_name = "eduprog_list.html"
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        context['groups'] = {}
+        for group in Group.objects.filter(program__isnull=False):
+            if group.program.id not in context['groups']:
+                context['groups'][group.program.id] = []
+            context['groups'][group.program.id].append(group.Name)
+        return context
 
+    def get_queryset(self):
+        return Teacher.objects.get(user=self.request.user).cathedra.eduprog_set.all()

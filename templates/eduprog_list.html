@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load extra_tags %}
+{% block title %}Список студентов{% endblock %}
+{% block content %}
+<h1>Список рабочих учебных планов</h1>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <table id="eduprog_list" class="table table-bordered">
+            <thead>
+                <th>№</th>
+                <th>Направление подготовки</th>
+                <th>Профиль</th>
+                <th>Год начала подготовки</th>
+                <th>Наименование файла</th>
+                <th>Группы</th>
+                <th></th>
+            </thead>
+            <tbody>
+                {% for prog in object_list %}
+                <tr>
+                    <td> </td>
+                    <td>{{ prog.specialization.name }}</td>
+                    <td>{{ prog.profile.name }}</td>
+                    <td>{{ prog.year }}</td>
+                    <td></td>
+                    <td>{{ groups|get_list:prog }}</td>
+                    <td><button class="btn btn-primary">Добавить группу</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <a class="btn btn-primary" href="{% url 'nomenclatures:upload_file' %}">Загрузить РУП</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+$(document).ready(function(){
+    var t = $('#eduprog_list').DataTable({
+        "columnDefs": [
+            {
+                "targets": [ 0 ],
+                "searchable": false,
+                "orderable": false
+            }
+        ],
+        "language":{
+            "url":"/static/Russian.json"
+        },
+        "order": [[ 1, 'asc' ]],
+        "info": true,
+        "paging": true,
+        "pageLength": 10,
+        "lengthChange": true
+    });
+    t.on( 'order.dt search.dt', function () {
+        t.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+            cell.innerHTML = i+1;
+        } );
+    } ).draw();
+});
+{% endblock %}

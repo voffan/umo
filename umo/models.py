@@ -54,6 +54,11 @@ class Group(models.Model):
     cathedra = models.ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True)
     program = models.ForeignKey(EduProg, verbose_name="Программа", db_index=True, blank=True, null=True)
 
+    class Meta:
+        verbose_name = 'группа'
+        verbose_name_plural = 'группы'
+        ordering = ['Name']
+
     def __str__(self):
         return self.Name
 

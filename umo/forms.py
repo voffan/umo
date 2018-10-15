@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm
 
 from django.contrib.auth import password_validation
-from umo.models import Teacher, Position, Zvanie, Kafedra
+from umo.models import Teacher, Position, Zvanie, Kafedra, EduProg
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 

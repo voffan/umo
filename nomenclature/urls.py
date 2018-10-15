@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^select_semestr/$', views.select_semestr, name='select_semestr'),
     url(r'^set_teachers/$', views.vuborka, name='set_teachers'),
     url(r'^set_teachers/done/$', views.subjects_save, name='set_teachers_done'),
+    url(r'^rup/$', views.EduProgListView.as_view(), name='rup'),
     url(r'^nomenclature_disciplines/$', views.nomenclature_discipline, name='nomenclature_disciplines')
 ]
