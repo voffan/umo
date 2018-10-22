@@ -317,7 +317,7 @@ class BRSPointsListView(ListView):
                     if (newBRSpoints is None):
                         newBRSpoints = BRSpoints()
                         newBRSpoints.student = gl.student
-                        newBRSpoints.CheckPoint = ch
+                        newBRSpoints.checkpoint = ch
                         newBRSpoints.points = 0.0
                         newBRS = BRS.objects.filter(discipline__id = discipline.id, semester=s).first()
                         if (newBRS is None):

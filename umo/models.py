@@ -279,12 +279,12 @@ class Course(models.Model):
 
 class BRSpoints(models.Model):
     student = models.ForeignKey(Student, db_index=True, blank=False, null=False)
-    CheckPoint = models.ForeignKey(CheckPoint, db_index=True, blank=False, null=False)
+    checkpoint = models.ForeignKey(CheckPoint, db_index=True, blank=False, null=False)
     points = models.FloatField(verbose_name="Баллы", db_index=True, blank=False, null=False, max_length=255)
     course = models.ForeignKey(Course, db_index=True, blank=False, null=False)
 
     def __str__(self):
-        return self.student.FIO + ' - ' + self.brs.subject.Name
+        return self.student.FIO + ' - ' + self.course.discipline_detail.discipline.Name
 
 
 class Exam(models.Model):

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load extra_tags %}
+{% block title %}Баллы БРС для группы{% endblock %}
+{% block content %}
+    {% csrf_token %}
+    <h1>Баллы БРС: {{ discipline.disciplinedetail.discipline.Name }}</h1>
+    <div id="scores_list" class="backgrid-container">
+    </div>
+    <br>
+{% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="{% static 'css/backgrid.css' %}" type="text/css">
+{% endblock %}
+
+{% block additional_js %}
+<script src="{% static 'js/underscore.js' %}"></script>
+<script src="{% static 'js/backbone.js' %}"></script>
+<script src="{% static 'js/backgrid.js' %}"></script>
+{% endblock %}
+
+{% block scripts %}
+$(document).ready(function(){
+    function getCSRF(){
+        return $('input[name=csrfmiddlewaretoken]').val();
+    }
+
+	function csrfSafeMethod(method) {
+		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+
+	// Для методов DELETE, POST и PUT установим CSRF-токен
+	$.ajaxSetup({
+		beforeSend: function (xhr, settings) {
+			if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader('X-CSRFToken', getCSRF());
+			}
+		}
+	});
+
+    Backgrid.MyCell = Backgrid.NumberCell.extend({
+        className: "my-cell",
+        editor: Backgrid.InputCellEditor.extend({
+          postRender: function (model, column) {
+            if (column == null || column.get("name") == this.column.get("name")) {
+              // move the cursor to the end on firefox if text is right aligned
+              if (this.$el.css("text-align") === "right") {
+                var val = this.$el.val();
+                this.$el.focus().val(null).val(val).select();
+              }
+              else {
+                this.$el.focus().select();
+              }
+            }
+
+            return this;
+          }
+        })
+    });
+    var data=[{% for student in group_list %}
+                {
+                        "student_id":"{{ student.student.id }}",
+                        "course_id":"{{ discipline.id }}",
+                        "fullname":"{{ student.student.FIO }}",
+                        {% for checkpoint in checkpoints %}
+                        "checkpoint_{{ checkpoint.id }}":"{% get_brs_point points student.student.id checkpoint.id %}",
+                        {% endfor %}
+                },
+              {% endfor %}
+            ];
+    var Application = Backbone.Model.extend({
+        initialize: function(){
+            this.on("change", function(model, options){
+                if (options && options.save === false) return;
+                model.url = "{% url 'disciplines:api:brs_scores' %}";
+                model.save(null, { type: "POST"});
+                //model.off("change", null, this);
+                console.log("Changed model " + model.get("fullname") + " " + model.get("student_id"));
+            });
+        }
+    });
+    var Applications = Backbone.Collection.extend({
+        model: Application,
+        state: {
+                pageSize: 30
+        },
+        mode: "client" // page entirely on the client side.
+    });
+
+    var apps = new Applications(data);
+
+    var columns=[
+        {
+            editable: false,
+            name: "fullname",
+            label: "ФИО",
+            cell: "string"
+        },
+        {% for checkpoint in checkpoints %}
+        {
+            editable: true,
+            name: "checkpoint_{{checkpoint.id}}",
+            label: "{{checkpoint.name}}",
+            cell: Backgrid.MyCell.extend({
+                decimals:2
+            })
+        },
+        {% endfor %}
+    ];
+    var grid = new Backgrid.Grid({
+        columns: columns,
+        collection: apps,
+        className: "backgrid table table-bordered table-hover"
+    });
+    var $backgrid = $("#scores_list");
+    $backgrid.append(grid.render().el);
+});
+{% endblock %}

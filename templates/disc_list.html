@@ -18,7 +18,7 @@
                 <td> <a href="{% url 'disciplines:detail' discipline.id %}">{{ discipline.discipline_detail.discipline.Name }}</a> </td>
                 <td> {{ discipline.discipline_detail.discipline.code }} </td>
                 <td> {{ discipline.discipline_detail.discipline.program }} </td>
-                <td><a href="{% url 'brs_studentlist' discipline.discipline_detail.discipline.id %}"> <input type="submit" value="Контрольный лист"
+                <td><a href="{% url 'disciplines:brs_scores' discipline.id %}"> <input type="submit" value="Баллы БРС"
                                                                                    class="btn btn-primary"></a></td>
             </tr>
             {% endfor %}

@@ -145,6 +145,8 @@ USE_TZ = True
 
 CSRF_USE_SESSIONS = True
 
+CSRF_COOKIE_SECURE = False
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 

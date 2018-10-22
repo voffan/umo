@@ -3,13 +3,15 @@ from datetime import *
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.views.generic import ListView, CreateView, UpdateView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Person
-from django.http import Http404
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Person, BRSpoints, Course, GroupList
+from umo.objgens import get_check_points, add_brs
 
 
 class DisciplineList(PermissionRequiredMixin, ListView):
@@ -74,7 +76,7 @@ def discipline_detail(request, pk):
         pass
     subject = Discipline.objects.get(id=pk)
     name = subject.Name
-    details = DisciplineDetails.objects.filter(subject__id=subject.id)
+    details = DisciplineDetails.objects.filter(discipline__id=subject.id)
     return render(request, 'disciplines_detail.html', {'form': details, 'name': name})
 
 
@@ -406,3 +408,35 @@ def excel(request):
     subjects = Discipline.objects.all().order_by('Name')
 
     return render(request, 'export_to_excel.html', {'groupname': groupname, 'semestrname': semestrname, 'subjects': subjects})
+
+
+class StudentsScoresView(PermissionRequiredMixin, ListView):
+    model = BRSpoints
+    permission_required = 'umo.change_brspoints'
+    template_name = 'students_scores.html'
+
+    def get_queryset(self):
+        course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
+        edu_begin_year = datetime.today().year - int(course.discipline_detail.semestr.name) // 2
+        students = GroupList.objects.select_related('student').filter(group__program__id=course.discipline_detail.discipline.program.id, group__beginyear__year=edu_begin_year).values_list('student__id', flat=True)
+        return BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=students).select_related('student', 'checkpoint')
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
+        beginyear = datetime.today().year - int(course.discipline_detail.semestr.name) // 2
+        group_students = GroupList.objects.select_related('student', 'group').filter(group__beginyear__year=beginyear, group__program__id=course.discipline_detail.discipline.program.id)
+        checkpoints = get_check_points()
+        if len(context['object_list']) < 1:
+            add_brs(course, group_students, checkpoints)
+            context['object_list'] = BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'checkpoint')
+        context['points'] = {}
+        for item in context['object_list']:
+            if item.student.id not in context['points']:
+                context['points'][item.student.id] = {}
+            context['points'][item.student.id][item.checkpoint.id] = item.points
+        context['checkpoints'] = checkpoints
+        context['group_list'] = group_students
+        context['discipline'] = course
+        return context
