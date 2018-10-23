@@ -12,6 +12,10 @@ from umo.forms import AddTeacherForm
 from umo.models import *
 
 
+def index(request):
+    HttpResponseRedirect('/auth/login')
+
+
 @permission_required('umo.add_teacher', login_url='/auth/login')
 def create_teacher(request):
     if request.method == 'POST':

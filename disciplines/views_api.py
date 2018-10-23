@@ -9,7 +9,7 @@ from umo.models import BRSpoints, CheckPoint
 
 
 @login_required
-@permission_required('umo.add_brspoints', login_url='login')
+@permission_required('umo.change_brspoints', login_url='login')
 def brs_scores(request):
     result = {"result":False}
     status = 200

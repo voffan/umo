@@ -5,6 +5,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from umo import views
 
 urlpatterns = [
+    url(r'^$', views.index, name='index'),
     url(r'^admin/', admin.site.urls),
     url(r'^auth/', include('loginsys.urls')),
     url(r'^teacher/', include('umo.urls', namespace='teachers')),

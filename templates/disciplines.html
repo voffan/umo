@@ -23,8 +23,7 @@
                 <td> {{ discipline.code }} </td>
                 <td> {{ discipline.program }} </td>
                 <td> {{ discipline.lecturer }} </td>
-                <td> <a href="{% url 'brs_studentlist' discipline.id %}"><input type="submit" value="Контрольный лист"
-                                                                                   class="btn btn-primary"></a></td>
+                <td> <a class="btn btn-primary" href="{% url 'disciplines:brs_scores' 1 %}">Контрольный лист</a></td>
                 <td>
                      <form action = "{% url 'disciplines:delete' %}" method="post">
                          {% csrf_token %}

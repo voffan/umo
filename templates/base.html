@@ -21,22 +21,15 @@
             <div class="collapse navbar-collapse" id="navbarText">
                 {% if user.is_authenticated %}
                 <ul class="navbar-nav text-uppercase g-font-weight-600 u-main-nav-v8 u-sub-menu-v3 mx-auto">
-                    {% if user|has_group:"teacher" %}
-                    <li class="nav-item dropdown active">
-                        <a class="nav-link dropdown-toggle" href="#" id="teacher" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Преподавателю
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="teacher">
-                          <a class="dropdown-item" href="{% url 'disciplines:mysubjects' %}">Мои дисциплины</a>
-                        </div>
-                    </li>
-                    {% endif %}
-                    {% if user|has_group:"office" or user|has_group:"zavkaf" %}
                     <li class="nav-item dropdown active">
                         <a class="nav-link dropdown-toggle" href="#" id="admin" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Начальнику УМО
+                          Меню
                         </a>
                         <div class="dropdown-menu" aria-labelledby="admin">
+                          {% if user|has_group:"teacher" %}
+                          <a class="dropdown-item" href="{% url 'disciplines:mysubjects' %}">Мои дисциплины</a>
+                          {% endif %}
+                          {% if user|has_group:"office" or user|has_group:"zavkaf" %}
                           <a class="dropdown-item" href="{% url 'teachers:list_teachers' %}">Список преподавателей</a>
                           <a class="dropdown-item" href="{% url 'student_changelist' %}">Список студентов</a>
                           <a class="dropdown-item" href="{% url 'disciplines:disciplines_list' %}">Список дисциплин</a>
@@ -44,9 +37,9 @@
                           <div class="dropdown-divider"></div>
                           <a class="dropdown-item" href="{% url 'nomenclatures:rup' %}">Рабочий учебный план</a>
                           <a class="dropdown-item" href="{% url 'nomenclatures:nomenclature_disciplines' %}">Номенклатура дисциплин</a>
+                          {% endif %}
                         </div>
                     </li>
-                    {% endif %}
                 </ul>
                 <ul class="navbar-nav navbar-right">
                     <li class="nav-item active">

@@ -9,13 +9,12 @@ from django.views.generic import ListView, CreateView, UpdateView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Person, BRSpoints, Course, GroupList
 from umo.objgens import get_check_points, add_brs
 
 
-class DisciplineList(PermissionRequiredMixin, ListView):
-    permission_required = 'umo.add_discipline'
+class DisciplineList(ListView):
     template_name = 'disciplines.html'
     context_object_name = 'discipline_list'
 
@@ -63,6 +62,7 @@ class DisciplineUpdate(PermissionRequiredMixin, UpdateView):
     ]
 
 
+@login_required
 @permission_required('umo.delete_discipline', login_url='login')
 def discipline_delete(request):
     if request.method == 'POST':
@@ -71,6 +71,7 @@ def discipline_delete(request):
         return HttpResponseRedirect(reverse('disciplines:disciplines_list'))
 
 
+@login_required
 def discipline_detail(request, pk):
     if request.method == 'POST':
         pass
@@ -412,7 +413,7 @@ def excel(request):
 
 class StudentsScoresView(PermissionRequiredMixin, ListView):
     model = BRSpoints
-    permission_required = 'umo.change_brspoints'
+    permission_required = 'umo.add_brspoints'
     template_name = 'students_scores.html'
 
     def get_queryset(self):
