@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.conf import settings
 from django.views.generic import ListView
 
 from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, Control, EduProg, Course, Group
@@ -84,7 +85,7 @@ def upload_file(request):
 
 #@permission_required('umo.add_discipline', login_url='/auth/login')
 def hadle_uploaded_file(filename, file):
-     s=os.path.join('upload', filename)
+     s=os.path.join(settings.BASE_DIR, 'upload',  filename)
      with open(s, 'wb+') as destination:
          for chunk in file.chunks():
              destination.write(chunk)
