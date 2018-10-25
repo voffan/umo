@@ -6,8 +6,9 @@
     <table id="my_table2" class="table table-bordered">
         <thead class="thead-light">
             <tr>
-                <th>Дисциплина</th>
                 <th>Код</th>
+                <th>Дисциплина</th>
+                <th>Семестр</th>
                 <th>Специализация</th>
                 <th></th>
             </tr>
@@ -15,8 +16,9 @@
         <tbody>
             {% for discipline in discipline_list %}
             <tr>
-                <td> <a href="{% url 'disciplines:detail' discipline.id %}">{{ discipline.discipline_detail.discipline.Name }}</a> </td>
                 <td> {{ discipline.discipline_detail.discipline.code }} </td>
+                <td> <a href="{% url 'disciplines:detail' discipline.id %}">{{ discipline.discipline_detail.discipline.Name }}</a> </td>
+                <td> {{ discipline.discipline_detail.semestr }} </td>
                 <td> {{ discipline.discipline_detail.discipline.program }} </td>
                 <td><a href="{% url 'disciplines:brs_scores' discipline.id %}"> <input type="submit" value="Баллы БРС"
                                                                                    class="btn btn-primary"></a></td>

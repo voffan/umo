@@ -44,4 +44,4 @@ def add_check_points():
         CheckPoint.objects.create(name="1 контроль. срез")
         CheckPoint.objects.create(name="2 контроль. срез")
         CheckPoint.objects.create(name="Рубежный срез")
-    CheckPoint.objects.all()
+    return CheckPoint.objects.all()
