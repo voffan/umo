@@ -243,12 +243,12 @@ class CheckPoint(models.Model):
 
 
 class EduPeriod(models.Model):
-    beginyear = models.CharField(verbose_name="Начало учебного года", db_index=True, blank=False, null=False, max_length=255)
-    endyear = models.CharField(verbose_name="Конец учебного года", db_index=True, blank=False, null=False, max_length=255)
-    active = models.BooleanField(verbose_name="Статус", db_index=True, blank=False, null=False)
+    beginyear = models.ForeignKey(Year, verbose_name="Начало учебного года", related_name='eduperiod_beginyear')
+    endyear = models.ForeignKey(Year, verbose_name="Конец учебного года", related_name='eduperiod_endyear')
+    active = models.BooleanField(verbose_name="Статус", db_index=True)
 
     def __str__(self):
-            return self.beginyear + '-' + self.endyear
+            return str(self.beginyear.year) + '-' + str(self.endyear.year)
 
 
 class Student(Person):

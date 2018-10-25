@@ -14,14 +14,24 @@ def parseRUP(filename):
     #Уровень образования
     level = root[0].get('УровеньОбразования')
     #тэг Специальность получение названия спец
-    spec_name = ' '.join(title.find('Специальности')[0].get('Название').split()[1:])
+    specs = title.find('Специальности')
+    spec_name = ' '.join(specs[0].get('Название').split()[1:])
     #тэг Специальность ном2 получения названия профиль
-    profile_name = ' '.join(title.find('Специальности')[1].get('Название').split()[1:])
+    if len(specs) > 1:
+        profile_name = ' '.join(specs[1].get('Название').split()[1:])
+    else:
+        profile_name = 'Общий'
     #qual = root[0][0][7][0] #тэг Квалификация получения квалиф
     qual_name = title.find('Квалификации')[0].get('Название')
     #code = root[0][0] #тэг План получения КодКафедры и ПоследнийШифр
     name_institute = title.get('ИмяВуза2')
-    name_university = re.findall('(?<=\").*(?=\")',title.get('ИмяВуза'))[0]
+    name_university = re.findall('(?<=\").*(?=\")',title.get('ИмяВуза'))
+    if len(name_university) > 1:
+        name_university = name_university[0]
+    elif len(re.findall('(?<=«).*(?=»)',title.get('ИмяВуза')))>0:
+        name_university = re.findall('(?<=«).*(?=»)',title.get('ИмяВуза'))
+    else:
+        name_university = title.get('ИмяВуза')
     code_kaf = title.get('КодКафедры')
     code = title.get('ПоследнийШифр')
     yearp = title.get('ГодНачалаПодготовки')

@@ -81,53 +81,55 @@ class StudentListView(PermissionRequiredMixin, ListView):
 
     def post(self, request, *args, **kwargs):
         if (request.POST.get('synch')):
-            synch = Synch.objects.last()
-            if synch is not None:
-                if synch.finished:
+            with transaction.atomic():
+                synch = Synch.objects.last()
+                if synch is not None:
+                    if synch.finished:
+                        synch = Synch()
+                        synch.finished = False
+                else:
                     synch = Synch()
                     synch.finished = False
-            else:
-                synch = Synch()
-                synch.finished = False
-            synch.date = datetime.now()
-            synch.save()
-            synch = Synch.objects.last()
-            synch_groups = PlnGroupStud.objects.filter(id_pln__id_dop__id_institute=1118)
-            for sg in synch_groups:
-                eduprogyear = PlnEduProgYear.objects.filter(id_pln=sg.id_pln.id_pln).first()
-                if synch.date > eduprogyear.dateend:
-                    continue
-
-                if Group.objects.filter(id=sg.id_group).first() is not None:
-                    g = Group.objects.filter(id=sg.id_group).first()
-                else:
-                    g = Group()
-                    g.id = sg.id_group
-                g.Name = sg.name
-                g.program = EduProg.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code).first()
-                g.save()
-
-                synch_people = PeoplePln.objects.filter(id_group=sg.id_group)
-                for sp in synch_people:
-                    if sp.id_status != 2:
+                synch.date = datetime.now()
+                synch.save()
+                synch = Synch.objects.last()
+                synch_groups = PlnGroupStud.objects.filter(id_pln__id_dop__id_institute=1118)
+                for sg in synch_groups:
+                    eduprogyear = PlnEduProgYear.objects.filter(id_pln=sg.id_pln.id_pln).first()
+                    if synch.date > eduprogyear.dateend:
                         continue
-                    if GroupList.objects.filter(id=sp.id_peoplepln).first() is not None:
-                        gl = GroupList.objects.filter(id=sp.id_peoplepln).first()
-                        st = gl.student
+
+                    if Group.objects.filter(id=sg.id_group).first() is not None:
+                        g = Group.objects.filter(id=sg.id_group).first()
                     else:
-                        gl = GroupList()
-                        gl.id = sp.id_peoplepln
-                        st = Student()
-                        st.id = sp.id_people.id_people
-                    st.FIO = sp.id_people.fio
-                    st.StudentID = str(sp.id_people.id_people)
-                    st.save()
-                    gl.student = st
-                    gl.group = g
-                    gl.active = True
-                    gl.save()
-            synch.finished = True
-            synch.save()
+                        g = Group()
+                        g.id = sg.id_group
+                    g.beginyear = Year.objects.get_or_create(year=eduprogyear.year)[0]
+                    g.Name = sg.name
+                    g.program = EduProg.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code, year__year__lte=eduprogyear.year).order_by('-year__year').first()
+                    g.save()
+
+                    synch_people = PeoplePln.objects.filter(id_group=sg.id_group)
+                    for sp in synch_people:
+                        if sp.id_status != 2:
+                            continue
+                        if GroupList.objects.filter(id=sp.id_peoplepln).first() is not None:
+                            gl = GroupList.objects.filter(id=sp.id_peoplepln).first()
+                            st = gl.student
+                        else:
+                            gl = GroupList()
+                            gl.id = sp.id_peoplepln
+                            st = Student()
+                            st.id = sp.id_people.id_people
+                        st.FIO = sp.id_people.fio
+                        st.StudentID = str(sp.id_people.id_people)
+                        st.save()
+                        gl.student = st
+                        gl.group = g
+                        gl.active = True
+                        gl.save()
+                synch.finished = True
+                synch.save()
         return HttpResponseRedirect(self.success_url)
 
 
