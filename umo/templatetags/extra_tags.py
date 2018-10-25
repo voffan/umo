@@ -9,7 +9,10 @@ def has_group(user, group_name):
 
 @register.filter
 def get_list(group_dict, edu_program):
-    return ', '.join(group_dict[edu_program.id]) if edu_program else ''
+    if edu_program.id in group_dict.keys():
+        return ', '.join(group_dict[edu_program.id]) if edu_program else ''
+    else:
+        return ''
 
 @register.simple_tag
 def get_brs_point(student_points, student_id, checkpoint_id):
