@@ -15,11 +15,11 @@ from umo.objgens import get_check_points, add_brs
 
 
 class DisciplineList(ListView):
-    template_name = 'disciplines.html'
+    template_name = 'disc_list.html'
     context_object_name = 'discipline_list'
 
     def get_queryset(self):
-        return Discipline.objects.all()
+        return Course.objects.all()
 
 
 @login_required
