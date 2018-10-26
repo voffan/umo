@@ -39,5 +39,13 @@ admin.site.register(models.Student)
 admin.site.register(models.Teacher)
 admin.site.register(models.Year)
 admin.site.register(models.Zvanie)
-admin.site.register(models.Course)
+
+
+@admin.register(models.Course)
+class AdminGroup(admin.ModelAdmin):
+    list_display = ['discipline_detail', 'group', 'lecturer']
+    search_fields = ['discipline_detail__discipline__Name']
+    list_filter = ['group', 'lecturer']
+
+
 admin.site.register(models.Synch)
