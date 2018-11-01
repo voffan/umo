@@ -1,13 +1,52 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% load extra_tags %}
-{% block title %}Баллы БРС для группы{% endblock %}
+{% block title %}Баллы БРС для группы {{ discipline.group.Name }}{% endblock %}
 {% block content %}
     {% csrf_token %}
-    <h1>Баллы БРС: {{ discipline.disciplinedetail.discipline.Name }}</h1>
-    <div id="scores_list" class="backgrid-container">
+<div class="modal" id="SetMaxPointsModal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Установите максимальные баллы срезов!</h4>
+			</div>
+			<div class="modal-body">
+                <form id="maxpointsform">
+                    <div class="container">
+                        {% for checkpoint in checkpoints %}
+                        <div class="row">
+                            <label for="checkpointinput_{{ checkpoint.id }}">{{ checkpoint.name }} Максимальные баллы</label>
+                            <input type="number" id="checkpointinput_{{ checkpoint.id }}" class="form-control" min="1" max="100" required/>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" id="SetMaxPoints">Сохранить</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+    <h1>{{ discipline.group.Name }}</h1>
+    <h1>Баллы БРС: {{ discipline.discipline_detail.discipline.Name }}</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                {% if not maxpoints %}
+                <div class="alert alert-warning" role="alert">Вы не установили максимальные допустимые баллы по контрольные срезам!! <a href="#" class="alert-link" id="SetMaxPointsLink">Установите!!</a></div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div id="scores_list" class="backgrid-container">
+
+                </div>
+            </div>
+        </div>
     </div>
-    <br>
 {% endblock %}
 
 {% block additional_css %}
@@ -22,6 +61,64 @@
 
 {% block scripts %}
 $(document).ready(function(){
+
+    $('input[id*="checkpointinput_"]').on('keyup', function(e){
+        var s = 0;
+        $('input[id*="checkpointinput_"]').each(function(index){
+            s += parseInt($(this).val());
+        });
+        if(s > 100){$(this).className = 'invalid'; $(this).focus();}
+    });
+
+    $('#SetMaxPointsLink').on('click',function(e){
+        e.preventDefault();
+        $('input[id*="checkpointinput_"]').val('');
+        $('#SetMaxPointsModal').modal('show');
+    });
+
+    $('#SetMaxPoints').on('click', function(){
+        if(!($('#maxpointsform')[0].checkValidity())){
+            $('#maxpointsform')[0].reportValidity();
+            return;
+        }
+        $.ajax({
+            url:"{% url 'disciplines:api:set_max_points' %}",
+            method:"POST",
+            data:{
+                {% for checkpoint in checkpoints %}
+                "checkpoint_{{ checkpoint.id }}": $("#checkpointinput_{{ checkpoint.id }}").val(),
+                {% endfor %}
+                "course":{{ discipline.id }}
+            },
+            dataType:"json"
+        }).done(function(data, textStatus, jqXHR){
+            $.each(data['data'], function(key, value){
+                $(columns).each(function(index){
+                    if($(this)[0].name === "checkpoint_" + key){
+                        $(this)[0].label = $(this)[0].label + " " + value;
+                    }
+                });
+            });
+            InitTable(columns, apps);
+            $('#SetMaxPointsModal').modal('hide');
+            $('div.alert').hide();
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            //console.log(jqXHR.statusCode().status);
+            //console.log(errorThrown);
+        });
+    });
+
+    function InitTable(table_columns, table_app){
+        $('#scores_list').empty();
+        var grid = new Backgrid.Grid({
+            columns: table_columns,
+            collection: table_app,
+            className: "backgrid table table-bordered table-hover"
+        });
+        var $backgrid = $("#scores_list");
+        $backgrid.append(grid.render().el);
+    }
+
     function getCSRF(){
         return $('input[name=csrfmiddlewaretoken]').val();
     }
@@ -58,6 +155,7 @@ $(document).ready(function(){
           }
         })
     });
+
     var data=[{% for student in group_list %}
                 {
                         "student_id":"{{ student.student.id }}",
@@ -101,19 +199,13 @@ $(document).ready(function(){
         {
             editable: true,
             name: "checkpoint_{{checkpoint.id}}",
-            label: "{{checkpoint.name}}",
+            label: "{{checkpoint.name}} MAX={{ maxpoints|get_maxpoint:checkpoint }}",
             cell: Backgrid.MyCell.extend({
-                decimals:2
+                decimals:1
             })
         },
         {% endfor %}
     ];
-    var grid = new Backgrid.Grid({
-        columns: columns,
-        collection: apps,
-        className: "backgrid table table-bordered table-hover"
-    });
-    var $backgrid = $("#scores_list");
-    $backgrid.append(grid.render().el);
+    InitTable(columns, apps);
 });
 {% endblock %}

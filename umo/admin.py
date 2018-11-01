@@ -49,3 +49,4 @@ class AdminGroup(admin.ModelAdmin):
 
 
 admin.site.register(models.Synch)
+admin.site.register(models.CourseMaxPoints)

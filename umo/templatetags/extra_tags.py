@@ -8,6 +8,10 @@ def has_group(user, group_name):
     return Group.objects.get(name=group_name) in user.groups.all()
 
 @register.filter
+def get_maxpoint(max_points, checkpoint):
+    return str(max_points[checkpoint.id]) if checkpoint.id in max_points.keys() else ''
+
+@register.filter
 def get_list(group_dict, edu_program):
     if edu_program.id in group_dict.keys():
         return ', '.join(group_dict[edu_program.id]) if edu_program else ''

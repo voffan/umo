@@ -29,6 +29,7 @@ def list_disc(request, pk):
     return render(request, 'disc_list.html', {'discipline_list': disciplines})
 
 
+@login_required
 def teachers_subjects(request):
     try:
         p = Person.objects.get(user__id=request.user.id)
@@ -434,10 +435,13 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
             add_brs(course, group_students, checkpoints)
             context['object_list'] = BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'checkpoint')
         context['points'] = {}
+        context['maxpoints'] = {}
         for item in context['object_list']:
             if item.student.id not in context['points']:
                 context['points'][item.student.id] = {}
             context['points'][item.student.id][item.checkpoint.id] = item.points
+        for mpoint in course.coursemaxpoints_set.all():
+            context['maxpoints'][mpoint.checkpoint.id] = mpoint.maxpoint
         context['checkpoints'] = checkpoints
         context['group_list'] = group_students
         context['discipline'] = course
