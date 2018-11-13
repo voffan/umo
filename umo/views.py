@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.models import Group as auth_groups
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
@@ -13,7 +14,12 @@ from umo.models import *
 
 
 def index(request):
-    HttpResponseRedirect('/auth/login')
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/auth/login')
+    elif auth_groups.objects.get(name='teacher') in request.user.groups.all():
+        return HttpResponseRedirect(reverse('disciplines:mysubjects'))
+    else:
+        return HttpResponseRedirect(reverse('disciplines:disciplines_list'))
 
 
 @permission_required('umo.add_teacher', login_url='/auth/login')

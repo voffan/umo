@@ -1,5 +1,7 @@
 from django.contrib import auth
 from django.shortcuts import redirect, render, reverse
+from django.contrib.auth.models import Group as auth_groups
+from django.http import HttpResponseRedirect
 
 from loginsys.forms import RegistrationForm
 
@@ -12,7 +14,10 @@ def login(request):
         user = auth.authenticate(username=username, password=password)
         if user is not None:
             auth.login(request, user)
-            return redirect(reverse('disciplines:mysubjects'))
+            if auth_groups.objects.get(name='teacher') in request.user.groups.all():
+                return HttpResponseRedirect(reverse('disciplines:mysubjects'))
+            else:
+                return HttpResponseRedirect(reverse('disciplines:disciplines_list'))
         else:
             args['login_error'] = "Внимание, вход на сайт не был произведен. " \
                                   "Возможно, вы ввели неверное имя пользователя или пароль."
