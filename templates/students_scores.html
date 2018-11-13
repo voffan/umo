@@ -29,7 +29,6 @@
 	</div>
 </div>
 
-    <h1>{{ discipline.group.Name }}</h1>
     <h1>Баллы БРС: {{ discipline.discipline_detail.discipline.Name }}</h1>
     <div class="container">
         {% if not maxpoints %}
@@ -39,6 +38,13 @@
             </div>
         </div>
         {% endif %}
+        <div class="row">
+            <div class="col"><h2>{{ discipline.group.Name }}</h2></div>
+            <div class="col"><h2>Семестр: {{ discipline.discipline_detail.semestr }}</h2></div>
+        </div>
+        <div class="row">
+            <div class="col"><h2>Преподаватель: {{ discipline.lecturer.FIO }} </h2></div>
+        </div>
         <div class="row">
             <div class="col">
                 <div id="scores_list" class="backgrid-container">
