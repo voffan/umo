@@ -7,6 +7,10 @@ api = [
     url(r'^set_max_points$', views_api.set_max_points, name='set_max_points'),
 ]
 
+excel = [
+    url(r'^brs_scores$', views.export_brs_points, name='brs_scores'),
+]
+
 urlpatterns = [
     url(r'^add/$', views.DisciplineCreate.as_view(), name='disciplines_add'),
     #url(r'(?P<pk>[0-9]+)/update/$', views.DisciplineUpdate.as_view(), name='update'),
@@ -24,4 +28,5 @@ urlpatterns = [
     url(r'^scores/(?P<pk>[0-9]+)/$', views.StudentsScoresView.as_view(), name='brs_scores'),
     url(r'^$', views.teachers_subjects, name='mysubjects'),
     url(r'^api/',include(api, namespace='api')),
+    url(r'^excel/',include(excel, namespace='excel')),
 ]

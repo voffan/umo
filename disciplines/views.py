@@ -12,6 +12,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required, login_required
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Person, BRSpoints, Course, GroupList
 from umo.objgens import get_check_points, add_brs
+from disciplines.view_excel import discipline_scores_to_excel
 
 
 class DisciplineList(ListView):
@@ -283,7 +284,7 @@ def export_to_excel(request):
         _column = 3
         i += 1
         for s in subjects:
-            mark = ExamMarks.objects.filter(student__id=gl.student.id, exam__discipline__id=s.id).first()
+            mark = ExamMarks.objects.filter(student__id=gl.student.id, exam__course__discipline_detail__discipline__id=s.id).first()
             if mark is not None:
                 ws.cell(row=_row, column=_column).value = mark.mark.name
             _column += 1
@@ -428,8 +429,9 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
         course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
-        beginyear = datetime.today().year - int(course.discipline_detail.semestr.name) // 2
-        group_students = GroupList.objects.select_related('student', 'group').filter(group__beginyear__year=beginyear, group__program__id=course.discipline_detail.discipline.program.id)
+        #beginyear = datetime.today().year - int(course.discipline_detail.semestr.name) // 2
+        group_students = course.group.grouplist_set.select_related('student', 'group').all()
+        #GroupList.objects.select_related('student', 'group').filter(group__beginyear__year=beginyear, group__program__id=course.discipline_detail.discipline.program.id)
         checkpoints = get_check_points()
         if len(context['object_list']) < 1:
             add_brs(course, group_students, checkpoints)
@@ -446,3 +448,13 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
         context['group_list'] = group_students
         context['discipline'] = course
         return context
+
+
+@login_required
+@permission_required('umo.change_brspoints', login_url='login')
+def export_brs_points(request):
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=vedomost.xlsx'
+    wb = discipline_scores_to_excel(request.GET['course_id'])
+    wb.save(response)
+    return response

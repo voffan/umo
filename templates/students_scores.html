@@ -32,18 +32,23 @@
     <h1>{{ discipline.group.Name }}</h1>
     <h1>Баллы БРС: {{ discipline.discipline_detail.discipline.Name }}</h1>
     <div class="container">
+        {% if not maxpoints %}
         <div class="row">
             <div class="col">
-                {% if not maxpoints %}
                 <div class="alert alert-warning" role="alert">Вы не установили максимальные допустимые баллы по контрольные срезам!! <a href="#" class="alert-link" id="SetMaxPointsLink">Установите!!</a></div>
-                {% endif %}
             </div>
         </div>
+        {% endif %}
         <div class="row">
             <div class="col">
                 <div id="scores_list" class="backgrid-container">
 
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <a href="{% url 'disciplines:excel:brs_scores' %}?course_id={{ discipline.id }}" class="btn btn-primary">Скачать контрольный лист</a>
             </div>
         </div>
     </div>

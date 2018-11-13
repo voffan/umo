@@ -65,7 +65,8 @@ class Group(models.Model):
     @property
     def year(self):
         now = datetime.now()
-        return int(now.year) - self.beginyear.year + 1
+        t = int(now.year) - self.beginyear.year + 1
+        return (t//2 + t%2)
 
     def get_semesters(self, edu_period):
         try:
