@@ -15,7 +15,8 @@ from umo.objgens import get_check_points, add_brs
 from disciplines.view_excel import discipline_scores_to_excel
 
 
-class DisciplineList(ListView):
+class DisciplineList(PermissionRequiredMixin, ListView):
+    permission_required = 'umo.brs_change'
     template_name = 'disc_list.html'
     context_object_name = 'discipline_list'
 
