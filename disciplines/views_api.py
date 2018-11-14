@@ -45,7 +45,7 @@ def set_max_points(request):
     result = {"result": False}
     status = 200
     checkpoints = CheckPoint.objects.all()
-    course = get_object_or_404(Course, pk=request.POST['course'])
+    course = get_object_or_404(Course, pk=request.POST['course'], lecturer__user__id=request.user.id)
     result['data'] = {}
     try:
         with transaction.atomic():

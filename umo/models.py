@@ -293,6 +293,11 @@ class BRSpoints(models.Model):
     points = models.FloatField(verbose_name="Баллы", db_index=True, max_length=255)
     course = models.ForeignKey(Course, db_index=True)
 
+    class Meta:
+        permissions = (
+            ('can_view_scores', 'Can view students brs scores'),
+        )
+
     def __str__(self):
         return self.student.FIO + ' - ' + self.course.discipline_detail.discipline.Name
 

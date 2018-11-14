@@ -16,7 +16,7 @@ from disciplines.view_excel import discipline_scores_to_excel
 
 
 class DisciplineList(PermissionRequiredMixin, ListView):
-    permission_required = 'umo.brs_change'
+    permission_required = 'umo.can_view_scores'
     template_name = 'disc_list.html'
     context_object_name = 'discipline_list'
 
