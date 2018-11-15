@@ -11,6 +11,7 @@
 				<h4 class="modal-title">Установите максимальные баллы срезов!</h4>
 			</div>
 			<div class="modal-body">
+                <div class="alert alert-danger" role="alert" id="modal_error"></div>
                 <form id="maxpointsform">
                     <div class="container">
                         {% for checkpoint in checkpoints %}
@@ -72,6 +73,7 @@
 
 {% block scripts %}
 $(document).ready(function(){
+    $('#modal_error').hide();
 
     $('input[id*="checkpointinput_"]').on('keyup', function(e){
         var s = 0;
@@ -114,8 +116,17 @@ $(document).ready(function(){
             $('#SetMaxPointsModal').modal('hide');
             $('div.alert').hide();
         }).fail(function(jqXHR, textStatus, errorThrown){
-            //console.log(jqXHR.statusCode().status);
-            //console.log(errorThrown);
+            var msg = '';
+            if(jqXHR.statusCode().status == 404){
+                msg = 'Дисциплина не найдена!'
+            }else if(jqXHR.statusCode().status == 403){
+                msg = 'Вы не можете устанавливать максимальные баллы для данной дисциплины!'
+            }else if(jqXHR.statusCode().status == 500){
+                msg = 'Ошибка при сохранении баллов, обратитесь к администратору!'
+            }
+            $('#modal_error').html(msg);
+			$('#modal_error').show();
+			$('#modal_error').delay(3000).slideUp(500, function() {$(this).hide();});
         });
     });
 

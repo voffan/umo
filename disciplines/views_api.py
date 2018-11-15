@@ -20,18 +20,21 @@ def brs_scores(request):
     if not scores:
         status = 404
     elif request.user.id != scores[0].course.lecturer.user.id:
-        status=403
+        status = 403
     else:
         result = {
             "student_id": str(scores[0].student.id),
             "course_id": str(scores[0].course.id),
             "fullname": str(scores[0].student.FIO)
         }
-        with transaction.atomic():
-            for score in scores:
-                score.points = serialized_data['checkpoint_' + str(score.checkpoint.id)]
-                result['checkpoint_' + str(score.checkpoint.id)] = serialized_data['checkpoint_' + str(score.checkpoint.id)]
-                score.save()
+        try:
+            with transaction.atomic():
+                for score in scores:
+                    score.points = serialized_data['checkpoint_' + str(score.checkpoint.id)]
+                    result['checkpoint_' + str(score.checkpoint.id)] = serialized_data['checkpoint_' + str(score.checkpoint.id)]
+                    score.save()
+        except:
+            status = 500
     return HttpResponse(
         json.dumps(result),
         content_type='application/json',
@@ -45,7 +48,9 @@ def set_max_points(request):
     result = {"result": False}
     status = 200
     checkpoints = CheckPoint.objects.all()
-    course = get_object_or_404(Course, pk=request.POST['course'], lecturer__user__id=request.user.id)
+    course = get_object_or_404(Course, pk=request.POST['course'])
+    if course.lecturer.user.id != request.user.id:
+        status = 403
     result['data'] = {}
     try:
         with transaction.atomic():
