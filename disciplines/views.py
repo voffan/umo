@@ -417,7 +417,7 @@ def excel(request):
 
 class StudentsScoresView(PermissionRequiredMixin, ListView):
     model = BRSpoints
-    permission_required = 'umo.add_brspoints'
+    permission_required = 'umo.can_view_scores'
     template_name = 'students_scores.html'
 
     def get_queryset(self):
@@ -452,10 +452,15 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
 
 
 @login_required
-@permission_required('umo.change_brspoints', login_url='login')
+@permission_required('umo.can_view_scores', login_url='login')
 def export_brs_points(request):
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=vedomost.xlsx'
     wb = discipline_scores_to_excel(request.GET['course_id'])
-    wb.save(response)
+    if wb is not None:
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=vedomost.xlsx'
+        wb.save(response)
+    else:
+        response = HttpResponse()
+        response.status_code = 404
+        response.write('<p>Ошибка при формировании отчета!!</p>')
     return response

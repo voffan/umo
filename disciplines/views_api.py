@@ -51,14 +51,15 @@ def set_max_points(request):
     course = get_object_or_404(Course, pk=request.POST['course'])
     if course.lecturer.user.id != request.user.id:
         status = 403
-    result['data'] = {}
-    try:
-        with transaction.atomic():
-            for checkpoint in checkpoints:
-                mpoints, created = CourseMaxPoints.objects.update_or_create(course=course, checkpoint=checkpoint, defaults={'maxpoint': request.POST['checkpoint_'+str(checkpoint.id)]})
-                result['data'][checkpoint.id] = mpoints.maxpoint
-    except:
-        status = 500
+    else:
+        result['data'] = {}
+        try:
+            with transaction.atomic():
+                for checkpoint in checkpoints:
+                    mpoints, created = CourseMaxPoints.objects.update_or_create(course=course, checkpoint=checkpoint, defaults={'maxpoint': request.POST['checkpoint_'+str(checkpoint.id)]})
+                    result['data'][checkpoint.id] = mpoints.maxpoint
+        except:
+            status = 500
     return HttpResponse(
         json.dumps(result),
         content_type='application/json',

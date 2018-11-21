@@ -29,8 +29,6 @@
 		</div>
 	</div>
 </div>
-
-    <h1>Баллы БРС: {{ discipline.discipline_detail.discipline.Name }}</h1>
     <div class="container">
         {% if not maxpoints %}
         <div class="row">
@@ -39,6 +37,16 @@
             </div>
         </div>
         {% endif %}
+        <div class="row">
+            <div class="col">
+                <div style="position:fixed;top:0;left:0;width:100%;z-index:100;" id="error_container"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h1>Баллы БРС: {{ discipline.discipline_detail.discipline.Name }}</h1>
+            </div>
+        </div>
         <div class="row">
             <div class="col"><h2>{{ discipline.group.Name }}</h2></div>
             <div class="col"><h2>Семестр: {{ discipline.discipline_detail.semestr }}</h2></div>
@@ -74,6 +82,20 @@
 {% block scripts %}
 $(document).ready(function(){
     $('#modal_error').hide();
+    $('#error').hide();
+
+    function get_error_msg(status, type){
+        if(status == 404){
+            msg = 'Дисциплина не найдена!'
+        }else if(status == 403 || status == 200){
+            msg = 'Вы не можете устанавливать ';
+            if (type == 1)msg += 'максимальные ';
+            msg += 'баллы для данной дисциплины!';
+        }else if(status == 500){
+            msg = 'Ошибка при сохранении баллов, обратитесь к администратору!'
+        }
+        return msg;
+    }
 
     $('input[id*="checkpointinput_"]').on('keyup', function(e){
         var s = 0;
@@ -116,14 +138,7 @@ $(document).ready(function(){
             $('#SetMaxPointsModal').modal('hide');
             $('div.alert').hide();
         }).fail(function(jqXHR, textStatus, errorThrown){
-            var msg = '';
-            if(jqXHR.statusCode().status == 404){
-                msg = 'Дисциплина не найдена!'
-            }else if(jqXHR.statusCode().status == 403){
-                msg = 'Вы не можете устанавливать максимальные баллы для данной дисциплины!'
-            }else if(jqXHR.statusCode().status == 500){
-                msg = 'Ошибка при сохранении баллов, обратитесь к администратору!'
-            }
+            var msg = get_error_msg(jqXHR.statusCode().status, 1);
             $('#modal_error').html(msg);
 			$('#modal_error').show();
 			$('#modal_error').delay(3000).slideUp(500, function() {$(this).hide();});
@@ -191,10 +206,14 @@ $(document).ready(function(){
             ];
     var Application = Backbone.Model.extend({
         initialize: function(){
-            this.on("change", function(model, options){
+            this.on("change", function(model, response, options){
                 if (options && options.save === false) return;
                 model.url = "{% url 'disciplines:api:brs_scores' %}";
-                model.save(null, { type: "POST"});
+                model.save(null, { type: "POST", error: function (model, response, options){
+                    let msg = get_error_msg(response.status, 2);
+                    let error_obj = $('<div class="alert alert-danger" role="alert" id="error">'+msg+'</div>').appendTo('#error_container');
+			        $(error_obj).delay(2000).slideUp(500, function() {$(this).alert('close');});
+                }});
                 //model.off("change", null, this);
                 console.log("Changed model " + model.get("fullname") + " " + model.get("student_id"));
             });

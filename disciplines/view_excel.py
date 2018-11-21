@@ -127,6 +127,9 @@ def discipline_scores_to_excel(course_id):
     course = Course.objects.select_related('group','discipline_detail','lecturer').get(pk=course_id)
     semester = course.discipline_detail.semestr
     group = course.group
+    checkpoints = course.coursemaxpoints_set.all()
+    if not course or not semester or not group or not checkpoints:
+        return None
     edu_period = get_object_or_404(EduPeriod, active=True)
 
 
@@ -182,8 +185,8 @@ def discipline_scores_to_excel(course_id):
     ws.cell(row=11, column=9).value = 'Оценка прописью'
     ws.cell(row=11, column=10).value = 'Буквенный эквивалент'
     ws.cell(row=11, column=11).value = 'Подпись преподавателя'
-    ws.cell(row=12, column=4).value = '1 контр. срез (max=' + str(int(course.coursemaxpoints_set.get(checkpoint__id=4).maxpoint)) + ')'
-    ws.cell(row=12, column=5).value = '2 контр. срез (max=' + str(int(course.coursemaxpoints_set.get(checkpoint__id=5).maxpoint)) + ')'
+    ws.cell(row=12, column=4).value = '1 контр. срез (max=' + str(int(checkpoints.get(checkpoint__id=4).maxpoint)) + ')'
+    ws.cell(row=12, column=5).value = '2 контр. срез (max=' + str(int(checkpoints.get(checkpoint__id=5).maxpoint)) + ')'
 
 
     # объединение ячеек
