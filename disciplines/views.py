@@ -79,7 +79,7 @@ def discipline_delete(request):
 def discipline_detail(request, pk):
     if request.method == 'POST':
         pass
-    subject = Discipline.objects.get(id=pk)
+    subject = Course.objects.get(id=pk).discipline_detail.discipline#Discipline.objects.get(id=pk)
     name = subject.Name
     details = DisciplineDetails.objects.filter(discipline__id=subject.id)
     return render(request, 'disciplines_detail.html', {'form': details, 'name': name})
