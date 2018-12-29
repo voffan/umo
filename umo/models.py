@@ -309,7 +309,7 @@ class Exam(models.Model):
     prev_exam = models.ForeignKey('self', verbose_name="Предыдущий экзамен", blank=True, null=True )
 
     def __str__(self):
-        return self.course.Name + '"' + self.examDate + '"'
+        return self.course.discipline_detail.discipline.Name + '"' + self.examDate + '"'
 
 
 class ExamMarks(models.Model):
@@ -322,7 +322,7 @@ class ExamMarks(models.Model):
     markSymbol = models.ForeignKey(MarkSymbol, db_index=True, blank=True, null=True)
 
     def __str__(self):
-        return self.student.FIO + ' - ' + self.exam.discipline.Name + ' - ' + self.mark.name
+        return self.student.FIO + ' - ' + self.exam.course.discipline_detail.discipline.Name + ' - ' + self.mark.name
 
 
 class Synch(models.Model):
