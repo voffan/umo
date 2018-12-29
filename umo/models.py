@@ -4,10 +4,14 @@ from django.db import models, transaction
 from django.contrib.auth.models import User
 
 
-# Create your models here.
 class Person(models.Model):
     FIO = models.CharField(verbose_name="ФИО", max_length=255, db_index=True)
     user = models.ForeignKey(User, verbose_name="Пользователь", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении пользователя, физическое лицо перестанет на него ссылаться
+
+    class Meta:
+        verbose_name = 'физическое лицо'
+        verbose_name_plural = 'физические лица'
+
     def __str__(self):
         return self.FIO
 
@@ -17,6 +21,10 @@ class Teacher(Person):
     Zvanie = models.ForeignKey('Zvanie', verbose_name="Звание", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении звания, преподаватели его лишаются
     cathedra = models.ForeignKey('Kafedra', verbose_name="Кафедра", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении кафедры, преподаватели не будут на него ссылаться
 
+    class Meta:
+        verbose_name = 'преподаватель'
+        verbose_name_plural = 'преподаватели'
+
     def __str__(self):
         return self.FIO
 
@@ -24,6 +32,10 @@ class Teacher(Person):
 class EduOrg(models.Model):
     name = models.CharField(verbose_name="название института", max_length=200, db_index=True)
     uni = models.ForeignKey('self', verbose_name="Название университета", db_index=True, null=True, blank=True, on_delete=models.SET_NULL)  # при удалении родительского подразделения, дочерние подразделения перестанут ему подчиняться
+
+    class Meta:
+        verbose_name = 'подразделение университета'
+        verbose_name_plural = 'подразделения университета'
 
     def __str__(self):
         return self.name
@@ -34,6 +46,10 @@ class Kafedra(models.Model):
     name = models.CharField(verbose_name="название кафедры", max_length=200, db_index=True)
     institution = models.ForeignKey('EduOrg', verbose_name="Институт", db_index=True, on_delete=models.CASCADE)  # при удалении института, все его кафедры будут удалены
 
+    class Meta:
+        verbose_name = 'кафедра'
+        verbose_name_plural = 'кафедры'
+
     def __str__(self):
         return str(self.number) + '-' + self.name
 
@@ -43,6 +59,10 @@ class EduProg(models.Model):
     profile = models.ForeignKey('Profile', verbose_name="Профиль", db_index=True, on_delete=models.CASCADE)  # при удалении профиля будут удалены образовательные программы
     year = models.ForeignKey('Year', verbose_name="Год", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении года в образовательных программах будут очищены ссылки на него
     cathedra = models.ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, on_delete=models.CASCADE)  # при удалении кафедры будут удалены образовательные программы
+
+    class Meta:
+        verbose_name = 'образовательная программа'
+        verbose_name_plural = 'образовательные программы'
 
     def __str__(self):
         return self.specialization.name
@@ -55,8 +75,8 @@ class Group(models.Model):
     program = models.ForeignKey(EduProg, verbose_name="Программа", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении образовательной программы, в студенческих группах будут очищены ссылки на нее
 
     class Meta:
-        verbose_name = 'группа'
-        verbose_name_plural = 'группы'
+        verbose_name = 'студенческая группа'
+        verbose_name_plural = 'студенческие группы'
         ordering = ['Name']
 
     def __str__(self):
@@ -107,6 +127,10 @@ class Specialization(models.Model):
     qual = models.ForeignKey('Qual', verbose_name="Квалификация", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении квалификации в специализациях будет очищена ссылка неё
     level = models.ForeignKey('Level', verbose_name="Уровень", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении уровня образования в специализациях будет очищена ссылка на нее
 
+    class Meta:
+        verbose_name = 'специализация'
+        verbose_name_plural = 'специализации'
+
     def __str__(self):
         return self.name
 
@@ -117,10 +141,15 @@ class Specialization(models.Model):
     eduperiod = models.ForeignKey(EduPeriod, verbose_name="Период")
 '''
 
+
 class Discipline(models.Model):
     Name = models.CharField(verbose_name="название дисциплины", max_length=200, db_index=True)
     code = models.CharField(verbose_name="код дисциплины", max_length=200, db_index=True)
     program = models.ForeignKey(EduProg, verbose_name="Программа образования", db_index=True, on_delete=models.CASCADE)  # при удалении образовательной программы будут удалены все ее дисциплины
+
+    class Meta:
+        verbose_name = 'дисциплина'
+        verbose_name_plural = 'дисциплины'
 
     def __str__(self):
             return self.Name
@@ -137,6 +166,8 @@ class DisciplineDetails(models.Model):
     semestr = models.ForeignKey('Semestr', verbose_name="Семестр", db_index=True, on_delete=models.CASCADE)  # при удалении семестра все варианты дисциплин в этом семестре будут удалены
 
     class Meta:
+        verbose_name = 'вариант дисциплины'
+        verbose_name_plural = 'вариант дисциплины'
         unique_together=(('discipline', 'semestr'),)
 
     def __str__(self):
@@ -157,6 +188,8 @@ class Control(models.Model):
     control_hours = models.IntegerField(verbose_name="Кол-во часов", default=0, db_index=True)
 
     class Meta:
+        verbose_name = 'форма промежуточного контроля'
+        verbose_name_plural = 'формы промежуточного контроля'
         unique_together=(('discipline_detail','controltype'),)
 
     def __str__(self):
@@ -167,12 +200,20 @@ class Control(models.Model):
 class Year(models.Model):
     year = models.IntegerField(verbose_name="год поступления", db_index=True, unique=True)
 
+    class Meta:
+        verbose_name = 'год'
+        verbose_name_plural = 'год'
+
     def __str__(self):
             return str(self.year)
 
 
 class Position(models.Model):
     name = models.CharField(verbose_name="Позиция", db_index=True, max_length=255, unique=True)
+
+    class Meta:
+        verbose_name = 'должность'
+        verbose_name_plural = 'должности'
 
     def __str__(self):
         return self.name
@@ -181,12 +222,20 @@ class Position(models.Model):
 class Zvanie(models.Model):
     name = models.CharField(verbose_name="Звание", db_index=True, max_length=255, unique=True)
 
+    class Meta:
+        verbose_name = 'звание'
+        verbose_name_plural = 'звания'
+
     def __str__(self):
             return self.name
 
 
 class Level(models.Model):
     name = models.CharField(verbose_name="Уровень", db_index=True, max_length=255, unique=True)
+
+    class Meta:
+        verbose_name = 'уровень образования'
+        verbose_name_plural = 'уровни образования'
 
     def __str__(self):
             return self.name
@@ -196,12 +245,20 @@ class Profile(models.Model):
     spec = models.ForeignKey('Specialization', verbose_name="Специализация", db_index=True, on_delete=models.CASCADE)  # при удалении специализации будут удалены профили
     name = models.CharField(verbose_name="Профиль", db_index=True, max_length=255, unique=True)
 
+    class Meta:
+        verbose_name = 'профиль'
+        verbose_name_plural = 'профили'
+
     def __str__(self):
             return self.spec.name + self.name
 
 
 class Qual(models.Model):
     name = models.CharField(verbose_name="Квалификация", db_index=True, max_length=255, unique=True)
+
+    class Meta:
+        verbose_name = 'квалификация'
+        verbose_name_plural = 'квалификации'
 
     def __str__(self):
             return self.name
@@ -210,6 +267,10 @@ class Qual(models.Model):
 class ControlType(models.Model):
     name = models.CharField(verbose_name="Тип контроля", db_index=True, max_length=255, unique=True)
 
+    class Meta:
+        verbose_name = 'форма контроля'
+        verbose_name_plural = 'формы контроля'
+
     def __str__(self):
             return self.name
 
@@ -217,12 +278,20 @@ class ControlType(models.Model):
 class Semestr(models.Model):
     name = models.CharField(verbose_name="Семестр", db_index=True, max_length=255, unique=True)
 
+    class Meta:
+        verbose_name = 'семестр'
+        verbose_name_plural = 'семестры'
+
     def __str__(self):
             return self.name
 
 
 class Mark(models.Model):
     name = models.CharField(verbose_name="Оценка", db_index=True, max_length=255, unique=True)
+
+    class Meta:
+        verbose_name = 'оценка'
+        verbose_name_plural = 'оценки'
 
     def __str__(self):
             return self.name
@@ -232,12 +301,20 @@ class MarkSymbol(models.Model):
     name = models.CharField(verbose_name="Буквенный эквивалент оценки", db_index=True, blank=True, null=True,
                             max_length=255, unique=True)
 
+    class Meta:
+        verbose_name = 'буквенный эквивалент оценки'
+        verbose_name_plural = 'буквенные эквиваленты оценок'
+
     def __str__(self):
             return self.name
 
 
 class CheckPoint(models.Model):
     name = models.CharField(verbose_name="Срез", db_index=True, max_length=255, unique=True)
+
+    class Meta:
+        verbose_name = 'контрольный срез'
+        verbose_name_plural = 'контрольные срезы'
 
     def __str__(self):
             return self.name
@@ -248,6 +325,10 @@ class EduPeriod(models.Model):
     endyear = models.ForeignKey(Year, verbose_name="Конец учебного года", related_name='eduperiod_endyear', null=True, on_delete=models.SET_NULL)  # при удалении года в образовательных программах будут очищены ссылки
     active = models.BooleanField(verbose_name="Статус", db_index=True)
 
+    class Meta:
+        verbose_name = 'период обучения'
+        verbose_name_plural = 'периоды обучения'
+
     def __str__(self):
             return str(self.beginyear.year) + '-' + str(self.endyear.year)
 
@@ -255,6 +336,10 @@ class EduPeriod(models.Model):
 class Student(Person):
     StudentID = models.CharField(verbose_name="Номер зачетной книжки", db_index=True,
                                  max_length=255)
+
+    class Meta:
+        verbose_name = 'студент'
+        verbose_name_plural = 'студенты'
 
     def __str__(self):
         return self.FIO
@@ -265,6 +350,10 @@ class GroupList(models.Model):
     group = models.ForeignKey('Group', verbose_name="Группа", db_index=True, on_delete=models.CASCADE)  # при удалении группы будут удалены зачисления студентов в нее
     student = models.ForeignKey('Student', verbose_name="Студент", db_index=True, on_delete=models.CASCADE)  # при удалении студента будут удалены его зачисления в группу
 
+    class Meta:
+        verbose_name = 'зачисление студента в группу'
+        verbose_name_plural = 'зачисления студентов в группы'
+
     def __str__(self):
             return self.student.FIO + ' - ' + self.group.Name
 
@@ -274,6 +363,10 @@ class Course(models.Model):
     discipline_detail = models.ForeignKey(DisciplineDetails, verbose_name="Дисциплина", db_index=True, on_delete=models.CASCADE)  # при удалении варианта дисциплины будут удалены курсы обучения
     lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении преподавателя в курсах обучения будут очищены ссылки на него
 
+    class Meta:
+        verbose_name = 'курс обучения дисциплине'
+        verbose_name_plural = 'курсы обучения дисциплинам'
+
     def __str__(self):
         return self.group.Name + ':' + self.discipline_detail.discipline.Name
 
@@ -282,6 +375,10 @@ class CourseMaxPoints(models.Model):
     course = models.ForeignKey(Course, verbose_name="Курс", db_index=True, on_delete=models.CASCADE)  # при удалении курса обучения будут удалены его максимальные баллы за контрольный срез
     checkpoint = models.ForeignKey(CheckPoint, verbose_name="Срез", db_index=True, on_delete=models.CASCADE)  # при удалении контрольного среза будут удалены максимальные за него
     maxpoint = models.DecimalField(verbose_name="Максимальные баллы", max_digits=5, decimal_places=2)
+
+    class Meta:
+        verbose_name = 'максимальный балл за контрольный срез по дисципине'
+        verbose_name_plural = 'максимальные баллы за контрольный срез по дисциплинам'
 
     def __str__(self):
         return self.course.discipline_detail.discipline.Name + '-' + self.checkpoint.name + ': ' + str(self.maxpoint)
@@ -294,6 +391,8 @@ class BRSpoints(models.Model):
     course = models.ForeignKey(Course, db_index=True, on_delete=models.CASCADE)  # при удалении дисциплины будут удалены ее баллы
 
     class Meta:
+        verbose_name = 'балл БРС'
+        verbose_name_plural = 'баллы БРС'
         permissions = (
             ('can_view_scores', 'Can view students brs scores'),
         )
@@ -308,6 +407,10 @@ class Exam(models.Model):
     controlType = models.ForeignKey(ControlType, db_index=True, on_delete=models.CASCADE)  # при удалении формы контроля будут удалены все мероприятия этого типа
     prev_exam = models.ForeignKey('self', verbose_name="Предыдущий экзамен", blank=True, null=True, on_delete=models.SET_NULL)  # при удалении предыдущего экзамена ссылка на него очищается
 
+    class Meta:
+        verbose_name = 'контрольное мероприятие для курса обучения дисциплине'
+        verbose_name_plural = 'контрольные мероприятия для курсов обучения дисциплнам'
+
     def __str__(self):
         return self.course.discipline_detail.discipline.Name + '"' + self.examDate + '"'
 
@@ -321,6 +424,10 @@ class ExamMarks(models.Model):
     mark = models.ForeignKey(Mark, db_index=True, on_delete=models.CASCADE)  # при удалении оценки будут удалены все сдачи экзаменов на эту оценку
     markSymbol = models.ForeignKey(MarkSymbol, db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении буквенного обозначения ссылка на него в сдачах будет очищена
 
+    class Meta:
+        verbose_name = 'экзаменационная оценка'
+        verbose_name_plural = 'экзаменационные оценки'
+
     def __str__(self):
         return self.student.FIO + ' - ' + self.exam.course.discipline_detail.discipline.Name + ' - ' + self.mark.name
 
@@ -328,6 +435,10 @@ class ExamMarks(models.Model):
 class Synch(models.Model):
     date = models.DateTimeField()
     finished = models.BooleanField()
+
+    class Meta:
+        verbose_name = 'признак успешного завершения редактирования зачисления студентов в группу'
+        verbose_name_plural = 'признаки успешного завершения редактирования зачисления студентов в группу'
 
     def __str__(self):
         return 'None'
