@@ -7,15 +7,15 @@ from django.contrib.auth.models import User
 # Create your models here.
 class Person(models.Model):
     FIO = models.CharField(verbose_name="ФИО", max_length=255, db_index=True)
-    user = models.ForeignKey(User, verbose_name="Пользователь", db_index=True, blank=True, null=True)
+    user = models.ForeignKey(User, verbose_name="Пользователь", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении пользователя, физическое лицо перестанет на него ссылаться
     def __str__(self):
         return self.FIO
 
 
 class Teacher(Person):
-    Position = models.ForeignKey('Position', verbose_name="Должность", db_index=True)
-    Zvanie = models.ForeignKey('Zvanie', verbose_name="Звание", db_index=True, blank=True, null=True)
-    cathedra = models.ForeignKey('Kafedra', verbose_name="Кафедра", db_index=True)
+    Position = models.ForeignKey('Position', verbose_name="Должность", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении должности, преподаватели ее лишаются
+    Zvanie = models.ForeignKey('Zvanie', verbose_name="Звание", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении звания, преподаватели его лишаются
+    cathedra = models.ForeignKey('Kafedra', verbose_name="Кафедра", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении кафедры, преподаватели не будут на него ссылаться
 
     def __str__(self):
         return self.FIO
@@ -23,7 +23,7 @@ class Teacher(Person):
 
 class EduOrg(models.Model):
     name = models.CharField(verbose_name="название института", max_length=200, db_index=True)
-    uni = models.ForeignKey('self', verbose_name="Название университета", db_index=True, null=True, blank=True)
+    uni = models.ForeignKey('self', verbose_name="Название университета", db_index=True, null=True, blank=True, on_delete=models.SET_NULL)  # при удалении родительского подразделения, дочерние подразделения перестанут ему подчиняться
 
     def __str__(self):
         return self.name
@@ -32,17 +32,17 @@ class EduOrg(models.Model):
 class Kafedra(models.Model):
     number = models.IntegerField(verbose_name="номер кафедры", db_index=True, unique=True)
     name = models.CharField(verbose_name="название кафедры", max_length=200, db_index=True)
-    institution = models.ForeignKey('EduOrg', verbose_name="Институт", db_index=True)
+    institution = models.ForeignKey('EduOrg', verbose_name="Институт", db_index=True, on_delete=models.CASCADE)  # при удалении института, все его кафедры будут удалены
 
     def __str__(self):
         return str(self.number) + '-' + self.name
 
 
 class EduProg(models.Model):
-    specialization = models.ForeignKey('Specialization', verbose_name="Специализация", db_index=True)
-    profile = models.ForeignKey('Profile', verbose_name="Профиль", db_index=True)
-    year = models.ForeignKey('Year', verbose_name="Год", db_index=True)
-    cathedra = models.ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True)
+    specialization = models.ForeignKey('Specialization', verbose_name="Специализация", db_index=True, on_delete=models.CASCADE)  # при удалении специализации будут удалены образовательные программы
+    profile = models.ForeignKey('Profile', verbose_name="Профиль", db_index=True, on_delete=models.CASCADE)  # при удалении профиля будут удалены образовательные программы
+    year = models.ForeignKey('Year', verbose_name="Год", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении года в образовательных программах будут очищены ссылки на него
+    cathedra = models.ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, on_delete=models.CASCADE)  # при удалении кафедры будут удалены образовательные программы
 
     def __str__(self):
         return self.specialization.name
@@ -50,9 +50,9 @@ class EduProg(models.Model):
 
 class Group(models.Model):
     Name = models.CharField(verbose_name="название группы", max_length=200, db_index=True)
-    beginyear = models.ForeignKey('Year', verbose_name="Год начала обучения", db_index=True, blank=True, null=True)
-    cathedra = models.ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True)
-    program = models.ForeignKey(EduProg, verbose_name="Программа", db_index=True, blank=True, null=True)
+    beginyear = models.ForeignKey('Year', verbose_name="Год начала обучения", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении года, в студенческих группах будут очищены ссылки на него
+    cathedra = models.ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении кафедры, в студенческих группах будет очищены ссылки на нее
+    program = models.ForeignKey(EduProg, verbose_name="Программа", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении образовательной программы, в студенческих группах будут очищены ссылки на нее
 
     class Meta:
         verbose_name = 'группа'
@@ -104,8 +104,8 @@ class Specialization(models.Model):
     briefname = models.CharField(verbose_name="короткое имя специализации", max_length=50, db_index=True, blank=True,
                                  null=True)
     code = models.CharField(verbose_name="код специализации", max_length=100, db_index=True, unique=True)
-    qual = models.ForeignKey('Qual', verbose_name="Квалификация", db_index=True)
-    level = models.ForeignKey('Level', verbose_name="Уровень", db_index=True, blank=True, null=True)
+    qual = models.ForeignKey('Qual', verbose_name="Квалификация", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении квалификации в специализациях будет очищена ссылка неё
+    level = models.ForeignKey('Level', verbose_name="Уровень", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении уровня образования в специализациях будет очищена ссылка на нее
 
     def __str__(self):
         return self.name
@@ -120,21 +120,21 @@ class Specialization(models.Model):
 class Discipline(models.Model):
     Name = models.CharField(verbose_name="название дисциплины", max_length=200, db_index=True)
     code = models.CharField(verbose_name="код дисциплины", max_length=200, db_index=True)
-    program = models.ForeignKey(EduProg, verbose_name="Программа образования", db_index=True)
+    program = models.ForeignKey(EduProg, verbose_name="Программа образования", db_index=True, on_delete=models.CASCADE)  # при удалении образовательной программы будут удалены все ее дисциплины
 
     def __str__(self):
             return self.Name
 
 
 class DisciplineDetails(models.Model):
-    discipline = models.ForeignKey(Discipline, verbose_name="Дисциплина", db_index=True)
+    discipline = models.ForeignKey(Discipline, verbose_name="Дисциплина", db_index=True, on_delete=models.CASCADE)  # при удалении дисциплины будут удалены все ее варианты
     Credit = models.IntegerField(verbose_name="ЗЕТ", db_index=True, blank=True, null=True)
     Lecture = models.IntegerField(verbose_name="количество лекции", db_index=True, blank=True, null=True)
     Practice = models.IntegerField(verbose_name="количество практики", db_index=True, blank=True, null=True)
     Lab = models.IntegerField(verbose_name="количество лабораторных работ", db_index=True, blank=True, null=True)
     KSR = models.IntegerField(verbose_name="количество контрольно-самостоятельных работ", db_index=True, blank=True, null=True)
     SRS = models.IntegerField(verbose_name="количество срс", db_index=True, blank=True, null=True)
-    semestr = models.ForeignKey('Semestr', verbose_name="Семестр", db_index=True)
+    semestr = models.ForeignKey('Semestr', verbose_name="Семестр", db_index=True, on_delete=models.CASCADE)  # при удалении семестра все варианты дисциплин в этом семестре будут удалены
 
     class Meta:
         unique_together=(('discipline', 'semestr'),)
@@ -152,8 +152,8 @@ class DisciplineDetails(models.Model):
 
 
 class Control(models.Model):
-    discipline_detail = models.ForeignKey('DisciplineDetails',verbose_name="Дисциплина", db_index=True, blank=True, null=True)
-    controltype = models.ForeignKey('ControlType', verbose_name="Тип контроля", db_index=True, blank=True, null=True)
+    discipline_detail = models.ForeignKey('DisciplineDetails',verbose_name="Дисциплина", db_index=True, blank=True, null=True, on_delete=models.CASCADE)  # при удалении варианта дисциплины будут удалены её зачеты и экзамены
+    controltype = models.ForeignKey('ControlType', verbose_name="Тип контроля", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении формы контроля в зачетах и экзаменах будет очищена ссылка на нее
     control_hours = models.IntegerField(verbose_name="Кол-во часов", default=0, db_index=True)
 
     class Meta:
@@ -193,7 +193,7 @@ class Level(models.Model):
 
 
 class Profile(models.Model):
-    spec = models.ForeignKey('Specialization', verbose_name="Специализация", db_index=True)
+    spec = models.ForeignKey('Specialization', verbose_name="Специализация", db_index=True, on_delete=models.CASCADE)  # при удалении специализации будут удалены профили
     name = models.CharField(verbose_name="Профиль", db_index=True, max_length=255, unique=True)
 
     def __str__(self):
@@ -244,8 +244,8 @@ class CheckPoint(models.Model):
 
 
 class EduPeriod(models.Model):
-    beginyear = models.ForeignKey(Year, verbose_name="Начало учебного года", related_name='eduperiod_beginyear')
-    endyear = models.ForeignKey(Year, verbose_name="Конец учебного года", related_name='eduperiod_endyear')
+    beginyear = models.ForeignKey(Year, verbose_name="Начало учебного года", related_name='eduperiod_beginyear', null=True, on_delete=models.SET_NULL)  # при удалении года в образовательных программах будут очищены ссылки
+    endyear = models.ForeignKey(Year, verbose_name="Конец учебного года", related_name='eduperiod_endyear', null=True, on_delete=models.SET_NULL)  # при удалении года в образовательных программах будут очищены ссылки
     active = models.BooleanField(verbose_name="Статус", db_index=True)
 
     def __str__(self):
@@ -262,25 +262,25 @@ class Student(Person):
 
 class GroupList(models.Model):
     active = models.BooleanField(verbose_name="Статус", db_index=True)
-    group = models.ForeignKey('Group', verbose_name="Группа", db_index=True)
-    student = models.ForeignKey('Student', verbose_name="Студент", db_index=True)
+    group = models.ForeignKey('Group', verbose_name="Группа", db_index=True, on_delete=models.CASCADE)  # при удалении группы будут удалены зачисления студентов в нее
+    student = models.ForeignKey('Student', verbose_name="Студент", db_index=True, on_delete=models.CASCADE)  # при удалении студента будут удалены его зачисления в группу
 
     def __str__(self):
             return self.student.FIO + ' - ' + self.group.Name
 
 
 class Course(models.Model):
-    group = models.ForeignKey(Group, verbose_name="Группа", db_index=True)
-    discipline_detail = models.ForeignKey(DisciplineDetails, verbose_name="Дисциплина", db_index=True)
-    lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True)
+    group = models.ForeignKey(Group, verbose_name="Группа", db_index=True, on_delete=models.CASCADE)  # при удалении группы будут удалены её курсы обучения
+    discipline_detail = models.ForeignKey(DisciplineDetails, verbose_name="Дисциплина", db_index=True, on_delete=models.CASCADE)  # при удалении варианта дисциплины будут удалены курсы обучения
+    lecturer = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении преподавателя в курсах обучения будут очищены ссылки на него
 
     def __str__(self):
         return self.group.Name + ':' + self.discipline_detail.discipline.Name
 
 
 class CourseMaxPoints(models.Model):
-    course = models.ForeignKey(Course, verbose_name="Курс", db_index=True)
-    checkpoint = models.ForeignKey(CheckPoint, verbose_name="Срез", db_index=True)
+    course = models.ForeignKey(Course, verbose_name="Курс", db_index=True, on_delete=models.CASCADE)  # при удалении курса обучения будут удалены его максимальные баллы за контрольный срез
+    checkpoint = models.ForeignKey(CheckPoint, verbose_name="Срез", db_index=True, on_delete=models.CASCADE)  # при удалении контрольного среза будут удалены максимальные за него
     maxpoint = models.DecimalField(verbose_name="Максимальные баллы", max_digits=5, decimal_places=2)
 
     def __str__(self):
@@ -288,10 +288,10 @@ class CourseMaxPoints(models.Model):
 
 
 class BRSpoints(models.Model):
-    student = models.ForeignKey(Student, db_index=True)
-    checkpoint = models.ForeignKey(CheckPoint, db_index=True)
+    student = models.ForeignKey(Student, db_index=True, on_delete=models.CASCADE)  # при удалении студента будут удалены его баллы
+    checkpoint = models.ForeignKey(CheckPoint, db_index=True, on_delete=models.CASCADE)  # при удалении контрольного среза среза будут удалены его баллы
     points = models.FloatField(verbose_name="Баллы", db_index=True, max_length=255)
-    course = models.ForeignKey(Course, db_index=True)
+    course = models.ForeignKey(Course, db_index=True, on_delete=models.CASCADE)  # при удалении дисциплины будут удалены ее баллы
 
     class Meta:
         permissions = (
@@ -304,22 +304,22 @@ class BRSpoints(models.Model):
 
 class Exam(models.Model):
     examDate = models.CharField(verbose_name="Дата экзамена", db_index=True, max_length=255)
-    course = models.ForeignKey(Course, db_index=True)
-    controlType = models.ForeignKey(ControlType, db_index=True)
-    prev_exam = models.ForeignKey('self', verbose_name="Предыдущий экзамен", blank=True, null=True )
+    course = models.ForeignKey(Course, db_index=True, on_delete=models.CASCADE)  # при удалении дисциплины будут удалены его зачеты и экзамены
+    controlType = models.ForeignKey(ControlType, db_index=True, on_delete=models.CASCADE)  # при удалении формы контроля будут удалены все мероприятия этого типа
+    prev_exam = models.ForeignKey('self', verbose_name="Предыдущий экзамен", blank=True, null=True, on_delete=models.SET_NULL)  # при удалении предыдущего экзамена ссылка на него очищается
 
     def __str__(self):
         return self.course.discipline_detail.discipline.Name + '"' + self.examDate + '"'
 
 
 class ExamMarks(models.Model):
-    exam = models.ForeignKey(Exam, db_index=True)
-    student = models.ForeignKey(Student, db_index=True)
+    exam = models.ForeignKey(Exam, db_index=True, on_delete=models.CASCADE)  # при удалении экзамена будут удалены все его сдачи
+    student = models.ForeignKey(Student, db_index=True, on_delete=models.CASCADE)  # при удалении студента будут удалены все его сдачи экзаменов
     inPoints = models.FloatField(verbose_name="Баллы за срез", max_length=255)
     additional_points = models.FloatField(verbose_name="Баллы за отработку", blank=True, null=True, max_length=255)
     examPoints = models.FloatField(verbose_name="Баллы за экзамен", blank=True, null=True, max_length=255)
-    mark = models.ForeignKey(Mark, db_index=True)
-    markSymbol = models.ForeignKey(MarkSymbol, db_index=True, blank=True, null=True)
+    mark = models.ForeignKey(Mark, db_index=True, on_delete=models.CASCADE)  # при удалении оценки будут удалены все сдачи экзаменов на эту оценку
+    markSymbol = models.ForeignKey(MarkSymbol, db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении буквенного обозначения ссылка на него в сдачах будет очищена
 
     def __str__(self):
         return self.student.FIO + ' - ' + self.exam.course.discipline_detail.discipline.Name + ' - ' + self.mark.name
