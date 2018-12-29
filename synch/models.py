@@ -1,9 +1,11 @@
 from django.db import models
 
+
 class YSUMainModel(models.Model):
     class Meta:
         managed = False
         abstract = True
+
 
 class PeopleList(YSUMainModel):
     id_people = models.IntegerField(primary_key=True, null=False)
@@ -47,11 +49,12 @@ class PeopleList(YSUMainModel):
     class Meta(YSUMainModel.Meta):
         db_table = 'people_List'
 
+
 class PeoplePln(YSUMainModel):
     id_peoplepln = models.IntegerField(primary_key=True, null=False)
-    id_people = models.ForeignKey('PeopleList', db_column='id_people', null=False)
-    id_pln = models.ForeignKey('PlnEduProgYear', db_column='id_pln', null=False)
-    id_group = models.ForeignKey('PlnGroupStud', db_column='id_group', null=False)
+    id_people = models.ForeignKey('PeopleList', db_column='id_people', on_delete=models.CASCADE)
+    id_pln = models.ForeignKey('PlnEduProgYear', db_column='id_pln', on_delete=models.CASCADE)
+    id_group = models.ForeignKey('PlnGroupStud', db_column='id_group', on_delete=models.CASCADE)
     id_status = models.SmallIntegerField(null=False)
     cardno = models.CharField(max_length=20)
     regno = models.CharField(max_length=30)
@@ -82,9 +85,10 @@ class PeoplePln(YSUMainModel):
     class Meta(YSUMainModel.Meta):
         db_table = 'people_Pln'
 
+
 class PlnEduProg(YSUMainModel):
     id_dop = models.IntegerField(primary_key=True, null=False)
-    id_spec = models.ForeignKey('PlnSprSpecializ', db_column='id_spec', null=False)
+    id_spec = models.ForeignKey('PlnSprSpecializ', db_column='id_spec', on_delete=models.CASCADE)
     id_studyform = models.SmallIntegerField(null=False)
     real_studyform = models.SmallIntegerField(null=False)
     duration = models.CharField(max_length=25)
@@ -124,9 +128,10 @@ class PlnEduProg(YSUMainModel):
     class Meta(YSUMainModel.Meta):
         db_table = 'pln_EduProg'
 
+
 class PlnEduProgYear(YSUMainModel):
     id_pln = models.IntegerField(primary_key=True, null=False)
-    id_dop = models.ForeignKey('PlnEduProg', db_column='id_dop', null=False)
+    id_dop = models.ForeignKey('PlnEduProg', db_column='id_dop', on_delete=models.CASCADE)
     id_plany_link = models.CharField(max_length=255)
     year = models.SmallIntegerField(null=False)
     refertotip = models.IntegerField(null=False)
@@ -141,11 +146,12 @@ class PlnEduProgYear(YSUMainModel):
     class Meta(YSUMainModel.Meta):
         db_table = 'pln_EduProgYear'
 
+
 class PlnGroupStud(YSUMainModel):
     id_group = models.IntegerField(primary_key=True, null=False)
     name = models.CharField(max_length=30, null=False)
     number_in_group = models.IntegerField(null=False)
-    id_pln = models.ForeignKey('PlnEduProgYear', db_column='id_pln', null=False)
+    id_pln = models.ForeignKey('PlnEduProgYear', db_column='id_pln', on_delete=models.CASCADE)
     codestream = models.IntegerField(null=False)
     id_structure = models.IntegerField(null=False)
     rip = models.BooleanField(null=False)
@@ -153,6 +159,7 @@ class PlnGroupStud(YSUMainModel):
 
     class Meta(YSUMainModel.Meta):
         db_table = 'pln_group_Stud'
+
 
 class PlnSprSpecializ(YSUMainModel):
     id_spec = models.IntegerField(primary_key=True, null=False)
