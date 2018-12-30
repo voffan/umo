@@ -121,6 +121,7 @@ class Group(models.Model):
 class Specialization(models.Model):
 
     UNDEFINED = 0
+
     SPECIALIST = 1
     BACHELOR = 2
     MASTER = 3
@@ -136,13 +137,20 @@ class Specialization(models.Model):
         (BACHELOR_APPLIED, 'прикладной бакалавриат'),
     )
 
-    name = models.CharField(verbose_name="название специализации", max_length=200, db_index=True,
-                    )
-    briefname = models.CharField(verbose_name="короткое имя специализации", max_length=50, db_index=True, blank=True,
-                                 null=True)
+    MIDDLE_PROFESSIONAL = 1
+    HIGHER_PROFESSIONAL = 2
+
+    EDUCATION_LEVEL = (
+        (UNDEFINED, '—'),
+        (MIDDLE_PROFESSIONAL, 'среднее профессиональное образование'),
+        (HIGHER_PROFESSIONAL, 'высшее профессиональное образование'),
+    )
+
+    name = models.CharField(verbose_name="название специализации", max_length=200, db_index=True)
+    briefname = models.CharField(verbose_name="короткое имя специализации", max_length=50, db_index=True, blank=True, null=True)
     code = models.CharField(verbose_name="код специализации", max_length=100, db_index=True, unique=True)
-    qual = models.IntegerField("Квалификация", choices=QUALIFICATION, blank=True, default=0)
-    level = models.ForeignKey('Level', verbose_name="Уровень", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении уровня образования в специализациях будет очищена ссылка на нее
+    qual = models.IntegerField("квалификация", choices=QUALIFICATION, blank=True, default=0)
+    level = models.IntegerField("уровень образования", choices=EDUCATION_LEVEL, blank=True, default=0)
 
     class Meta:
         verbose_name = 'специализация'
@@ -242,17 +250,6 @@ class Zvanie(models.Model):
     class Meta:
         verbose_name = 'звание'
         verbose_name_plural = 'звания'
-
-    def __str__(self):
-            return self.name
-
-
-class Level(models.Model):
-    name = models.CharField(verbose_name="Уровень", db_index=True, max_length=255, unique=True)
-
-    class Meta:
-        verbose_name = 'уровень образования'
-        verbose_name_plural = 'уровни образования'
 
     def __str__(self):
             return self.name

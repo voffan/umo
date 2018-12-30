@@ -26,7 +26,6 @@ class AdminGroup(admin.ModelAdmin):
 
 admin.site.register(models.GroupList)
 admin.site.register(models.Kafedra)
-admin.site.register(models.Level)
 admin.site.register(models.Mark)
 admin.site.register(models.MarkSymbol)
 admin.site.register(models.Person)

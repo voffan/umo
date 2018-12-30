@@ -1,6 +1,6 @@
 from django.db import transaction
 from umo.models import EduOrg, Kafedra, EduProg, Specialization, Discipline, \
-    DisciplineDetails, Profile, Year, Semestr, Level, Teacher, Control, Position, Zvanie, ControlType
+    DisciplineDetails, Profile, Year, Semestr, Teacher, Control, Position, Zvanie, ControlType
 from umo.objgens import check_edu_org
 import xml.etree.ElementTree as ET
 import re
@@ -18,6 +18,15 @@ def get_qualification(name):
         return 2
     elif 'магистр' in name:
         return 3
+    return 0
+
+
+def get_education_level(name):
+    name = name.lower()
+    if 'спо' in name:
+        return 1
+    elif 'впо' in name:
+        return 2
     return 0
 
 
@@ -52,7 +61,6 @@ def parseRUP(filename):
     code = title.get('ПоследнийШифр')
     yearp = title.get('ГодНачалаПодготовки')
 
-    level,created = Level.objects.get_or_create(name=level)
     institute = check_edu_org(name_institute, name_university)
 
     kaf, created = Kafedra.objects.get_or_create(number=code_kaf, defaults={'name':'', 'institution':institute})
@@ -62,7 +70,7 @@ def parseRUP(filename):
         'name': spec_name,
         'briefname': '',
         'qual': get_qualification(qual_name),
-        'level': level
+        'level': get_education_level(level)
     })
     profile, created = Profile.objects.get_or_create(name=profile_name, defaults={'spec':sp})
 
