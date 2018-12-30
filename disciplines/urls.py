@@ -2,14 +2,14 @@ from django.conf.urls import url, include
 
 from disciplines import views, views_api
 
-api = [
+api = ([
     url(r'^brs_scores$', views_api.brs_scores, name='brs_scores'),
     url(r'^set_max_points$', views_api.set_max_points, name='set_max_points'),
-]
+], 'api')
 
-excel = [
+excel = ([
     url(r'^brs_scores$', views.export_brs_points, name='brs_scores'),
-]
+], 'excel')
 
 urlpatterns = [
     url(r'^add/$', views.DisciplineCreate.as_view(), name='disciplines_add'),
