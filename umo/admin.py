@@ -36,7 +36,6 @@ admin.site.register(models.Specialization)
 admin.site.register(models.Student)
 admin.site.register(models.Teacher)
 admin.site.register(models.Year)
-admin.site.register(models.Zvanie)
 
 
 @admin.register(models.Course)

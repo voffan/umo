@@ -1,6 +1,6 @@
 from django.db import transaction
 from umo.models import EduOrg, Kafedra, EduProg, Specialization, Discipline, \
-    DisciplineDetails, Profile, Year, Semestr, Teacher, Control, Position, Zvanie, ControlType
+    DisciplineDetails, Profile, Year, Semestr, Teacher, Control, Position, ControlType
 from umo.objgens import check_edu_org
 import xml.etree.ElementTree as ET
 import re

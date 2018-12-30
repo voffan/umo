@@ -17,8 +17,19 @@ class Person(models.Model):
 
 
 class Teacher(Person):
+
+    NONE = 0
+    ASSOCIATE = 1
+    PROFESSOR = 2
+
+    SCIENTIFIC_TITLE = (
+        (NONE, 'без ученого звания'),
+        (ASSOCIATE, 'доцент'),
+        (PROFESSOR, 'профессор'),
+    )
+
     Position = models.ForeignKey('Position', verbose_name="Должность", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении должности, преподаватели ее лишаются
-    Zvanie = models.ForeignKey('Zvanie', verbose_name="Звание", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении звания, преподаватели его лишаются
+    Zvanie = models.IntegerField('ученое звание', choices=SCIENTIFIC_TITLE, blank=True, default=0)
     cathedra = models.ForeignKey('Kafedra', verbose_name="Кафедра", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении кафедры, преподаватели не будут на него ссылаться
 
     class Meta:
@@ -242,17 +253,6 @@ class Position(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Zvanie(models.Model):
-    name = models.CharField(verbose_name="Звание", db_index=True, max_length=255, unique=True)
-
-    class Meta:
-        verbose_name = 'звание'
-        verbose_name_plural = 'звания'
-
-    def __str__(self):
-            return self.name
 
 
 class Profile(models.Model):
