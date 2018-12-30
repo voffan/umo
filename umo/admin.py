@@ -7,7 +7,6 @@ from umo import models
 admin.site.register(models.BRSpoints)
 admin.site.register(models.CheckPoint)
 admin.site.register(models.Control)
-admin.site.register(models.ControlType)
 admin.site.register(models.Discipline)
 admin.site.register(models.DisciplineDetails)
 admin.site.register(models.EduOrg)

@@ -1,6 +1,6 @@
 from django.db import transaction
 from umo.models import EduOrg, Kafedra, EduProg, Specialization, Discipline, \
-    DisciplineDetails, Profile, Year, Semestr, Teacher, Control, Position, ControlType
+    DisciplineDetails, Profile, Year, Semestr, Teacher, Control, Position
 from umo.objgens import check_edu_org
 import xml.etree.ElementTree as ET
 import re
@@ -112,14 +112,10 @@ def parseRUP(filename):
                                                         semestr=smstr,
                                                         defaults=defaults)
             if z is not None:
-                control_type, created = ControlType.objects.get_or_create(name='Зачет')
-                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=control_type, defaults={'control_hours': data['108']})
+                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=2, defaults={'control_hours': data['108']})
             if exam is not None:
-                control_type, created = ControlType.objects.get_or_create(name='Экзамен')
-                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=control_type, defaults={'control_hours': data['108']})
+                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=1, defaults={'control_hours': data['108']})
             if zO is not None:
-                control_type, created = ControlType.objects.get_or_create(name='Зачет с оценкой')
-                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=control_type, defaults={'control_hours': data['108']})
+                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=3, defaults={'control_hours': data['108']})
             if CW is not None:
-                control_type, created = ControlType.objects.get_or_create(name='Курсовая работа')
-                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=control_type, defaults={'control_hours': data['108']})
+                c, created = Control.objects.update_or_create(discipline_detail=d, controltype=4, defaults={'control_hours': data['108']})

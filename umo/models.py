@@ -171,13 +171,6 @@ class Specialization(models.Model):
         return self.name
 
 
-'''class DisciplineTeacher(models.Model):
-    discipline = models.ForeignKey(Discipline, verbose_name="Дисциплина", db_index=True)
-    teacher = models.ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True)
-    eduperiod = models.ForeignKey(EduPeriod, verbose_name="Период")
-'''
-
-
 class Discipline(models.Model):
     Name = models.CharField(verbose_name="название дисциплины", max_length=200, db_index=True)
     code = models.CharField(verbose_name="код дисциплины", max_length=200, db_index=True)
@@ -219,8 +212,23 @@ class DisciplineDetails(models.Model):
 
 
 class Control(models.Model):
+
+    NONE = 0
+    EXAM = 1
+    CREDIT = 2
+    CREDIT_WITH_GRADE = 3
+    COURSEWORK = 4
+
+    CONTROL_FORM = (
+        (NONE, 'без контроля'),
+        (EXAM, 'экзамен'),
+        (CREDIT, 'зачет'),
+        (CREDIT_WITH_GRADE, 'зачет с оценкой'),
+        (COURSEWORK, 'курсовая работа'),
+    )
+
     discipline_detail = models.ForeignKey('DisciplineDetails',verbose_name="Дисциплина", db_index=True, blank=True, null=True, on_delete=models.CASCADE)  # при удалении варианта дисциплины будут удалены её зачеты и экзамены
-    controltype = models.ForeignKey('ControlType', verbose_name="Тип контроля", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении формы контроля в зачетах и экзаменах будет очищена ссылка на нее
+    controltype = models.IntegerField('форма контроля', choices=CONTROL_FORM, blank=True, default=0)
     control_hours = models.IntegerField(verbose_name="Кол-во часов", default=0, db_index=True)
 
     class Meta:
@@ -229,7 +237,7 @@ class Control(models.Model):
         unique_together=(('discipline_detail','controltype'),)
 
     def __str__(self):
-            return self.controltype.name + ' - ' + self.discipline_detail.discipline.Name + ' - ' \
+            return self.get_controltype_display() + ' - ' + self.discipline_detail.discipline.Name + ' - ' \
                    + self.discipline_detail.semestr.name + ' семестр'
 
 
@@ -265,17 +273,6 @@ class Profile(models.Model):
 
     def __str__(self):
             return self.spec.name + self.name
-
-
-class ControlType(models.Model):
-    name = models.CharField(verbose_name="Тип контроля", db_index=True, max_length=255, unique=True)
-
-    class Meta:
-        verbose_name = 'форма контроля'
-        verbose_name_plural = 'формы контроля'
-
-    def __str__(self):
-            return self.name
 
 
 class Semestr(models.Model):
@@ -407,7 +404,7 @@ class BRSpoints(models.Model):
 class Exam(models.Model):
     examDate = models.CharField(verbose_name="Дата экзамена", db_index=True, max_length=255)
     course = models.ForeignKey(Course, db_index=True, on_delete=models.CASCADE)  # при удалении дисциплины будут удалены его зачеты и экзамены
-    controlType = models.ForeignKey(ControlType, db_index=True, on_delete=models.CASCADE)  # при удалении формы контроля будут удалены все мероприятия этого типа
+    controlType = models.IntegerField('форма контроля', choices=Control.CONTROL_FORM)
     prev_exam = models.ForeignKey('self', verbose_name="Предыдущий экзамен", blank=True, null=True, on_delete=models.SET_NULL)  # при удалении предыдущего экзамена ссылка на него очищается
 
     class Meta:

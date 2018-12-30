@@ -355,10 +355,7 @@ class BRSPointsListView(ListView):
                     newExam = Exam.objects.filter(discipline__id = discipline.id, semestr=s).first()
                     if (newExam is None):
                         newExam = Exam()
-                        newControlType = ControlType.objects.filter(name=control.controltype.name).first()
-                        if (newControlType is None):
-                            newControlType = ControlType.objects.create(name=control.controltype.name)
-                        newExam.controlType = newControlType
+                        newExam.controlType = control.controltype
                         newExam.course = discipline
                         newExam.eduperiod = EduPeriod.objects.all().first()
                         newExam.examDate = 'не проставлена'
