@@ -1,9 +1,25 @@
 from django.db import transaction
 from umo.models import EduOrg, Kafedra, EduProg, Specialization, Discipline, \
-    DisciplineDetails, Profile, Year, Semestr, Qual, Level, Teacher, Control, Position, Zvanie, ControlType
+    DisciplineDetails, Profile, Year, Semestr, Level, Teacher, Control, Position, Zvanie, ControlType
 from umo.objgens import check_edu_org
 import xml.etree.ElementTree as ET
 import re
+
+
+def get_qualification(name):
+    name = name.lower()
+    if 'специали' in name:
+        return 1
+    elif 'бакалавр' in name:
+        if 'академ' in name:
+            return 4
+        elif 'приклад' in name:
+            return 5
+        return 2
+    elif 'магистр' in name:
+        return 3
+    return 0
+
 
 @transaction.atomic
 def parseRUP(filename):
@@ -37,13 +53,17 @@ def parseRUP(filename):
     yearp = title.get('ГодНачалаПодготовки')
 
     level,created = Level.objects.get_or_create(name=level)
-    qual, created = Qual.objects.get_or_create(name=qual_name)
     institute = check_edu_org(name_institute, name_university)
 
     kaf, created = Kafedra.objects.get_or_create(number=code_kaf, defaults={'name':'', 'institution':institute})
     year, created = Year.objects.get_or_create(year=yearp)
 
-    sp, created = Specialization.objects.get_or_create(code=code, defaults={'name':spec_name, 'briefname':'', 'qual':qual, 'level':level})
+    sp, created = Specialization.objects.get_or_create(code=code, defaults={
+        'name': spec_name,
+        'briefname': '',
+        'qual': get_qualification(qual_name),
+        'level': level
+    })
     profile, created = Profile.objects.get_or_create(name=profile_name, defaults={'spec':sp})
 
     edu_prog, created = EduProg.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year)

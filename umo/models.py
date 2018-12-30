@@ -119,12 +119,29 @@ class Group(models.Model):
 
 
 class Specialization(models.Model):
+
+    UNDEFINED = 0
+    SPECIALIST = 1
+    BACHELOR = 2
+    MASTER = 3
+    BACHELOR_ACADEMIC = 4
+    BACHELOR_APPLIED = 5
+
+    QUALIFICATION = (
+        (UNDEFINED, '—'),
+        (SPECIALIST, 'специалитет'),
+        (BACHELOR, 'бакалавриат'),
+        (MASTER, 'магистратура'),
+        (BACHELOR_ACADEMIC, 'академический бакалавриат'),
+        (BACHELOR_APPLIED, 'прикладной бакалавриат'),
+    )
+
     name = models.CharField(verbose_name="название специализации", max_length=200, db_index=True,
                     )
     briefname = models.CharField(verbose_name="короткое имя специализации", max_length=50, db_index=True, blank=True,
                                  null=True)
     code = models.CharField(verbose_name="код специализации", max_length=100, db_index=True, unique=True)
-    qual = models.ForeignKey('Qual', verbose_name="Квалификация", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении квалификации в специализациях будет очищена ссылка неё
+    qual = models.IntegerField("Квалификация", choices=QUALIFICATION, blank=True, default=0)
     level = models.ForeignKey('Level', verbose_name="Уровень", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении уровня образования в специализациях будет очищена ссылка на нее
 
     class Meta:
@@ -251,17 +268,6 @@ class Profile(models.Model):
 
     def __str__(self):
             return self.spec.name + self.name
-
-
-class Qual(models.Model):
-    name = models.CharField(verbose_name="Квалификация", db_index=True, max_length=255, unique=True)
-
-    class Meta:
-        verbose_name = 'квалификация'
-        verbose_name_plural = 'квалификации'
-
-    def __str__(self):
-            return self.name
 
 
 class ControlType(models.Model):
