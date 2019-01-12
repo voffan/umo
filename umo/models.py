@@ -41,9 +41,6 @@ class Teacher(Person):
         verbose_name = 'преподаватель'
         verbose_name_plural = 'преподаватели'
 
-    def __str__(self):
-        return self.FIO
-
 
 class EduOrg(models.Model):
     name = CharField(verbose_name="название института", max_length=200, db_index=True)
@@ -332,15 +329,11 @@ class EduPeriod(models.Model):
 
 
 class Student(Person):
-    StudentID = CharField(verbose_name="Номер зачетной книжки", db_index=True,
-                                 max_length=255)
+    student_id = CharField(verbose_name="Номер зачетной книжки", db_index=True, max_length=255)
 
     class Meta:
         verbose_name = 'студент'
         verbose_name_plural = 'студенты'
-
-    def __str__(self):
-        return self.FIO
 
 
 class GroupList(models.Model):
