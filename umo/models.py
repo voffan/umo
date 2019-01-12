@@ -205,7 +205,12 @@ class DisciplineDetails(models.Model):
 
     @property
     def total_hours(self):
-        return self.Lecture + self.Practice + self.Lab + self.KSR + self.SRS
+        exam_hours = 0
+        for control in self.control_set:
+            if control.controltype == Control.EXAM:
+                exam_hours = 36
+                break
+        return self.Lecture + self.Practice + self.Lab + self.KSR + self.SRS + exam_hours
 
     @property
     def controls(self):
