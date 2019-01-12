@@ -33,8 +33,8 @@ class Teacher(Person):
         (PROFESSOR, 'профессор'),
     )
 
-    Position = ForeignKey('Position', verbose_name="Должность", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении должности, преподаватели ее лишаются
-    Zvanie = IntegerField('ученое звание', choices=SCIENTIFIC_TITLE, blank=True, default=0)
+    position = ForeignKey('Position', verbose_name="Должность", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении должности, преподаватели ее лишаются
+    zvanie = IntegerField('ученое звание', choices=SCIENTIFIC_TITLE, blank=True, default=0)
     cathedra = ForeignKey('Kafedra', verbose_name="Кафедра", db_index=True, null=True, on_delete=models.SET_NULL)  # при удалении кафедры, преподаватели не будут на него ссылаться
 
     class Meta:

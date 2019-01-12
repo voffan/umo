@@ -20,7 +20,7 @@
             <tr>
                 <td> </td>
                 <td>  <a href="{% url 'teachers:edit_teacher' teacher.id %}">{{ teacher.FIO }} </a> </td>
-                <td> {{ teacher.Position }} </td>
+                <td> {{ teacher.position }} </td>
                 <td>{{ teacher.get_Zvanie_display }}</td>
                 <td> {{ teacher.cathedra }} </td>
                 <td> <a href="{% url 'disciplines:disciplines' teacher.id %}"><input type="submit" value="Дисциплины"

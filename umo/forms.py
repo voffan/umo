@@ -12,15 +12,15 @@ class AddTeacherForm(ModelForm):
         model = Teacher
         fields = [
             'FIO',
-            'Position',
-            'Zvanie',
+            'position',
+            'zvanie',
             'cathedra',
             'user'
         ]
         labels = {
             'FIO': _('ФИО'),
-            'Position': _('Должность'),
-            'Zvanie': _('Звание'),
+            'position': _('Должность'),
+            'zvanie': _('Звание'),
             'cathedra': _('Кафедра'),
         }
 
@@ -29,8 +29,8 @@ class AddTeacherForm(ModelForm):
         if self.clean():
             teacher = Teacher()
             teacher.FIO = self.cleaned_data['FIO']
-            teacher.Position = self.cleaned_data['Position']
-            teacher.Zvanie = self.cleaned_data['Zvanie']
+            teacher.position = self.cleaned_data['position']
+            teacher.zvanie = self.cleaned_data['zvanie']
             teacher.cathedra = self.cleaned_data['cathedra']
             teacher.save()
             return  teacher
@@ -42,14 +42,14 @@ class EditTeacherForm(ModelForm):
         model = Teacher
         fields = [
             'FIO',
-            'Position',
-            'Zvanie',
+            'position',
+            'zvanie',
             'cathedra'
         ]
         labels = {
             'FIO': _('ФИО'),
-            'Position': _('Должность'),
-            'Zvanie': _('Звание'),
+            'position': _('Должность'),
+            'zvanie': _('Звание'),
             'cathedra': _('Кафедра')
         }
 
@@ -58,8 +58,8 @@ class EditTeacherForm(ModelForm):
          if self.clean():
             teacher = Teacher()
             teacher.FIO = self.cleaned_data['FIO']
-            teacher.Position = self.cleaned_data['Position']
-            teacher.Zvanie = self.cleaned_data['Zvanie']
+            teacher.position = self.cleaned_data['position']
+            teacher.zvanie = self.cleaned_data['zvanie']
             teacher.cathedra = self.cleaned_data['cathedra']
             teacher.save()
             return teacher
