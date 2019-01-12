@@ -344,9 +344,9 @@ class BRSPointsListView(ListView):
 
                 newExamMarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id, exam__semestr=s).filter(student = gl.student).first()
                 if (newExamMarks is None):
-                    newMarkSymbol = MarkSymbol.objects.filter(name='F').first()
-                    if (newMarkSymbol is None):
-                        newMarkSymbol = MarkSymbol.objects.create(name='F')
+                    # newMarkSymbol = MarkSymbol.objects.filter(name='F').first()
+                    # if (newMarkSymbol is None):
+                    #     newMarkSymbol = MarkSymbol.objects.create(name='F')
 
                     newMark = Mark.objects.filter(name='неуд').first()
                     if (newMark is None):
@@ -366,7 +366,8 @@ class BRSPointsListView(ListView):
                     newExamMarks.student = gl.student
                     newExamMarks.inPoints = 0.0
                     newExamMarks.examPoints = 0.0
-                    newExamMarks.markSymbol = newMarkSymbol
+                    # newExamMarks.markSymbol = newMarkSymbol
+                    newExamMarks.mark_symbol = 'F'
                     newExamMarks.mark = newMark
                     newExamMarks.exam = newExam
                     newExamMarks.save()
@@ -412,18 +413,19 @@ class BRSPointsListView(ListView):
                 tempMarkSymbol = get_markSymbol(exam.controlType.name, totalPoints)
                 tempMark = get_mark(exam.controlType.name, totalPoints)
 
-                if (tempMarkSymbol is None):
-                    newMarkSymbol = None
-                else:
-                    newMarkSymbol = MarkSymbol.objects.filter(name=tempMarkSymbol).first()
-                    if (newMarkSymbol is None):
-                        newMarkSymbol = MarkSymbol.objects.create(name=tempMarkSymbol)
+                # if (tempMarkSymbol is None):
+                #     newMarkSymbol = None
+                # else:
+                #     newMarkSymbol = MarkSymbol.objects.filter(name=tempMarkSymbol).first()
+                #     if (newMarkSymbol is None):
+                #         newMarkSymbol = MarkSymbol.objects.create(name=tempMarkSymbol)
 
                 newMark = Mark.objects.filter(name=tempMark).first()
                 if (newMark is None):
                     newMark = Mark.objects.create(name=tempMark)
 
-                exammarks.markSymbol = newMarkSymbol
+                # exammarks.markSymbol = newMarkSymbol
+                exammarks.mark_symbol = tempMarkSymbol if tempMarkSymbol else ''
                 exammarks.mark = newMark
                 exammarks.save()
             return HttpResponseRedirect(reverse('brs_studentlist', args={int(self.kwargs['pk'])}))

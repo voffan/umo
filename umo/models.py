@@ -298,18 +298,6 @@ class Mark(models.Model):
             return self.name
 
 
-class MarkSymbol(models.Model):
-    name = CharField(verbose_name="Буквенный эквивалент оценки", db_index=True, blank=True, null=True,
-                            max_length=255, unique=True)
-
-    class Meta:
-        verbose_name = 'буквенный эквивалент оценки'
-        verbose_name_plural = 'буквенные эквиваленты оценок'
-
-    def __str__(self):
-            return self.name
-
-
 class CheckPoint(models.Model):
     name = CharField(verbose_name="Срез", db_index=True, max_length=255, unique=True)
 
@@ -417,13 +405,24 @@ class Exam(models.Model):
 
 
 class ExamMarks(models.Model):
+
+    SYMBOL_MARK = (
+        ('A', 'A'),
+        ('B', 'B'),
+        ('C', 'C'),
+        ('D', 'D'),
+        ('E', 'E'),
+        ('F', 'F'),
+        ('FX', 'FX'),
+    )
+
     exam = ForeignKey(Exam, db_index=True, on_delete=models.CASCADE)  # при удалении экзамена будут удалены все его сдачи
     student = ForeignKey(Student, db_index=True, on_delete=models.CASCADE)  # при удалении студента будут удалены все его сдачи экзаменов
     inPoints = FloatField(verbose_name="Баллы за срез", max_length=255)
     additional_points = FloatField(verbose_name="Баллы за отработку", blank=True, null=True, max_length=255)
     examPoints = FloatField(verbose_name="Баллы за экзамен", blank=True, null=True, max_length=255)
     mark = ForeignKey(Mark, db_index=True, on_delete=models.CASCADE)  # при удалении оценки будут удалены все сдачи экзаменов на эту оценку
-    markSymbol = ForeignKey(MarkSymbol, db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении буквенного обозначения ссылка на него в сдачах будет очищена
+    mark_symbol = CharField('буквенный эквивалент оценки', max_length=2, default='')
 
     class Meta:
         verbose_name = 'экзаменационная оценка'
