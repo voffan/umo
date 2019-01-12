@@ -26,14 +26,26 @@ class AdminGroup(admin.ModelAdmin):
 admin.site.register(models.GroupList)
 admin.site.register(models.Kafedra)
 admin.site.register(models.Mark)
-admin.site.register(models.Person)
 admin.site.register(models.Position)
 admin.site.register(models.Profile)
 admin.site.register(models.Semestr)
 admin.site.register(models.Specialization)
-admin.site.register(models.Student)
-admin.site.register(models.Teacher)
 admin.site.register(models.Year)
+
+
+@admin.register(models.Person)
+class AdminPerson(admin.ModelAdmin):
+    list_display = ('FIO', 'last_name', 'first_name', 'second_name')
+
+
+@admin.register(models.Student)
+class AdminStudent(admin.ModelAdmin):
+    list_display = ('FIO', 'last_name', 'first_name', 'second_name')
+
+
+@admin.register(models.Teacher)
+class AdminTeacher(admin.ModelAdmin):
+    list_display = ('FIO', 'last_name', 'first_name', 'second_name')
 
 
 @admin.register(models.Course)
