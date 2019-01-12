@@ -43,11 +43,14 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav navbar-right">
-                    <li class="nav-item active">
-                        {% if user %}
-                        <span class="navbar-brand mb-0 h1"> здравствуйте, {{ user.username }}! </span><a class="nav-link" href="{% url 'logout' %}">Выйти</a>
-                        {% endif %}
+                {% if user %}
+                    <li class="nav-item">
+                        <span class="nav-link">Здравствуйте, {{ user.username }}!</span>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
+                    </li>
+                {% endif %}
                 </ul>
                 {% else %}
                 <ul class="navbar-nav mr-auto">
