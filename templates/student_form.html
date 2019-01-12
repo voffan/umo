@@ -15,7 +15,7 @@
                     </div>
                     <div class="form-group">
                     <label for="id_studid">Номер зачетной книжки:</label>
-                    <input class="form-control" id="id_studid" type="text" name="studid" maxlength="255" value="{{ student_list.student.StudentID }}">
+                    <input class="form-control" id="id_studid" type="text" name="studid" maxlength="255" value="{{ student_list.student.student_id }}">
                     </div>
                     {% for field in form.visible_fields %}
                         <div class="form-group">

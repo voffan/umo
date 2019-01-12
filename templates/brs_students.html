@@ -39,7 +39,7 @@
                         {% endfor %}
                         <td> {{ s.name }} </td>
                         <td> {{ i.student.FIO }} <input id="semester" type="hidden" name="semester" value="{{ s.id }}"></td>
-                        <td> {{ i.student.StudentID }} <input id="studid" type="hidden" name="studid" value="{{ i.student.id }}"></td>
+                        <td> {{ i.student.student_id }} <input id="studid" type="hidden" name="studid" value="{{ i.student.id }}"></td>
                         {% for key, value in dict.items %}
                             {% if value.key == s.name %}
                                 {% for key2, value2 in value.items %}
