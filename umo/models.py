@@ -7,6 +7,10 @@ from django.db.models import CharField, ForeignKey, IntegerField, BooleanField, 
 
 class Person(models.Model):
     FIO = CharField(verbose_name="ФИО", max_length=255, db_index=True)
+    last_name = CharField(verbose_name="фамилия", max_length=50, default='')
+    first_name = CharField(verbose_name="имя", max_length=50, default='')
+    second_name = CharField(verbose_name="отчество", max_length=50, default='')
+    maiden_name = CharField(verbose_name="девичья фамилия", max_length=50, default='')
     user = ForeignKey(User, verbose_name="Пользователь", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении пользователя, физическое лицо перестанет на него ссылаться
 
     class Meta:
