@@ -1,6 +1,9 @@
+from datetime import datetime
+
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group as auth_groups
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -8,9 +11,10 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
-from synch.models import *
+import synch.models as sync_models
 from umo.forms import AddTeacherForm
-from umo.models import *
+from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProg, Student, Discipline, CheckPoint, Control,
+                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam)
 
 
 def index(request):
@@ -97,9 +101,9 @@ class StudentListView(PermissionRequiredMixin, ListView):
                 synch.date = datetime.now()
                 synch.save()
                 synch = Synch.objects.last()
-                synch_groups = PlnGroupStud.objects.filter(id_pln__id_dop__id_institute=1118)
+                synch_groups = sync_models.PlnGroupStud.objects.filter(id_pln__id_dop__id_institute=1118)
                 for sg in synch_groups:
-                    eduprogyear = PlnEduProgYear.objects.filter(id_pln=sg.id_pln.id_pln).first()
+                    eduprogyear = sync_models.PlnEduProgYear.objects.filter(id_pln=sg.id_pln.id_pln).first()
                     if synch.date > eduprogyear.dateend:
                         continue
 
@@ -113,7 +117,7 @@ class StudentListView(PermissionRequiredMixin, ListView):
                     g.program = EduProg.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code, year__year__lte=eduprogyear.year).order_by('-year__year').first()
                     g.save()
 
-                    synch_people = PeoplePln.objects.filter(id_group=sg.id_group)
+                    synch_people = sync_models.PeoplePln.objects.filter(id_group=sg.id_group)
                     for sp in synch_people:
                         if sp.id_status != 2:
                             continue
