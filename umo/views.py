@@ -1,9 +1,9 @@
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group as auth_groups
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
-from django.urls import reverse_lazy, reverse
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
@@ -14,12 +14,10 @@ from umo.models import *
 
 
 def index(request):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect('/auth/login')
-    elif auth_groups.objects.get(name='teacher') in request.user.groups.all():
-        return HttpResponseRedirect(reverse('disciplines:mysubjects'))
+    if auth_groups.objects.get(name='teacher') in request.user.groups.all():
+        return redirect('disciplines:mysubjects')
     else:
-        return HttpResponseRedirect(reverse('disciplines:disciplines_list'))
+        return redirect('disciplines:disciplines_list')
 
 
 @permission_required('umo.add_teacher', login_url='/auth/login')
@@ -28,7 +26,7 @@ def create_teacher(request):
         form = AddTeacherForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('teachers:list_teachers'))
+            return redirect('teachers:list_teachers')
         return render(request, 'teacher_form.html', {'form': form})
     form = AddTeacherForm()
     return render(request, 'teacher_form.html', {'form': form})
@@ -136,7 +134,7 @@ class StudentListView(PermissionRequiredMixin, ListView):
                         gl.save()
                 synch.finished = True
                 synch.save()
-        return HttpResponseRedirect(self.success_url)
+        return redirect(self.success_url)
 
 
 class StudentCreateView(PermissionRequiredMixin, CreateView):
@@ -169,7 +167,7 @@ def student_delete(request):
         student_ = Student.objects.get(id = request.POST['item_id'])
         grouplist_ = GroupList.objects.get(student__id = student_.id)
         grouplist_.active = False
-        return HttpResponseRedirect(reverse_lazy('student_changelist'))
+        return redirect('student_changelist')
 
 
 class StudentUpdateView(PermissionRequiredMixin, UpdateView):
@@ -202,7 +200,7 @@ def delete_teacher(request):
     if request.method == 'POST':
         teacher_ = Teacher.objects.get(pk=request.POST['teacher'])
         teacher_.delete()
-        return HttpResponseRedirect(reverse('teachers:list_teachers'))
+        return redirect('teachers:list_teachers')
 
 
 def get_mark(str, value):
@@ -428,7 +426,7 @@ class BRSPointsListView(ListView):
                 exammarks.mark_symbol = tempMarkSymbol if tempMarkSymbol else ''
                 exammarks.mark = newMark
                 exammarks.save()
-            return HttpResponseRedirect(reverse('brs_studentlist', args={int(self.kwargs['pk'])}))
+            return redirect('brs_studentlist', pk=self.kwargs['pk'])
 
         elif request.POST.get('vedomost'):
             # определяем стили
