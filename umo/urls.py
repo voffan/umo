@@ -1,13 +1,12 @@
-from django.conf.urls import url
+from django.urls import path
 from django.contrib import admin
-from django.contrib.admin.views.decorators import staff_member_required
 
 from umo import views
 
 admin.autodiscover()
 urlpatterns = [
-    url(r'^list/$', views.list_teachers, name='list_teachers'),
-    url(r'^create_teacher/$',  views.create_teacher, name='create_teacher'),
-    url(r'^delete_teacher/$', views.delete_teacher, name='delete_teacher'),
-    url(r'(?P<pk>[0-9]+)/edit_teacher/$', views.TeacherUpdate.as_view(), name='edit_teacher'),
+    path('list/', views.TeacherList.as_view(), name='list_teachers'),
+    path('create/',  views.TeacherCreate.as_view(), name='create_teacher'),
+    path('delete/<int:pk>/', views.TeacherDelete.as_view(), name='delete_teacher'),
+    path('edit/<int:pk>/', views.TeacherUpdate.as_view(), name='edit_teacher'),
 ]

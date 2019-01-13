@@ -2,35 +2,41 @@
 {% block title %}Список преподавателей{% endblock %}
 {% block content %}
     <h1>Список преподавателей</h1>
-    <p align="right" id="teacher_list_filter"><label><b>Кафедра</b></label><br></p>
+    <p align="right" id="teacher_list_filter">
+        <label>
+            <b>Кафедра</b>
+        </label>
+        <br>
+    </p>
     <table id="teacher_list" class="table table-bordered">
         <thead class="thead-light">
-            <tr>
-                <th>№</th>
-                <th>ФИО</th>
-                <th>Должность</th>
-                <th>Звание</th>
-                <th>Кафедра</th>
-                <th></th>
-                <th></th>
-            </tr>
+        <tr>
+            <th>№</th>
+            <th>ФИО</th>
+            <th>Должность</th>
+            <th>Звание</th>
+            <th>Кафедра</th>
+            <th></th>
+            <th></th>
+        </tr>
         </thead>
         <tbody>
-        {% for teacher in teachers %}
+        {% for teacher in teacher_list %}
             <tr>
-                <td> </td>
-                <td>  <a href="{% url 'teachers:edit_teacher' teacher.id %}">{{ teacher.FIO }} </a> </td>
-                <td> {{ teacher.position }} </td>
-                <td>{{ teacher.get_Zvanie_display }}</td>
-                <td> {{ teacher.cathedra }} </td>
-                <td> <a href="{% url 'disciplines:disciplines' teacher.id %}"><input type="submit" value="Дисциплины"
-                                                                                   class="btn btn-primary"></a></td>
+                <td></td>
+                <td><a href="{% url 'teachers:edit_teacher' teacher.id %}">{{ teacher.FIO }}</a></td>
+                <td>{{ teacher.position }}</td>
+                <td>{{ teacher.get_zvanie_display }}</td>
+                <td>{{ teacher.cathedra }}</td>
                 <td>
-                     <form action = "{% url 'teachers:delete_teacher' %}" method="post">
-                         {% csrf_token %}
-                         <input type="hidden" name="teacher" value="{{ teacher.id }}"/>
-                         <input type="submit"  value="Удалить" class="btn btn-danger">
-                     </form>
+                    <a href="{% url 'disciplines:disciplines' teacher.id %}">
+                        <input type="submit" value="Дисциплины" class="btn btn-primary">
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'teachers:delete_teacher' teacher.id %}" class="btn btn-danger" role="button">
+                        Удалить
+                    </a>
                 </td>
             </tr>
         {% endfor %}

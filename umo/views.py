@@ -12,7 +12,6 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
 import synch.models as sync_models
-from umo.forms import AddTeacherForm
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProg, Student, Discipline, CheckPoint, Control,
                         DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam)
 
@@ -24,16 +23,18 @@ def index(request):
         return redirect('disciplines:disciplines_list')
 
 
-@permission_required('umo.add_teacher', login_url='/auth/login')
-def create_teacher(request):
-    if request.method == 'POST':
-        form = AddTeacherForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('teachers:list_teachers')
-        return render(request, 'teacher_form.html', {'form': form})
-    form = AddTeacherForm()
-    return render(request, 'teacher_form.html', {'form': form})
+class TeacherList(PermissionRequiredMixin, ListView):
+    permission_required = 'umo.add_teacher'
+    template_name = 'teachers_list.html'
+    model = Teacher
+
+
+class TeacherCreate(PermissionRequiredMixin, CreateView):
+    permission_required = 'umo.change_teacher'
+    template_name = 'teacher_form.html'
+    success_url = reverse_lazy('teachers:list_teachers')
+    model = Teacher
+    fields = ['FIO', 'position', 'zvanie', 'cathedra', 'user']
 
 
 class TeacherUpdate(PermissionRequiredMixin, UpdateView):
@@ -41,25 +42,14 @@ class TeacherUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'teacher_edit.html'
     success_url = reverse_lazy('teachers:list_teachers')
     model = Teacher
-    fields = [
-            'FIO',
-            'Position',
-            'Zvanie',
-            'cathedra',
-            'user'
-    ]
-    labels = {
-        'FIO': 'ФИО',
-        'Position': 'Должность',
-        'Zvanie': 'Звание',
-        'cathedra': 'Кафедра'
-    }
+    fields = ['FIO', 'position', 'zvanie', 'cathedra', 'user']
 
 
 class TeacherDelete(PermissionRequiredMixin, DeleteView):
     permission_required = 'umo.delete_teacher'
     model = Teacher
-    success_url = reverse_lazy('teacher')
+    success_url = reverse_lazy('teachers:list_teachers')
+    template_name = 'teacher_delete.html'
 
 
 @permission_required('umo.add_teacher', login_url='/auth/login')
@@ -197,14 +187,6 @@ class StudentUpdateView(PermissionRequiredMixin, UpdateView):
         grouplist_.active = True
         grouplist_.save()
         return super().form_valid(form)
-
-
-@permission_required('umo.delete_teacher', login_url='/auth/login')
-def delete_teacher(request):
-    if request.method == 'POST':
-        teacher_ = Teacher.objects.get(pk=request.POST['teacher'])
-        teacher_.delete()
-        return redirect('teachers:list_teachers')
 
 
 def get_mark(str, value):
