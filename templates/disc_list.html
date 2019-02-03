@@ -19,7 +19,7 @@
             <tr>
                 <td> {{ discipline.discipline_detail.discipline.code }} </td>
                 <td> <a href="{% url 'disciplines:detail' discipline.id %}">{{ discipline.discipline_detail.discipline.Name }}</a> </td>
-                <td> {{ discipline.discipline_detail.semestr }} </td>
+                <td> {{ discipline.discipline_detail.semester }} </td>
                 <td> {{ discipline.group.Name }} </td>
                 <td> {{ discipline.lecturer.FIO }} </td>
                 <td><a href="{% url 'disciplines:brs_scores' discipline.id %}"> <input type="submit" value="Баллы БРС"

@@ -1,17 +1,18 @@
-from datetime import *
+from datetime import datetime
 
-from django.db import models, transaction
 from django.contrib.auth.models import User
+from django.db import models, transaction
 from django.db.models import CharField, ForeignKey, IntegerField, BooleanField, DecimalField, FloatField, DateTimeField
+from django.db.models import Model, CASCADE, SET_NULL
 
 
-class Person(models.Model):
+class Person(Model):
     FIO = CharField(verbose_name="ФИО", max_length=255, db_index=True)
     last_name = CharField(verbose_name="фамилия", max_length=50, default='')
     first_name = CharField(verbose_name="имя", max_length=50, default='')
     second_name = CharField(verbose_name="отчество", max_length=50, default='')
     maiden_name = CharField(verbose_name="девичья фамилия", max_length=50, default='')
-    user = ForeignKey(User, verbose_name="пользователь", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении пользователя, физическое лицо перестанет на него ссылаться
+    user = ForeignKey(User, verbose_name="пользователь", db_index=True, blank=True, null=True, on_delete=SET_NULL)
 
     class Meta:
         verbose_name = 'физическое лицо'
@@ -33,18 +34,19 @@ class Teacher(Person):
         (PROFESSOR, 'профессор'),
     )
 
-    position = ForeignKey('Position', verbose_name="должность", db_index=True, null=True, on_delete=models.SET_NULL)
-    zvanie = IntegerField('ученое звание', choices=SCIENTIFIC_TITLE, blank=True, default=0)
-    cathedra = ForeignKey('Kafedra', verbose_name="кафедра", db_index=True, null=True, on_delete=models.SET_NULL)
+    position = ForeignKey('Position', verbose_name="должность", db_index=True, null=True, on_delete=SET_NULL)
+    title = IntegerField('ученое звание', choices=SCIENTIFIC_TITLE, blank=True, default=0)
+    cathedra = ForeignKey('Kafedra', verbose_name="кафедра", db_index=True, null=True, on_delete=SET_NULL)
 
     class Meta:
         verbose_name = 'преподаватель'
         verbose_name_plural = 'преподаватели'
 
 
-class EduOrg(models.Model):
+class EduOrg(Model):
     name = CharField(verbose_name="название института", max_length=200, db_index=True)
-    uni = ForeignKey('self', verbose_name="название университета", db_index=True, null=True, blank=True, on_delete=models.SET_NULL)  # при удалении родительского подразделения, дочерние подразделения перестанут ему подчиняться
+    uni = ForeignKey('self', verbose_name="название университета", db_index=True, null=True, blank=True,
+                     on_delete=SET_NULL)
 
     class Meta:
         verbose_name = 'подразделение университета'
@@ -54,10 +56,10 @@ class EduOrg(models.Model):
         return self.name
 
 
-class Kafedra(models.Model):
+class Kafedra(Model):
     number = IntegerField(verbose_name="номер кафедры", db_index=True, unique=True)
     name = CharField(verbose_name="название кафедры", max_length=200, db_index=True)
-    institution = ForeignKey('EduOrg', verbose_name="институт", db_index=True, on_delete=models.CASCADE)
+    institution = ForeignKey('EduOrg', verbose_name="институт", db_index=True, on_delete=CASCADE)
 
     class Meta:
         verbose_name = 'кафедра'
@@ -67,11 +69,11 @@ class Kafedra(models.Model):
         return str(self.number) + '-' + self.name
 
 
-class EduProg(models.Model):
-    specialization = ForeignKey('Specialization', verbose_name="специализация", db_index=True, on_delete=models.CASCADE)
-    profile = ForeignKey('Profile', verbose_name="профиль", db_index=True, on_delete=models.CASCADE)
-    year = ForeignKey('Year', verbose_name="год", db_index=True, null=True, on_delete=models.SET_NULL)
-    cathedra = ForeignKey(Kafedra, verbose_name="кафедра", db_index=True, on_delete=models.CASCADE)
+class EduProg(Model):
+    specialization = ForeignKey('Specialization', verbose_name="специализация", db_index=True, on_delete=CASCADE)
+    profile = ForeignKey('Profile', verbose_name="профиль", db_index=True, on_delete=CASCADE)
+    year = ForeignKey('Year', verbose_name="год", db_index=True, null=True, on_delete=SET_NULL)
+    cathedra = ForeignKey(Kafedra, verbose_name="кафедра", db_index=True, on_delete=CASCADE)
 
     class Meta:
         verbose_name = 'образовательная программа'
@@ -81,11 +83,12 @@ class EduProg(models.Model):
         return self.specialization.name
 
 
-class Group(models.Model):
+class Group(Model):
     Name = CharField(verbose_name="название группы", max_length=200, db_index=True)
-    beginyear = ForeignKey('Year', verbose_name="год начала обучения", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении года, в студенческих группах будут очищены ссылки на него
-    cathedra = ForeignKey(Kafedra, verbose_name="кафедра", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении кафедры, в студенческих группах будет очищены ссылки на нее
-    program = ForeignKey(EduProg, verbose_name="программа", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении образовательной программы, в студенческих группах будут очищены ссылки на нее
+    begin_year = ForeignKey('Year', verbose_name="год начала обучения", db_index=True, blank=True, null=True,
+                            on_delete=SET_NULL)
+    cathedra = ForeignKey('Kafedra', verbose_name="кафедра", db_index=True, blank=True, null=True, on_delete=SET_NULL)
+    program = ForeignKey('EduProg', verbose_name="программа", db_index=True, blank=True, null=True, on_delete=SET_NULL)
 
     class Meta:
         verbose_name = 'студенческая группа'
@@ -98,21 +101,21 @@ class Group(models.Model):
     @property
     def year(self):
         now = datetime.now()
-        t = int(now.year) - self.beginyear.year + 1
+        t = int(now.year) - self.begin_year.year + 1
         return t // 2 + t % 2
 
     def get_semesters(self, edu_period):
         try:
-            autumn_semester = Semestr.objects.get(name=str((edu_period.beginyear.year - self.beginyear.year) * 2 + 1))
-            spring_semester = Semestr.objects.get(name=str((edu_period.beginyear.year - self.beginyear.year) * 2 + 2))
+            autumn_semester = Semestr.objects.get(name=str((edu_period.beginyear.year - self.begin_year.year) * 2 + 1))
+            spring_semester = Semestr.objects.get(name=str((edu_period.beginyear.year - self.begin_year.year) * 2 + 2))
         except Exception:
             raise Exception('Система не настроена!! Нет соответствущих учебному году семестров!!')
         return autumn_semester.id, spring_semester.id
 
-    def add_discpline(self, discpline):
+    def add_discipline(self, discipline):
         course = Course()
         course.group = self
-        course.discipline_detail = discpline
+        course.discipline_detail = discipline
         course.lecturer = None
         course.save()
 
@@ -125,13 +128,14 @@ class Group(models.Model):
             except Exception:
                 raise Exception('Система не настроена! Вы не определили активный учебный год или их несколько!!!')
         semesters = self.get_semesters(edu_period)
-        disciplines_details = DisciplineDetails.objects.filter(discipline__program__id=self.program.id, semestr__id__in=semesters)
+        disciplines_details = DisciplineDetails.objects.filter(discipline__program__id=self.program.id,
+                                                               semestr__id__in=semesters)
         with transaction.atomic():
             for discipline_detail in disciplines_details:
-                self.add_discpline(discipline_detail)
+                self.add_discipline(discipline_detail)
 
 
-class Specialization(models.Model):
+class Specialization(Model):
 
     UNDEFINED = 0
 
@@ -160,7 +164,8 @@ class Specialization(models.Model):
     )
 
     name = CharField(verbose_name="название специализации", max_length=200, db_index=True)
-    briefname = CharField(verbose_name="короткое имя специализации", max_length=50, db_index=True, blank=True, null=True)
+    brief_name = CharField(verbose_name="короткое имя специализации", max_length=50, db_index=True, blank=True,
+                           null=True)
     code = CharField(verbose_name="код специализации", max_length=100, db_index=True, unique=True)
     qual = IntegerField("квалификация", choices=QUALIFICATION, blank=True, default=0)
     level = IntegerField("уровень образования", choices=EDUCATION_LEVEL, blank=True, default=0)
@@ -173,10 +178,10 @@ class Specialization(models.Model):
         return self.name
 
 
-class Discipline(models.Model):
+class Discipline(Model):
     Name = CharField(verbose_name="название дисциплины", max_length=200, db_index=True)
     code = CharField(verbose_name="код дисциплины", max_length=200, db_index=True)
-    program = ForeignKey(EduProg, verbose_name="программа образования", db_index=True, on_delete=models.CASCADE)
+    program = ForeignKey('EduProg', verbose_name="программа образования", db_index=True, on_delete=CASCADE)
 
     class Meta:
         verbose_name = 'дисциплина'
@@ -186,8 +191,8 @@ class Discipline(models.Model):
             return self.Name
 
 
-class DisciplineDetails(models.Model):
-    discipline = ForeignKey(Discipline, verbose_name="дисциплина", db_index=True, on_delete=models.CASCADE)
+class DisciplineDetails(Model):
+    discipline = ForeignKey(Discipline, verbose_name="дисциплина", db_index=True, on_delete=CASCADE)
     Credit = IntegerField(verbose_name="ЗЕТ", db_index=True, blank=True, null=True)
     Lecture = IntegerField(verbose_name="количество лекции", db_index=True, blank=True, null=True)
     Practice = IntegerField(verbose_name="количество практики", db_index=True, blank=True, null=True)
@@ -195,6 +200,7 @@ class DisciplineDetails(models.Model):
     KSR = IntegerField(verbose_name="количество контрольно-самостоятельных работ", db_index=True, blank=True, null=True)
     SRS = IntegerField(verbose_name="количество срс", db_index=True, blank=True, null=True)
     semestr = ForeignKey('Semestr', verbose_name="семестр", db_index=True, on_delete=models.CASCADE)
+    semester = ForeignKey('Semestr', verbose_name="семестр", db_index=True, on_delete=models.CASCADE, related_name='new')
 
     class Meta:
         verbose_name = 'вариант дисциплины'
@@ -202,7 +208,7 @@ class DisciplineDetails(models.Model):
         unique_together = (('discipline', 'semestr'),)
 
     def __str__(self):
-            return self.discipline.Name + ' - ' + self.semestr.name + ' семестр'
+            return self.discipline.Name + ' - ' + self.semester.name + ' семестр'
 
     @property
     def total_hours(self):
@@ -215,10 +221,10 @@ class DisciplineDetails(models.Model):
 
     @property
     def controls(self):
-        return ', '.join(list(self.control_set.all().values_list('controltype__name', flat=True)))
+        return ', '.join(list(self.control_set.all().values_list('control_type__name', flat=True)))
 
 
-class Control(models.Model):
+class Control(Model):
 
     NONE = 0
     EXAM = 1
@@ -235,21 +241,21 @@ class Control(models.Model):
     )
 
     discipline_detail = ForeignKey('DisciplineDetails', verbose_name="дисциплина", db_index=True, blank=True, null=True,
-                                   on_delete=models.CASCADE)
-    controltype = IntegerField('форма контроля', choices=CONTROL_FORM, blank=True, default=0)
+                                   on_delete=CASCADE)
+    control_type = IntegerField('форма контроля', choices=CONTROL_FORM, blank=True, default=0)
     control_hours = IntegerField(verbose_name="кол-во часов", default=0, db_index=True)
 
     class Meta:
         verbose_name = 'форма промежуточного контроля'
         verbose_name_plural = 'формы промежуточного контроля'
-        unique_together = (('discipline_detail', 'controltype'),)
+        unique_together = (('discipline_detail', 'control_type'),)
 
     def __str__(self):
-            return self.get_controltype_display() + ' - ' + self.discipline_detail.discipline.Name + ' - ' \
-                   + self.discipline_detail.semestr.name + ' семестр'
+            return self.get_control_type_display() + ' - ' + self.discipline_detail.discipline.Name + ' - ' \
+                   + self.discipline_detail.semester.name + ' семестр'
 
 
-class Year(models.Model):
+class Year(Model):
     year = IntegerField(verbose_name="год поступления", db_index=True, unique=True)
 
     class Meta:
@@ -260,7 +266,7 @@ class Year(models.Model):
             return str(self.year)
 
 
-class Position(models.Model):
+class Position(Model):
     name = CharField(verbose_name="позиция", db_index=True, max_length=255, unique=True)
 
     class Meta:
@@ -271,8 +277,8 @@ class Position(models.Model):
         return self.name
 
 
-class Profile(models.Model):
-    spec = ForeignKey('Specialization', verbose_name="специализация", db_index=True, on_delete=models.CASCADE)
+class Profile(Model):
+    spec = ForeignKey('Specialization', verbose_name="специализация", db_index=True, on_delete=CASCADE)
     name = CharField(verbose_name="профиль", db_index=True, max_length=255, unique=True)
 
     class Meta:
@@ -283,7 +289,7 @@ class Profile(models.Model):
             return self.spec.name + self.name
 
 
-class Semestr(models.Model):
+class Semestr(Model):
     name = CharField(verbose_name="семестр", db_index=True, max_length=255, unique=True)
 
     class Meta:
@@ -294,7 +300,7 @@ class Semestr(models.Model):
             return self.name
 
 
-class Mark(models.Model):
+class Mark(Model):
     name = CharField(verbose_name="оценка", db_index=True, max_length=255, unique=True)
 
     class Meta:
@@ -305,7 +311,7 @@ class Mark(models.Model):
             return self.name
 
 
-class CheckPoint(models.Model):
+class CheckPoint(Model):
     name = CharField(verbose_name="срез", db_index=True, max_length=255, unique=True)
 
     class Meta:
@@ -316,9 +322,11 @@ class CheckPoint(models.Model):
             return self.name
 
 
-class EduPeriod(models.Model):
-    beginyear = ForeignKey(Year, verbose_name="начало учебного года", related_name='eduperiod_beginyear', null=True, on_delete=models.SET_NULL)  # при удалении года в образовательных программах будут очищены ссылки
-    endyear = ForeignKey(Year, verbose_name="конец учебного года", related_name='eduperiod_endyear', null=True, on_delete=models.SET_NULL)  # при удалении года в образовательных программах будут очищены ссылки
+class EduPeriod(Model):
+    begin_year = ForeignKey(Year, verbose_name="начало учебного года", related_name='edu_period_begin_year', null=True,
+                            on_delete=SET_NULL)
+    end_year = ForeignKey(Year, verbose_name="конец учебного года", related_name='edu_period_end_year', null=True,
+                          on_delete=SET_NULL)
     active = BooleanField(verbose_name="статус", db_index=True)
 
     class Meta:
@@ -326,7 +334,7 @@ class EduPeriod(models.Model):
         verbose_name_plural = 'периоды обучения'
 
     def __str__(self):
-            return str(self.beginyear.year) + '-' + str(self.endyear.year)
+            return str(self.begin_year.year) + '-' + str(self.end_year.year)
 
 
 class Student(Person):
@@ -337,10 +345,10 @@ class Student(Person):
         verbose_name_plural = 'студенты'
 
 
-class GroupList(models.Model):
+class GroupList(Model):
     active = BooleanField(verbose_name="статус", db_index=True)
-    group = ForeignKey('Group', verbose_name="группа", db_index=True, on_delete=models.CASCADE)
-    student = ForeignKey('Student', verbose_name="студент", db_index=True, on_delete=models.CASCADE)
+    group = ForeignKey('Group', verbose_name="группа", db_index=True, on_delete=CASCADE)
+    student = ForeignKey('Student', verbose_name="студент", db_index=True, on_delete=CASCADE)
 
     class Meta:
         verbose_name = 'зачисление студента в группу'
@@ -350,10 +358,11 @@ class GroupList(models.Model):
             return self.student.FIO + ' - ' + self.group.Name
 
 
-class Course(models.Model):
-    group = ForeignKey(Group, verbose_name="группа", db_index=True, on_delete=models.CASCADE)
-    discipline_detail = ForeignKey(DisciplineDetails, verbose_name="дисциплина", db_index=True, on_delete=models.CASCADE)  # при удалении варианта дисциплины будут удалены курсы обучения
-    lecturer = ForeignKey(Teacher, verbose_name="преподаватель", db_index=True, blank=True, null=True, on_delete=models.SET_NULL)  # при удалении преподавателя в курсах обучения будут очищены ссылки на него
+class Course(Model):
+    group = ForeignKey(Group, verbose_name="группа", db_index=True, on_delete=CASCADE)
+    discipline_detail = ForeignKey(DisciplineDetails, verbose_name="дисциплина", db_index=True, on_delete=CASCADE)
+    lecturer = ForeignKey(Teacher, verbose_name="преподаватель", db_index=True, blank=True, null=True,
+                          on_delete=SET_NULL)
 
     class Meta:
         verbose_name = 'курс обучения дисциплине'
@@ -363,9 +372,9 @@ class Course(models.Model):
         return self.group.Name + ':' + self.discipline_detail.discipline.Name
 
 
-class CourseMaxPoints(models.Model):
-    course = ForeignKey(Course, verbose_name="курс", db_index=True, on_delete=models.CASCADE)
-    checkpoint = ForeignKey(CheckPoint, verbose_name="срез", db_index=True, on_delete=models.CASCADE)
+class CourseMaxPoints(Model):
+    course = ForeignKey(Course, verbose_name="курс", db_index=True, on_delete=CASCADE)
+    checkpoint = ForeignKey(CheckPoint, verbose_name="срез", db_index=True, on_delete=CASCADE)
     maxpoint = DecimalField(verbose_name="максимальные баллы", max_digits=5, decimal_places=2)
 
     class Meta:
@@ -376,11 +385,11 @@ class CourseMaxPoints(models.Model):
         return self.course.discipline_detail.discipline.Name + '-' + self.checkpoint.name + ': ' + str(self.maxpoint)
 
 
-class BRSpoints(models.Model):
-    student = ForeignKey(Student, db_index=True, on_delete=models.CASCADE)
-    checkpoint = ForeignKey(CheckPoint, db_index=True, on_delete=models.CASCADE)
+class BRSpoints(Model):
+    student = ForeignKey(Student, db_index=True, on_delete=CASCADE)
+    checkpoint = ForeignKey(CheckPoint, db_index=True, on_delete=CASCADE)
     points = FloatField(verbose_name="баллы", db_index=True, max_length=255)
-    course = ForeignKey(Course, db_index=True, on_delete=models.CASCADE)
+    course = ForeignKey(Course, db_index=True, on_delete=CASCADE)
 
     class Meta:
         verbose_name = 'балл БРС'
@@ -393,11 +402,11 @@ class BRSpoints(models.Model):
         return self.student.FIO + ' - ' + self.course.discipline_detail.discipline.Name
 
 
-class Exam(models.Model):
+class Exam(Model):
     examDate = CharField(verbose_name="дата экзамена", db_index=True, max_length=255)
-    course = ForeignKey(Course, db_index=True, on_delete=models.CASCADE)
+    course = ForeignKey(Course, db_index=True, on_delete=CASCADE)
     controlType = IntegerField('форма контроля', choices=Control.CONTROL_FORM)
-    prev_exam = ForeignKey('self', verbose_name="предыдущий экзамен", blank=True, null=True, on_delete=models.SET_NULL)
+    prev_exam = ForeignKey('self', verbose_name="предыдущий экзамен", blank=True, null=True, on_delete=SET_NULL)
 
     class Meta:
         verbose_name = 'контрольное мероприятие для курса обучения дисциплине'
@@ -407,7 +416,7 @@ class Exam(models.Model):
         return self.course.discipline_detail.discipline.Name + '"' + self.examDate + '"'
 
 
-class ExamMarks(models.Model):
+class ExamMarks(Model):
 
     SYMBOL_MARK = (
         ('A', 'A'),
@@ -419,12 +428,12 @@ class ExamMarks(models.Model):
         ('FX', 'FX'),
     )
 
-    exam = ForeignKey(Exam, db_index=True, on_delete=models.CASCADE)
-    student = ForeignKey(Student, db_index=True, on_delete=models.CASCADE)
+    exam = ForeignKey(Exam, db_index=True, on_delete=CASCADE)
+    student = ForeignKey(Student, db_index=True, on_delete=CASCADE)
     inPoints = FloatField(verbose_name="баллы за срез", max_length=255)
     additional_points = FloatField(verbose_name="баллы за отработку", blank=True, null=True, max_length=255)
     examPoints = FloatField(verbose_name="баллы за экзамен", blank=True, null=True, max_length=255)
-    mark = ForeignKey(Mark, db_index=True, on_delete=models.CASCADE)
+    mark = ForeignKey(Mark, db_index=True, on_delete=CASCADE)
     mark_symbol = CharField('буквенный эквивалент оценки', max_length=2, default='')
 
     class Meta:
@@ -435,7 +444,7 @@ class ExamMarks(models.Model):
         return self.student.FIO + ' - ' + self.exam.course.discipline_detail.discipline.Name + ' - ' + self.mark.name
 
 
-class Synch(models.Model):
+class Synch(Model):
     date = DateTimeField()
     finished = BooleanField()
 

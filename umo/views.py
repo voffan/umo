@@ -102,7 +102,7 @@ class StudentListView(PermissionRequiredMixin, ListView):
                     else:
                         g = Group()
                         g.id = sg.id_group
-                    g.beginyear = Year.objects.get_or_create(year=eduprogyear.year)[0]
+                    g.begin_year = Year.objects.get_or_create(year=eduprogyear.year)[0]
                     g.Name = sg.name
                     g.program = EduProg.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code, year__year__lte=eduprogyear.year).order_by('-year__year').first()
                     g.save()

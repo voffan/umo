@@ -164,7 +164,7 @@ def discipline_scores_to_excel(course_id):
     ws.cell(row=1, column=1).value = 'ФГАОУ ВО «Северо-Восточный федеральный университет им.М.К.Аммосова'
     ws.cell(row=2, column=1).value = 'Институт математики и информатики'
     ws.cell(row=4, column=1).value = 'Контрольный лист текущей и промежуточной аттестации'
-    ws.cell(row=5, column=1).value = str(edu_period.beginyear) + '-' + str(edu_period.endyear) + ' учебный год'
+    ws.cell(row=5, column=1).value = str(edu_period.begin_year) + '-' + str(edu_period.end_year) + ' учебный год'
     ws.cell(row=6, column=2).value = 'Семестр'
     ws.cell(row=6, column=3).value = semester.name
     ws.cell(row=7, column=2).value = 'Курс'

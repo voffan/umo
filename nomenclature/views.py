@@ -62,7 +62,7 @@ def select_semestr(request):
 def nomenclature_discipline(request):
     courses = Course.objects.select_related('discipline_detail', 'lecturer', 'group').all().order_by('discipline_detail__semestr')
     teachers = Teacher.objects.all().order_by('FIO')
-    control = Control.objects.all().order_by('controltype')
+    control = Control.objects.all().order_by('control_type')
 
     return render(request, 'nomenclature_disciplines.html', {'courses':courses, 'teachers':teachers, 'controls':control})
 
