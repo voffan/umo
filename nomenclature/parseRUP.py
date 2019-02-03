@@ -1,6 +1,6 @@
 from django.db import transaction
-from umo.models import EduOrg, Kafedra, EduProg, Specialization, Discipline, \
-    DisciplineDetails, Profile, Year, Semestr, Teacher, Control, Position
+from umo.models import EduOrg, Kafedra, EduProgram, Specialization, Discipline, \
+    DisciplineDetails, Profile, Year, Semester, Teacher, Control, Position
 from umo.objgens import check_edu_org
 import xml.etree.ElementTree as ET
 import re
@@ -74,7 +74,7 @@ def parseRUP(filename):
     })
     profile, created = Profile.objects.get_or_create(name=profile_name, defaults={'spec':sp})
 
-    edu_prog, created = EduProg.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year)
+    edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year)
 
     for elem in root[0][1]:
         disname = elem.get('Дис')
@@ -93,15 +93,15 @@ def parseRUP(filename):
             if total_h < 1:
                 continue
 
-            #semestr_nom = '1'
-            semestr_nom = details.get('Ном','1')
+            #semester_nom = '1'
+            semester_nom = details.get('Ном','1')
             zet = details.get('ЗЕТ','1')
             z = details.get('Зач', None)
             exam = details.get('Экз', None)
             zO = details.get('ЗачО', None)
             CW = details.get('КР', None)
 
-            smstr, created = Semestr.objects.get_or_create(name=semestr_nom)
+            semester, created = Semester.objects.get_or_create(name=semester_nom)
             defaults={'Credit':int(zet),
                                                                   'Lecture' : data['101'],
                                                                   'Practice' : data['103'],
@@ -109,7 +109,7 @@ def parseRUP(filename):
                                                                   'KSR' : data['106'],
                                                                   'SRS' : data['107']}
             d, created = DisciplineDetails.objects.get_or_create(discipline=dis,
-                                                        semestr=smstr,
+                                                        semester=semester,
                                                         defaults=defaults)
             if z is not None:
                 c, created = Control.objects.update_or_create(discipline_detail=d, controltype=2, defaults={'control_hours': data['108']})

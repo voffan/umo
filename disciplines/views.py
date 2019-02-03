@@ -10,7 +10,7 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required, login_required
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semestr, Teacher, Person, BRSpoints, Course, GroupList
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semester, Teacher, Person, BRSpoints, Course, GroupList
 from umo.objgens import get_check_points, add_brs
 from disciplines.view_excel import discipline_scores_to_excel
 
@@ -107,7 +107,7 @@ class DetailsCreate(PermissionRequiredMixin, CreateView):
         'Lab',
         'KSR',
         'SRS',
-        'semestr',
+        'semester',
     ]
 
 
@@ -124,17 +124,17 @@ class DisciplineDetailsUpdate(PermissionRequiredMixin, UpdateView):
         'Lab',
         'KSR',
         'SRS',
-        'semestr',
+        'semester',
     ]
 
 
 def get_data_for_ekran(request):
     group_id = request.GET.get('group', '')
-    semestr_id = request.GET.get('semestr', '')
+    semester_id = request.GET.get('semester', '')
     group = get_object_or_404(Group, pk=group_id)
-    semestr = get_object_or_404(Semestr, pk=semestr_id)
+    semester = get_object_or_404(Semester, pk=semester_id)
     grouplist = group.grouplist_set.select_related('student').filter(active=True)
-    subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
+    subjects = group.program.discipline_set.filter(disciplinedetails__semester__name=semester)
     result={'data':[]}
     for s in grouplist:
         m = [s.student.FIO]
@@ -150,12 +150,12 @@ def get_data_for_ekran(request):
 
 def subjects(request):
     group_id = request.GET.get('group', '')
-    semestr_id = request.GET.get('semestr', '')
+    semester_id = request.GET.get('semester', '')
     result = {'data':[]}
-    if len(group_id) > 0 and len(semestr_id) > 0:
+    if len(group_id) > 0 and len(semester_id) > 0:
         group = get_object_or_404(Group, pk=group_id)
-        semestr = get_object_or_404(Semestr, pk=semestr_id)
-        subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
+        semester = get_object_or_404(Semester, pk=semester_id)
+        subjects = group.program.discipline_set.filter(disciplinedetails__semester__name=semester)
 
         for s in subjects:
             result['data'].append(s.Name)
@@ -261,20 +261,20 @@ def export_to_excel(request):
 
     # данные для строк
     group_id = request.GET['dropdown1']
-    semestr = request.GET['dropdown2']
+    semester = request.GET['dropdown2']
     group = Group.objects.get(pk=group_id)
     students = group.grouplist_set.all().order_by('student__FIO')
-    subjects = group.program.discipline_set.filter(disciplinedetails__semestr__name=semestr)
+    subjects = group.program.discipline_set.filter(disciplinedetails__semester__name=semester)
     _row = 3
     _column = 3
     i = 1
     z = 0
     x = 0
-    ws.cell(row=1, column=2).value = group.Name + ' cеместр ' + semestr
+    ws.cell(row=1, column=2).value = group.Name + ' cеместр ' + semester
     ws.cell(row=2, column=2).value = 'Всего часов/ЗЕТ'
     for s in subjects:
         ws.cell(row=1, column=_column).value = s.Name
-        details = s.disciplinedetails_set.filter(semestr__name=semestr)
+        details = s.disciplinedetails_set.filter(semester__name=semester)
         for k in details:
             ws.cell(row=2, column=_column).value = str(k.total_hours)
         _column += 1
@@ -409,10 +409,10 @@ def export_to_excel(request):
 @permission_required('umo.add_discipline', login_url='login')
 def excel(request):
     groupname = Group.objects.all().order_by('Name')
-    semestrname = Semestr.objects.all().order_by('-name')
+    semester_name = Semester.objects.all().order_by('-name')
     subjects = Discipline.objects.all().order_by('Name')
 
-    return render(request, 'export_to_excel.html', {'groupname': groupname, 'semestrname': semestrname, 'subjects': subjects})
+    return render(request, 'export_to_excel.html', {'groupname': groupname, 'semester_name': semester_name, 'subjects': subjects})
 
 
 class StudentsScoresView(PermissionRequiredMixin, ListView):
@@ -422,7 +422,7 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
-        edu_begin_year = datetime.today().year - int(course.discipline_detail.semestr.name) // 2
+        edu_begin_year = datetime.today().year - int(course.discipline_detail.semester.name) // 2
         students = GroupList.objects.select_related('student').filter(group__program__id=course.discipline_detail.discipline.program.id, group__beginyear__year=edu_begin_year).values_list('student__id', flat=True)
         return BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=students).select_related('student', 'checkpoint')
 
@@ -430,7 +430,7 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
         course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
-        #beginyear = datetime.today().year - int(course.discipline_detail.semestr.name) // 2
+        #beginyear = datetime.today().year - int(course.discipline_detail.semester.name) // 2
         group_students = course.group.grouplist_set.select_related('student', 'group').all()
         #GroupList.objects.select_related('student', 'group').filter(group__beginyear__year=beginyear, group__program__id=course.discipline_detail.discipline.program.id)
         checkpoints = get_check_points()

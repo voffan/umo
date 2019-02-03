@@ -115,7 +115,7 @@ $(document).ready( function () {
         "paging": false,
         initComplete: function () {
             var column1 = this.api().column(2);
-            var select1 = $('<select class="filter" name="selected_semestr"></select>')
+            var select1 = $('<select class="filter" name="selected_semester"></select>')
                .appendTo('#brs_list_filter1')
                .on('change', function () {
                   var val = $(this).val();

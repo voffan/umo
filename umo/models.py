@@ -69,7 +69,7 @@ class Kafedra(Model):
         return str(self.number) + '-' + self.name
 
 
-class EduProg(Model):
+class EduProgram(Model):
     specialization = ForeignKey('Specialization', verbose_name="специализация", db_index=True, on_delete=CASCADE)
     profile = ForeignKey('Profile', verbose_name="профиль", db_index=True, on_delete=CASCADE)
     year = ForeignKey('Year', verbose_name="год", db_index=True, null=True, on_delete=SET_NULL)
@@ -88,7 +88,8 @@ class Group(Model):
     begin_year = ForeignKey('Year', verbose_name="год начала обучения", db_index=True, blank=True, null=True,
                             on_delete=SET_NULL)
     cathedra = ForeignKey('Kafedra', verbose_name="кафедра", db_index=True, blank=True, null=True, on_delete=SET_NULL)
-    program = ForeignKey('EduProg', verbose_name="программа", db_index=True, blank=True, null=True, on_delete=SET_NULL)
+    program = ForeignKey('EduProgram', verbose_name="программа", db_index=True, blank=True, null=True,
+                         on_delete=SET_NULL)
 
     class Meta:
         verbose_name = 'студенческая группа'
@@ -106,8 +107,8 @@ class Group(Model):
 
     def get_semesters(self, edu_period):
         try:
-            autumn_semester = Semestr.objects.get(name=str((edu_period.beginyear.year - self.begin_year.year) * 2 + 1))
-            spring_semester = Semestr.objects.get(name=str((edu_period.beginyear.year - self.begin_year.year) * 2 + 2))
+            autumn_semester = Semester.objects.get(name=str((edu_period.beginyear.year - self.begin_year.year) * 2 + 1))
+            spring_semester = Semester.objects.get(name=str((edu_period.beginyear.year - self.begin_year.year) * 2 + 2))
         except Exception:
             raise Exception('Система не настроена!! Нет соответствущих учебному году семестров!!')
         return autumn_semester.id, spring_semester.id
@@ -129,7 +130,7 @@ class Group(Model):
                 raise Exception('Система не настроена! Вы не определили активный учебный год или их несколько!!!')
         semesters = self.get_semesters(edu_period)
         disciplines_details = DisciplineDetails.objects.filter(discipline__program__id=self.program.id,
-                                                               semestr__id__in=semesters)
+                                                               semester__id__in=semesters)
         with transaction.atomic():
             for discipline_detail in disciplines_details:
                 self.add_discipline(discipline_detail)
@@ -181,7 +182,7 @@ class Specialization(Model):
 class Discipline(Model):
     Name = CharField(verbose_name="название дисциплины", max_length=200, db_index=True)
     code = CharField(verbose_name="код дисциплины", max_length=200, db_index=True)
-    program = ForeignKey('EduProg', verbose_name="программа образования", db_index=True, on_delete=CASCADE)
+    program = ForeignKey('EduProgram', verbose_name="программа образования", db_index=True, on_delete=CASCADE)
 
     class Meta:
         verbose_name = 'дисциплина'
@@ -199,13 +200,12 @@ class DisciplineDetails(Model):
     Lab = IntegerField(verbose_name="количество лабораторных работ", db_index=True, blank=True, null=True)
     KSR = IntegerField(verbose_name="количество контрольно-самостоятельных работ", db_index=True, blank=True, null=True)
     SRS = IntegerField(verbose_name="количество срс", db_index=True, blank=True, null=True)
-    semestr = ForeignKey('Semestr', verbose_name="семестр", db_index=True, on_delete=models.CASCADE)
-    semester = ForeignKey('Semestr', verbose_name="семестр", db_index=True, on_delete=models.CASCADE, related_name='new')
+    semester = ForeignKey('Semester', verbose_name="семестр", db_index=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'вариант дисциплины'
         verbose_name_plural = 'вариант дисциплины'
-        unique_together = (('discipline', 'semestr'),)
+        unique_together = (('discipline', 'semester'),)
 
     def __str__(self):
             return self.discipline.Name + ' - ' + self.semester.name + ' семестр'
@@ -289,7 +289,7 @@ class Profile(Model):
             return self.spec.name + self.name
 
 
-class Semestr(Model):
+class Semester(Model):
     name = CharField(verbose_name="семестр", db_index=True, max_length=255, unique=True)
 
     class Meta:
@@ -375,14 +375,14 @@ class Course(Model):
 class CourseMaxPoints(Model):
     course = ForeignKey(Course, verbose_name="курс", db_index=True, on_delete=CASCADE)
     checkpoint = ForeignKey(CheckPoint, verbose_name="срез", db_index=True, on_delete=CASCADE)
-    maxpoint = DecimalField(verbose_name="максимальные баллы", max_digits=5, decimal_places=2)
+    max_point = DecimalField(verbose_name="максимальные баллы", max_digits=5, decimal_places=2)
 
     class Meta:
         verbose_name = 'максимальный балл за контрольный срез по дисципине'
         verbose_name_plural = 'максимальные баллы за контрольный срез по дисциплинам'
 
     def __str__(self):
-        return self.course.discipline_detail.discipline.Name + '-' + self.checkpoint.name + ': ' + str(self.maxpoint)
+        return self.course.discipline_detail.discipline.Name + '-' + self.checkpoint.name + ': ' + str(self.max_point)
 
 
 class BRSpoints(Model):

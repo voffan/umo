@@ -17,8 +17,8 @@
             <div class="form-group">
             <label for="dropdown2">Семестр:</label>
             <select name="dropdown2" id="dropdown2" class="form-control">
-                {% for semestrname in semestrname %}
-                    <option value="{{ semestrname.name }}">{{ semestrname.name}}</option>
+                {% for semestername in semestername %}
+                    <option value="{{ semestername.name }}">{{ semestername.name}}</option>
                 {% endfor %}
             </select>
             </div>
@@ -62,7 +62,7 @@
                   "url":"{% url 'disciplines:dataforekran' %}",
                   "dataType":"json",
                   "type":"GET",
-                  "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()}
+                  "data":{"group": $("#dropdown1").val(),"semester": $("#dropdown2").val()}
               },
         } );
     }
@@ -80,7 +80,7 @@
         $.ajax({
             "url":"{% url 'disciplines:subjects' %}",
             "method":"GET",
-            "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()},
+            "data":{"group": $("#dropdown1").val(),"semester": $("#dropdown2").val()},
             "success":ReloadTable,
         });
     });
@@ -89,7 +89,7 @@
         $.ajax({
             "url":"{% url 'disciplines:subjects' %}",
             "method":"GET",
-            "data":{"group": $("#dropdown1").val(),"semestr": $("#dropdown2").val()},
+            "data":{"group": $("#dropdown1").val(),"semester": $("#dropdown2").val()},
             "success":ReloadTable,
         });
     });

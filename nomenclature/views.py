@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.views.generic import ListView
 
-from umo.models import Discipline, DisciplineDetails, Semestr, Teacher, Specialization, Profile, Control, EduProg, Course, Group
+from umo.models import Discipline, DisciplineDetails, Semester, Teacher, Specialization, Profile, Control, EduProgram, Course, Group
 from .form import UploadFileForm
 from .parseRUP import parseRUP
 
@@ -27,40 +27,40 @@ def subjects_save(request):
         subj.lecturer = Teacher.objects.get(pk=teachers[i])
         subj.save()
 
-    return redirect('nomenclatures:select_semestr')
+    return redirect('nomenclatures:select_semester')
 
 
 @permission_required('umo.add_discipline', login_url='/auth/login')
 def vuborka(request):
     try:
-        semestr_id = request.GET['semestr']
+        semester_id = request.GET['semester']
         specialization_id = request.GET['specialization']
         profile_id = request.GET['profile']
     except:
-        return redirect('nomenclatures:select_semestr')
+        return redirect('nomenclatures:select_semester')
 
-    semestr = Semestr.objects.get(pk=semestr_id)
+    semester = Semester.objects.get(pk=semester_id)
     specialization = Specialization.objects.get(pk=specialization_id)
     profile = Profile.objects.get(pk=profile_id)
 
-    disc_filtered = DisciplineDetails.objects.filter(semestr=semestr, subject__program__specialization=specialization, subject__program__profile=profile)
+    disc_filtered = DisciplineDetails.objects.filter(semester=semester, subject__program__specialization=specialization, subject__program__profile=profile)
     teachers = Teacher.objects.all()
-    disc_filtered  = DisciplineDetails.objects.filter(semestr=semestr, subject__program__specialization=specialization, subject__program__profile=profile)
+    disc_filtered  = DisciplineDetails.objects.filter(semester=semester, subject__program__specialization=specialization, subject__program__profile=profile)
     teachers = Teacher.objects.all().order_by('FIO')
 
     return render(request, 'select_teacher.html', {'disciplines': disc_filtered, 'teachers':teachers})
 
 
 @permission_required('umo.add_discipline', login_url='/auth/login')
-def select_semestr(request):
-    semestr_list = Semestr.objects.all().order_by('name')
+def select_semester(request):
+    semester_list = Semester.objects.all().order_by('name')
     specialization_list = Specialization.objects.all().order_by('name')
     profile_list = Profile.objects.all().order_by('name')
-    return render(request, 'select_semestr.html', {'semestrs':semestr_list, 'specializations':specialization_list, 'profiles':profile_list})
+    return render(request, 'select_semester.html', {'semesters':semester_list, 'specializations':specialization_list, 'profiles':profile_list})
 
 
 def nomenclature_discipline(request):
-    courses = Course.objects.select_related('discipline_detail', 'lecturer', 'group').all().order_by('discipline_detail__semestr')
+    courses = Course.objects.select_related('discipline_detail', 'lecturer', 'group').all().order_by('discipline_detail__semester')
     teachers = Teacher.objects.all().order_by('FIO')
     control = Control.objects.all().order_by('control_type')
 
@@ -94,7 +94,7 @@ def hadle_uploaded_file(filename, file):
 
 class EduProgListView(PermissionRequiredMixin, ListView):
     permission_required = 'umo.add_eduprog'
-    model = EduProg
+    model = EduProgram
     template_name = "eduprog_list.html"
 
     def get_context_data(self, **kwargs):

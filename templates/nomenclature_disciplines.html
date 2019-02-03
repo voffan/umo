@@ -27,11 +27,11 @@
                 <td></td>
                 <td> {{ course.discipline_detail.discipline.program.specialization.name }} </td>
                 <td>
-                    {% if course.discipline_detail.semestr.name == '1' or course.discipline_detail.semestr.name == '2' %}
+                    {% if course.discipline_detail.semester.name == '1' or course.discipline_detail.semester.name == '2' %}
                         1
-                     {% elif course.discipline_detail.semestr.name == '3' or course.discipline_detail.semestr.name == '4' %}
+                     {% elif course.discipline_detail.semester.name == '3' or course.discipline_detail.semester.name == '4' %}
                         2
-                     {% elif course.discipline_detail.semestr.name == '5' or course.discipline_detail.semestr.name == '6' %}
+                     {% elif course.discipline_detail.semester.name == '5' or course.discipline_detail.semester.name == '6' %}
                         3
                      {% else %}
                         4
@@ -39,7 +39,7 @@
                 </td>
                 <td> {{ course.group.Name }} </td>
                 <td> {{ course.discipline_detail.discipline.Name }} </td>
-                <td> {{ course.discipline_detail.semestr }} </td>
+                <td> {{ course.discipline_detail.semester }} </td>
                 <td>
                     {% if course.discipline_detail.Lecture %}
                         {{ course.discipline_detail.Lecture }}

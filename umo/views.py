@@ -12,7 +12,7 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
 import synch.models as sync_models
-from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProg, Student, Discipline, CheckPoint, Control,
+from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
                         DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam)
 
 
@@ -104,7 +104,7 @@ class StudentListView(PermissionRequiredMixin, ListView):
                         g.id = sg.id_group
                     g.begin_year = Year.objects.get_or_create(year=eduprogyear.year)[0]
                     g.Name = sg.name
-                    g.program = EduProg.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code, year__year__lte=eduprogyear.year).order_by('-year__year').first()
+                    g.program = EduProgram.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code, year__year__lte=eduprogyear.year).order_by('-year__year').first()
                     g.save()
 
                     synch_people = sync_models.PeoplePln.objects.filter(id_group=sg.id_group)
@@ -294,7 +294,7 @@ class BRSPointsListView(ListView):
         discipline_details = DisciplineDetails.objects.filter(subject=discipline)
         semester = []
         for d in discipline_details:
-            semester.append(d.semestr)
+            semester.append(d.semester)
         context['semester'] = semester
         grouplist = GroupList.objects.filter(group__program=discipline.program).filter(active=True)
         context['grouplist'] = grouplist
@@ -302,7 +302,7 @@ class BRSPointsListView(ListView):
         for s in semester:
             dict[s.name] = {}
             dict[s.name]['key'] = s.name
-            control = Control.objects.filter(discipline_detail__subject__id=discipline.id, discipline_detail__semestr=s).first()
+            control = Control.objects.filter(discipline_detail__subject__id=discipline.id, discipline_detail__semester=s).first()
             for gl in grouplist:
                 dict[s.name][str(gl.id)] = {}
                 dict[s.name][str(gl.id)]['key'] = gl.id
@@ -326,7 +326,7 @@ class BRSPointsListView(ListView):
                         newBRSpoints.save()
                     dict[s.name][str(gl.id)][str(i)] = newBRSpoints
 
-                newExamMarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id, exam__semestr=s).filter(student = gl.student).first()
+                newExamMarks = ExamMarks.objects.filter(exam__discipline__id = discipline.id, exam__semester=s).filter(student = gl.student).first()
                 if (newExamMarks is None):
                     # newMarkSymbol = MarkSymbol.objects.filter(name='F').first()
                     # if (newMarkSymbol is None):
@@ -336,14 +336,14 @@ class BRSPointsListView(ListView):
                     if (newMark is None):
                         newMark = Mark.objects.create(name='неуд')
 
-                    newExam = Exam.objects.filter(discipline__id = discipline.id, semestr=s).first()
+                    newExam = Exam.objects.filter(discipline__id = discipline.id, semester=s).first()
                     if (newExam is None):
                         newExam = Exam()
                         newExam.controlType = control.controltype
                         newExam.course = discipline
                         newExam.eduperiod = EduPeriod.objects.all().first()
                         newExam.examDate = 'не проставлена'
-                        newExam.semestr = s
+                        newExam.semester = s
                         newExam.save()
 
                     newExamMarks = ExamMarks()
@@ -372,12 +372,12 @@ class BRSPointsListView(ListView):
             arr_size = len(studid)
             checkpoint = CheckPoint.objects.all()
             discipline = Discipline.objects.get(id=self.kwargs['pk'])
-            exam = Exam.objects.get(discipline__id=self.kwargs['pk'], semestr__id=semester[0])
+            exam = Exam.objects.get(discipline__id=self.kwargs['pk'], semester__id=semester[0])
             for i in range(0, arr_size):
                 st = Student.objects.get(id=studid[i])
                 k = 0
 
-                exammarks = ExamMarks.objects.filter(exam__discipline__id=discipline.id, exam__semestr__id=semester[i]).get(student=st)
+                exammarks = ExamMarks.objects.filter(exam__discipline__id=discipline.id, exam__semester__id=semester[i]).get(student=st)
                 exammarks.examPoints = float(points[4][i].replace(',', '.'))
                 exammarks.inPoints = float(points[3][i].replace(',', '.'))
 
@@ -526,7 +526,7 @@ class BRSPointsListView(ListView):
             inpoints = request.POST.getlist('points4')
             exampoints = request.POST.getlist('points6')
             semester = request.POST.getlist('semester')
-            exam = Exam.objects.get(discipline__id=disc_id, semestr_id=semester[0])
+            exam = Exam.objects.get(discipline__id=disc_id, semester_id=semester[0])
             arr_size = len(studid)
 
             _row = 12
@@ -576,7 +576,7 @@ class BRSPointsListView(ListView):
             ws.cell(row=2, column=1).value = 'Институт математики и информатики'
             ws.cell(row=3, column=1).value = 'Ведомость текущей и промежуточной аттестации'
             ws.cell(row=5, column=1).value = 'Семестр: ' + str(
-                exam.semestr.name) + ', ' + exam.eduperiod.beginyear + '-' + exam.eduperiod.endyear + ' уч.г.'
+                exam.semester.name) + ', ' + exam.eduperiod.beginyear + '-' + exam.eduperiod.endyear + ' уч.г.'
             ws.cell(row=6, column=1).value = 'Форма контроля:'
             ws.cell(row=6, column=3).value = exam.controlType.name
             ws.cell(row=6, column=5).value = 'курс '+str(year)

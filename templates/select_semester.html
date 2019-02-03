@@ -8,10 +8,10 @@
         <div class="col-md-4 offset-md-4">
             <br>
             <div class="form-group">
-            <label for="semestr" >Семестр:</label>
-            <select name="semestr" id="semestr" class="form-control">
-                {% for semestr in semestrs %}
-                    <option value="{{ semestr.id }}">{{ semestr.name}}</option>
+            <label for="semester" >Семестр:</label>
+            <select name="semester" id="semester" class="form-control">
+                {% for semester in semesters %}
+                    <option value="{{ semester.id }}">{{ semester.name}}</option>
                 {% endfor %}
             </select>
             </div>

@@ -125,7 +125,7 @@ def discipline_scores_to_excel(course_id):
 
     # данные для строк
     course = Course.objects.select_related('group','discipline_detail','lecturer').get(pk=course_id)
-    semester = course.discipline_detail.semestr
+    semester = course.discipline_detail.semester
     group = course.group
     checkpoints = course.coursemaxpoints_set.all()
     if not course or not semester or not group or not checkpoints:
