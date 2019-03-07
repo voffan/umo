@@ -11,7 +11,7 @@ class Person(Model):
     last_name = CharField(verbose_name="фамилия", max_length=50, default='')
     first_name = CharField(verbose_name="имя", max_length=50, default='')
     second_name = CharField(verbose_name="отчество", max_length=50, default='')
-    maiden_name = CharField(verbose_name="девичья фамилия", max_length=50, default='')
+    maiden_name = CharField(verbose_name="девичья фамилия", max_length=50, default='', blank=True)
     user = ForeignKey(User, verbose_name="пользователь", db_index=True, blank=True, null=True, on_delete=SET_NULL)
 
     class Meta:
