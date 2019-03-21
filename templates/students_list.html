@@ -16,10 +16,10 @@
             {% for i in student_list %}
             <tr>
                 <td> </td>
-                <td> <a href="{% url 'student_edit' i.id %}"> {{ i.student.FIO }} </a> </td>
+                <td> <a href="{% url 'students:student_edit' i.id %}"> {{ i.student.FIO }} </a> </td>
                 <td> {{ i.group.Name }} </td>
                 <td>
-                    <form action="delete/" method="post">
+                    <form action="{% url 'students:student_delete' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="item_id" value="{{ i.student.person_ptr.id }}" />
                         <p align="center"><input type="submit" value="Удалить" class="btn btn-danger"></p>
@@ -33,7 +33,7 @@
     <form method="post">
         {% csrf_token %}
         <p><button type="submit" class="btn btn-success" name="synch" value="synch">Синхронизация</button>
-        <a href="{% url 'student_add' %}" class="btn btn-success">Добавить нового студента</a></p>
+        <a href="{% url 'students:student_add' %}" class="btn btn-success">Добавить нового студента</a></p>
         <p>Дата последней синхронизации: {{ date }}</p>
     </form>
 {% endblock %}

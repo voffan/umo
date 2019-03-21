@@ -33,9 +33,9 @@
                           {% if user|has_group:"office" or user|has_group:"zavkaf" %}
                           <a class="dropdown-item" href="{% url 'teachers:list_teachers' %}">Список преподавателей</a>
                           {% if user|has_group:"zavkaf" %}
-                          <a class="dropdown-item" href="{% url 'student_list' %}">Список студентов</a>
+                          <a class="dropdown-item" href="{% url 'students:student_list' %}">Список студентов</a>
                           {% else %}
-                          <a class="dropdown-item" href="{% url 'student_changelist' %}">Список студентов</a>
+                          <a class="dropdown-item" href="{% url 'students:student_changelist' %}">Список студентов</a>
                           {% endif %}
                           <a class="dropdown-item" href="{% url 'disciplines:disciplines_list' %}">Список дисциплин</a>
                           <a class="dropdown-item" href="{% url 'disciplines:excel' %}">Экран успеваемости</a>

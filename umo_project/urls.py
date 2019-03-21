@@ -9,12 +9,8 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^auth/', include('loginsys.urls')),
     url(r'^teacher/', include(('umo.urls', 'umo'), namespace='teachers')),
-    url(r'^student_list/$', views.StudentsList.as_view(), name='student_list'),
-    url(r'^student/$', views.StudentListView.as_view(), name='student_changelist'),
-    url(r'^student/add/$', views.StudentCreateView.as_view(), name='student_add'),
-    url(r'^student/delete/$', views.student_delete, name = 'student_delete'),
-    url(r'^student/(?P<pk>[0-9]+)/$', views.StudentUpdateView.as_view(), name = 'student_edit'),
     url(r'^disciplines/', include(('disciplines.urls', 'disciplines'), namespace='disciplines')),
     url(r'^nomenclature/', include(('nomenclature.urls', 'nomenclature'), namespace='nomenclatures')),
+    url(r'^student/', include(('students.urls', 'students'), namespace='students')),
     url(r'^brspoints/(?P<pk>[0-9]+)/$', views.BRSPointsListView.as_view(), name='brs_studentlist'),
 ]
