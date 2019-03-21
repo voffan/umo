@@ -200,7 +200,7 @@ class DisciplineDetails(Model):
     Lab = IntegerField(verbose_name="количество лабораторных работ", db_index=True, blank=True, null=True)
     KSR = IntegerField(verbose_name="количество контрольно-самостоятельных работ", db_index=True, blank=True, null=True)
     SRS = IntegerField(verbose_name="количество срс", db_index=True, blank=True, null=True)
-    semester = ForeignKey('Semester', verbose_name="семестр", db_index=True, on_delete=models.CASCADE)
+    semester = ForeignKey('Semester', verbose_name="семестр", db_index=True, null=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'вариант дисциплины'
@@ -214,14 +214,14 @@ class DisciplineDetails(Model):
     def total_hours(self):
         exam_hours = 0
         for control in self.control_set:
-            if control.controltype == Control.EXAM:
+            if control.control_type == Control.EXAM:
                 exam_hours = 36
                 break
         return self.Lecture + self.Practice + self.Lab + self.KSR + self.SRS + exam_hours
 
     @property
     def controls(self):
-        return ', '.join(list(self.control_set.all().values_list('control_type__name', flat=True)))
+        return ', '.join(map(lambda x: Control.CONTROL_FORM[x][1], list(self.control_set.all().values_list('control_type', flat=True))))
 
 
 class Control(Model):
@@ -375,7 +375,7 @@ class Course(Model):
 class CourseMaxPoints(Model):
     course = ForeignKey(Course, verbose_name="курс", db_index=True, on_delete=CASCADE)
     checkpoint = ForeignKey(CheckPoint, verbose_name="срез", db_index=True, on_delete=CASCADE)
-    max_point = DecimalField(verbose_name="максимальные баллы", max_digits=5, decimal_places=2)
+    max_point = DecimalField(verbose_name="максимальные баллы", default=100, max_digits=5, decimal_places=2)
 
     class Meta:
         verbose_name = 'максимальный балл за контрольный срез по дисципине'

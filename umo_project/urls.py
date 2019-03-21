@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^auth/', include('loginsys.urls')),
     url(r'^teacher/', include(('umo.urls', 'umo'), namespace='teachers')),
+    url(r'^student_list/$', views.StudentsList.as_view(), name='student_list'),
     url(r'^student/$', views.StudentListView.as_view(), name='student_changelist'),
     url(r'^student/add/$', views.StudentCreateView.as_view(), name='student_add'),
     url(r'^student/delete/$', views.student_delete, name = 'student_delete'),

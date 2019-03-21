@@ -93,7 +93,7 @@ def hadle_uploaded_file(filename, file):
 
 
 class EduProgListView(PermissionRequiredMixin, ListView):
-    permission_required = 'umo.add_eduprog'
+    permission_required = 'umo.add_eduprogram'
     model = EduProgram
     template_name = "eduprog_list.html"
 
@@ -108,4 +108,4 @@ class EduProgListView(PermissionRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Teacher.objects.get(user=self.request.user).cathedra.eduprog_set.all()
+        return Teacher.objects.get(user=self.request.user).cathedra.eduprogram_set.all()

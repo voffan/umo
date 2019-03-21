@@ -141,7 +141,7 @@ def discipline_scores_to_excel(course_id):
     for gl in group.grouplist_set.select_related('student', 'group').filter(active=True).order_by('student__FIO'):
         ws.cell(row=_row, column=1).value = str(k)
         ws.cell(row=_row, column=2).value = gl.student.FIO
-        ws.cell(row=_row, column=3).value = gl.student.StudentID
+        ws.cell(row=_row, column=3).value = gl.student.student_id
         totalpoints = 0
         _column = 4
         for points in gl.student.brspoints_set.filter(course__id=course_id):
@@ -185,8 +185,8 @@ def discipline_scores_to_excel(course_id):
     ws.cell(row=11, column=9).value = 'Оценка прописью'
     ws.cell(row=11, column=10).value = 'Буквенный эквивалент'
     ws.cell(row=11, column=11).value = 'Подпись преподавателя'
-    ws.cell(row=12, column=4).value = '1 контр. срез (max=' + str(int(checkpoints.get(checkpoint__id=4).maxpoint)) + ')'
-    ws.cell(row=12, column=5).value = '2 контр. срез (max=' + str(int(checkpoints.get(checkpoint__id=5).maxpoint)) + ')'
+    ws.cell(row=12, column=4).value = '1 контр. срез (max=' + str(int(checkpoints.get(checkpoint__id=4).max_point)) + ')'
+    ws.cell(row=12, column=5).value = '2 контр. срез (max=' + str(int(checkpoints.get(checkpoint__id=5).max_point)) + ')'
 
 
     # объединение ячеек

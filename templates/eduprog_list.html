@@ -2,6 +2,25 @@
 {% load extra_tags %}
 {% block title %}Список студентов{% endblock %}
 {% block content %}
+<div class="modal" id="AddGroups" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Выберете группы!</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+			</div>
+			<div class="modal-body">
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" id="SetGroups">Сохранить</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <h1>Список рабочих учебных планов</h1>
 <div class="container">
     <div class="row">
@@ -25,7 +44,7 @@
                     <td>{{ prog.year }}</td>
                     <td></td>
                     <td>{{ groups|get_list:prog }}</td>
-                    <td><button class="btn btn-primary">Добавить группу</button></td>
+                    <td><button class="btn btn-primary" id="add_groups">Добавить группу</button></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -64,5 +83,9 @@ $(document).ready(function(){
             cell.innerHTML = i+1;
         } );
     } ).draw();
+});
+$('#add_groups').on('click', function(e){
+    e.preventDefault();
+    $('#AddGroups').modal('show');
 });
 {% endblock %}

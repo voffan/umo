@@ -423,7 +423,7 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
     def get_queryset(self):
         course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
         edu_begin_year = datetime.today().year - int(course.discipline_detail.semester.name) // 2
-        students = GroupList.objects.select_related('student').filter(group__program__id=course.discipline_detail.discipline.program.id, group__beginyear__year=edu_begin_year).values_list('student__id', flat=True)
+        students = GroupList.objects.select_related('student').filter(group__program__id=course.discipline_detail.discipline.program.id, group__begin_year__year=edu_begin_year).values_list('student__id', flat=True)
         return BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=students).select_related('student', 'checkpoint')
 
     def get_context_data(self, **kwargs):
@@ -444,7 +444,7 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
                 context['points'][item.student.id] = {}
             context['points'][item.student.id][item.checkpoint.id] = item.points
         for mpoint in course.coursemaxpoints_set.all():
-            context['maxpoints'][mpoint.checkpoint.id] = mpoint.maxpoint
+            context['maxpoints'][mpoint.checkpoint.id] = mpoint.max_point
         context['checkpoints'] = checkpoints
         context['group_list'] = group_students
         context['discipline'] = course

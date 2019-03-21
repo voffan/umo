@@ -58,8 +58,8 @@ def list_teachers(request):
     return render(request, 'teachers_list.html', {'teachers': all})
 
 
-class StudentListView(PermissionRequiredMixin, ListView):
-    permission_required = 'umo.add_student'
+class StudentsList(PermissionRequiredMixin, ListView):
+    permission_required = 'umo.view_student'
     model = GroupList
     context_object_name = 'student_list'
     success_url = reverse_lazy('student_changelist')
@@ -69,13 +69,17 @@ class StudentListView(PermissionRequiredMixin, ListView):
         return GroupList.objects.filter(active=True)
 
     def get_context_data(self, **kwargs):
-        context = super(StudentListView, self).get_context_data(**kwargs)
+        context = super(StudentsList, self).get_context_data(**kwargs)
         synch = Synch.objects.last()
         if synch is not None:
             context['date'] = str(synch.date)
         else:
             context['date'] = 'нет'
         return context
+
+
+class StudentListView(StudentsList):
+    permission_required = 'umo.add_student'
 
     def post(self, request, *args, **kwargs):
         if (request.POST.get('synch')):

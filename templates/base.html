@@ -4,8 +4,8 @@
         {% load staticfiles %}
         <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css">
         <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap4.min.css' %}" type="text/css">
-        <link rel="stylesheet" href="{% static 'css/my.css' %}" type="text/css">
         {% block additional_css %}{% endblock %}
+        <link rel="stylesheet" href="{% static 'css/my.css' %}" type="text/css">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -32,11 +32,17 @@
                           {% endif %}
                           {% if user|has_group:"office" or user|has_group:"zavkaf" %}
                           <a class="dropdown-item" href="{% url 'teachers:list_teachers' %}">Список преподавателей</a>
+                          {% if user|has_group:"zavkaf" %}
+                          <a class="dropdown-item" href="{% url 'student_list' %}">Список студентов</a>
+                          {% else %}
                           <a class="dropdown-item" href="{% url 'student_changelist' %}">Список студентов</a>
+                          {% endif %}
                           <a class="dropdown-item" href="{% url 'disciplines:disciplines_list' %}">Список дисциплин</a>
                           <a class="dropdown-item" href="{% url 'disciplines:excel' %}">Экран успеваемости</a>
                           <div class="dropdown-divider"></div>
+                            {% if user|has_group:"zavkaf" %}
                           <a class="dropdown-item" href="{% url 'nomenclatures:rup' %}">Рабочий учебный план</a>
+                            {% endif %}
                           <a class="dropdown-item" href="{% url 'nomenclatures:nomenclature_disciplines' %}">Номенклатура дисциплин</a>
                           {% endif %}
                         </div>
