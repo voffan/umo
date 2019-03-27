@@ -44,11 +44,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'umo.apps.UmoConfig',
     'umo.apps.SynchConfig',
+    'students',
     'loginsys',
     'disciplines',
     'bootstrap4',
     'widget_tweaks',
     'django_extensions',
+    'django_select2',
 ]
 
 MIDDLEWARE = [

@@ -8,6 +8,6 @@ urlpatterns = [
     url(r'^$', views.StudentListView.as_view(), name='student_changelist'),
     url(r'^list$', views.StudentsList.as_view(), name='student_list'),
     url(r'^add$', views.StudentCreateView.as_view(), name='student_add'),
-    url(r'^delete$', views.student_delete, name = 'student_delete'),
-    url(r'^(?P<pk>[0-9]+)$', views.StudentUpdateView.as_view(), name = 'student_edit'),
+    url(r'^delete$', views.student_delete, name='student_delete'),
+    url(r'^(?P<pk>[0-9]+)$', views.StudentUpdateView.as_view(), name='student_edit'),
 ]
