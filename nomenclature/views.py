@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import render, redirect
 import os
 import json
@@ -136,12 +137,21 @@ def set_rup_to_groups(request):
             groups_in_form = set(form.cleaned_data['groups'].values_list('id', flat=True))
 
             for group in Group.objects.filter(id__in=(groups_in - groups_in_form)):
-                group.program = None
-                group.save()
+                with transaction.atomic():
+                    group.program = None
+                    group.save()
+                    group.course_set.all().delete()
 
             for group in form.cleaned_data['groups']:
-                group.program = program
-                group.save()
+                with transaction.atomic():
+                    gen_subjects = group.program is None
+                    if group.program is not None and group.program != program:
+                        group.course_set.all().delete()
+                        gen_subjects = True
+                    group.program = program
+                    group.save()
+                    if gen_subjects:
+                        group.fill_group_disciplines()
             result['result'] = True
             result['program'] = program.id
             result['group_list'] = ', '.join(list(form.cleaned_data['groups'].values_list('Name', flat=True))) if 'groups' in form.cleaned_data else ''

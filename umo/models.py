@@ -107,8 +107,8 @@ class Group(Model):
 
     def get_semesters(self, edu_period):
         try:
-            autumn_semester = Semester.objects.get(name=str((edu_period.beginyear.year - self.begin_year.year) * 2 + 1))
-            spring_semester = Semester.objects.get(name=str((edu_period.beginyear.year - self.begin_year.year) * 2 + 2))
+            autumn_semester = Semester.objects.get(name=str((edu_period.begin_year.year - self.begin_year.year) * 2 + 1))
+            spring_semester = Semester.objects.get(name=str((edu_period.begin_year.year - self.begin_year.year) * 2 + 2))
         except Exception:
             raise Exception('Система не настроена!! Нет соответствущих учебному году семестров!!')
         return autumn_semester.id, spring_semester.id
@@ -369,7 +369,7 @@ class Course(Model):
         verbose_name_plural = 'курсы обучения дисциплинам'
 
     def __str__(self):
-        return self.group.Name + ':' + self.discipline_detail.discipline.Name
+        return self.group.Name + ':Семестр ' + self.discipline_detail.semester.name + ':' + self.discipline_detail.discipline.Name
 
 
 class CourseMaxPoints(Model):

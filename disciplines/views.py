@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import permission_required, login_required
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semester, Teacher, Person, BRSpoints, Course, GroupList
 from umo.objgens import get_check_points, add_brs
 from disciplines.view_excel import discipline_scores_to_excel
+from nomenclature.form import AddSubjectToteacherForm
 
 
 class DisciplineList(PermissionRequiredMixin, ListView):
@@ -28,7 +29,8 @@ class DisciplineList(PermissionRequiredMixin, ListView):
 def list_disc(request, pk):
     teacher = Teacher.objects.get(id=pk)
     disciplines = teacher.course_set.select_related('discipline_detail').all()
-    return render(request, 'disc_list.html', {'discipline_list': disciplines})
+    form = AddSubjectToteacherForm()
+    return render(request, 'disc_list.html', {'discipline_list': disciplines, 'form': form, 'teacher': teacher})
 
 
 @login_required

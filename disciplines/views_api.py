@@ -5,8 +5,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 
-from umo.models import BRSpoints, CheckPoint, CourseMaxPoints, Course
+from nomenclature.form import AddSubjectToteacherForm
+from umo.models import BRSpoints, CheckPoint, CourseMaxPoints, Course, Teacher
 
 
 @login_required
@@ -65,3 +67,51 @@ def set_max_points(request):
         content_type='application/json',
         status=status
     )
+
+
+@login_required
+@permission_required('umo.change_course', login_url='login')
+def add_course_to_teacher(request):
+    result = {'result': True}
+    table_rows = ''
+    form = AddSubjectToteacherForm(request.POST)
+    if form.is_valid():
+        try:
+            with transaction.atomic():
+                teacher = Teacher.objects.get(pk=form.cleaned_data['teacher'])
+                for course in form.cleaned_data['courses']:
+                    if course.lecturer is not None:
+                        continue
+                    course.lecturer = teacher
+                    course.save()
+                    table_rows += '<tr><td>' + course.discipline_detail.discipline.code + '</td>' + \
+                                  '<td><a href="' + reverse('disciplines:detail', args=[course.id]) + '">' + course.discipline_detail.discipline.Name + '</a></td>' + \
+                                  '<td>' + str(course.discipline_detail.semester) +'</td>' + \
+                                  '<td>' + course.group.Name + '</td>' + \
+                                  '<td>' + teacher.FIO + '</td>' + \
+                                  '<td><div class="dropdown">' + \
+                                      '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Действия</button>' + \
+                                      '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' + \
+                                          '<a class="dropdown-item" href="' + reverse('disciplines:brs_scores', args=[course.id]) + '">Баллы БРС</a>' + \
+                                          '<a class="dropdown-item" href="#" name="delete_course" id="' + str(course.id) + '">Снять привязку</a>' + \
+                                      '</div>' + \
+                                  '</div> </td>' + \
+                                  '</tr>'
+                result['rows'] = table_rows
+        except Exception as e:
+            result['result'] = False
+    return HttpResponse(json.dumps(result), content_type='application/json')
+
+
+@login_required
+@permission_required('umo.change_course', login_url='login')
+def delete_course_teacher(requst):
+    result = {'result':True}
+    try:
+        course = Course.objects.get(pk=requst.POST['course'])
+        course.lecturer = None
+        course.save()
+        result['course'] = course.id
+    except Exception as e:
+        result['result'] = False
+    return HttpResponse(json.dumps(result), content_type='application/json')

@@ -1,7 +1,22 @@
 {% extends 'base.html' %}
 {% block title %}Список дисциплин{% endblock %}
+
+{% block additional_css %}
+{{ form.media.css }}
+<style type="text/css">
+    select{
+        width: 450px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+    <div class="alert alert-danger" role="alert" id="error" style="visibility:hidden;position:fixed;top:0;left:0;width:100%;z-index:100;"></div>
+    {% include 'select_disc_modal.html' %}
     <h1>Список дисциплин</h1>
+    {% if teacher %}
+    <h2>Преподаватель: {{ teacher.FIO }}</h2>
+    {% endif %}
     <br>
     <table id="my_table2" class="table table-bordered">
         <thead class="thead-light">
@@ -22,10 +37,96 @@
                 <td> {{ discipline.discipline_detail.semester }} </td>
                 <td> {{ discipline.group.Name }} </td>
                 <td> {{ discipline.lecturer.FIO }} </td>
-                <td><a href="{% url 'disciplines:brs_scores' discipline.id %}"> <input type="submit" value="Баллы БРС"
-                                                                                   class="btn btn-primary"></a></td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Действия</button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="{% url 'disciplines:brs_scores' discipline.id %}">Баллы БРС</a>
+                            {% if teacher %}
+                            <a class="dropdown-item" href="#" name="delete_course" id="{{ discipline.id }}">Снять привязку</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    {% if teacher %}
+    <div class="d-flex justify-content-end">
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-primary" name="AddCourse" id="AddCourse">Добавить дисциплины</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block additional_js %} {{ form.media.js }} {% endblock %}
+
+{% block scripts %}
+{% if teacher %}
+
+$('#modal_error').hide();
+
+function ShowError(msg, type){
+    var error =(type == 1)?$('#error'): $('#modal_error');
+    error.html(msg);
+	error.show();
+	error.delay(3000).slideUp(500, function() {$(this).hide();});
+}
+
+$('#AddCourse').on('click', function(e){
+    $('#id_teacher').attr('value',{{ teacher.id }});
+    $('#id_courses').val(null).trigger('change');
+    $('#AddDisc').modal('show');
+});
+
+$('[name="delete_course"]').on('click', function(e){
+    e.preventDefault();
+    if(confirm('Вы уверены что хотите удалить этот предмет?')){
+        $.ajax({
+            url: "{% url 'disciplines:api:delete_course_teacher' %}",
+            method: "POST",
+            data: {'course': $(this).attr('id'), 'csrfmiddlewaretoken':$('[name="csrfmiddlewaretoken"]').attr('value')},
+            dataType: "json"
+        }).done(function(data){
+            if(data['result']==true){
+                $('#my_table2').DataTable().destroy();
+                $('[id=' + data['course'] + ']').closest('tr').remove();
+                $('#my_table2').DataTable( {"language": {"url": "/static/Russian.json"}} );
+            }else{
+                ShowError('Ошибка снятия привязки предмета!',1);
+            }
+        }).fail(function(jqXHR, textStatus){
+            ShowError('Ошибка снятия привязки предмета!',1);
+        });
+    }
+});
+
+$('#SetDisc').on('click', function(e){
+    $.ajax({
+        url: $('#set_disc').attr('action'),
+        method: $('#set_disc').attr('method'),
+        data: $('#set_disc').serialize()
+    }).done(function(data){
+        //add row to table;
+        if(data['result'] == true)
+        {
+            //add row
+            $('#my_table2').DataTable().destroy();
+            $('#my_table2 tr:last').after(data['rows']);
+            $('#my_table2').DataTable( {"language": {"url": "/static/Russian.json"}} );
+            $('#AddDisc').modal('hide');
+        }
+        else
+        {
+            ShowError('Ошибка добавления предмета!! Повторите позже!', 0);
+        }
+    }).fail(function(jqXHR, textStatus){
+        ShowError('Ошибка добавления предмета!! Повторите позже!', 0);
+    });
+});
+{% endif %}
 {% endblock %}
