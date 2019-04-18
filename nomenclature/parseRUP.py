@@ -102,15 +102,15 @@ def parseRUP(filename):
             CW = details.get('КР', None)
 
             semester, created = Semester.objects.get_or_create(name=semester_nom)
-            defaults={'Credit':int(zet),
-                                                                  'Lecture' : data['101'],
-                                                                  'Practice' : data['103'],
-                                                                  'Lab' : data['102'],
-                                                                  'KSR' : data['106'],
-                                                                  'SRS' : data['107']}
+            defaults={'Credit': int(zet),
+                      'Lecture': data['101'],
+                      'Practice': data['103'],
+                      'Lab': data['102'],
+                      'KSR': data['106'],
+                      'SRS': data['107']}
             d, created = DisciplineDetails.objects.get_or_create(discipline=dis,
-                                                        semester=semester,
-                                                        defaults=defaults)
+                                                                 semester=semester,
+                                                                 defaults=defaults)
             if z is not None:
                 control_type = 2
             if exam is not None:
@@ -119,4 +119,4 @@ def parseRUP(filename):
                 control_type = 3
             if CW is not None:
                 control_type = 4
-            c, created = Control.objects.update_or_create(discipline_detail=d, control_type=2, defaults={'control_hours': data['108']})
+            c, created = Control.objects.update_or_create(discipline_detail=d, control_type=control_type, defaults={'control_hours': data['108']})
