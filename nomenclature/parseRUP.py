@@ -79,6 +79,8 @@ def parseRUP(filename):
     for elem in root[0][1]:
         disname = elem.get('Дис')
         code_dis = elem.get('ИдетификаторДисциплины')
+        if code_dis is None or len(code_dis) < 1:
+            code_dis = elem.get('НовИдДисциплины')
 
         dis, created = Discipline.objects.get_or_create(Name=disname, code=code_dis, program=edu_prog)
 
