@@ -58,8 +58,8 @@ def set_max_points(request):
         try:
             with transaction.atomic():
                 for checkpoint in checkpoints:
-                    mpoints, created = CourseMaxPoints.objects.update_or_create(course=course, checkpoint=checkpoint, defaults={'maxpoint': request.POST['checkpoint_'+str(checkpoint.id)]})
-                    result['data'][checkpoint.id] = mpoints.maxpoint
+                    mpoints, created = CourseMaxPoints.objects.update_or_create(course=course, checkpoint=checkpoint, defaults={'max_point': request.POST['checkpoint_'+str(checkpoint.id)]})
+                    result['data'][checkpoint.id] = mpoints.max_point
         except:
             status = 500
     return HttpResponse(

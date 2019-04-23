@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group as auth_groups
 from django.db import transaction
@@ -11,7 +11,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 import synch.models as sync_models
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
-                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam)
+                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam, Course)
 
 
 # Create your views here.
@@ -149,3 +149,23 @@ class StudentUpdateView(PermissionRequiredMixin, UpdateView):
         grouplist_.active = True
         grouplist_.save()
         return super().form_valid(form)
+
+
+@login_required
+#@permission_required('umo.delete_student', login_url='/auth/login')
+def group_points(request):
+    try:
+        institute = request.user.teacher_set.select_related('Kafedra', 'Teacher').get().cathedra.institution
+    except:
+        return HttpResponse('You are not teacher!')
+    group = Group.objects.filter(cathedra__institution__id=institute.id)
+    group = group.get(pk=request.GET['group']) if 'group' in request.GET else group.first()
+    check_point = CheckPoint.objects.get(pk=request.GET['checkpoint']) if 'checkpoint' in request.GET else CheckPoint.objects.first()
+    group_points_data = {'group': group, 'group_points':  {}}
+    for student in group.grouplist_set.all():
+        group_points_data['group_points'][student.FIO] = dict(BRSpoints.objects.filter(student__id=student.id,
+                                                                                       checkpoint__id=check_point.id,
+                                                                                       course__disciplinedetail__semester__name=group.current_semester).values_list('course__id', 'points'))
+    group_points_data['courses'] = dict(Course.objects.filter(discipline_detail__discipline__program__id=group.program.id,
+                                                              discipline_detail__semester__name=group.current_semester).values_list('id','discipline_detail__discipline__Name'))
+    return HttpResponse('Экран успеваемости!')

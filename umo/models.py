@@ -105,6 +105,16 @@ class Group(Model):
         t = int(now.year) - self.begin_year.year + 1
         return t // 2 + t % 2
 
+    @property
+    def current_semester(self):
+        edu_period = EduPeriod.objects.get(active=True)
+        addition = 1
+        current_month = datetime.today().month
+        if current_month >= 2 and current_month <= 7:
+            addition = 2
+        return str((edu_period.begin_year.year - self.begin_year.year) * 2 + addition)
+
+
     def get_semesters(self, edu_period):
         try:
             autumn_semester = Semester.objects.get(name=str((edu_period.begin_year.year - self.begin_year.year) * 2 + 1))

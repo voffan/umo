@@ -86,7 +86,7 @@ def parseRUP(filename):
 
         for details in elem.findall('Сем'):
             #if details is ('Ном' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Пр') or ('Ном' and 'СРС'):
-            data = {'101':0,'102':0,'103':0,'106':0,'107':0,'108':0}
+            data = {'101': 0, '102': 0, '103': 0, '106': 0, '107': 0, '108': 0}
             total_h = 0
             for vz in details.findall('VZ'):
                 if 'H' in vz.attrib.keys():
