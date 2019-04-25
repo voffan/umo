@@ -69,6 +69,7 @@ def nomenclature_discipline(request):
 
     return render(request, 'nomenclature_disciplines.html', {'courses':courses, 'teachers':teachers, 'controls':control})
 
+
 @permission_required('umo.add_discipline', login_url='/auth/login')
 def upload_file(request):
     if request.method == 'POST':
@@ -79,7 +80,7 @@ def upload_file(request):
             #return default_storage.path(path)
             f=hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
             parseRUP(f)
-            return render(request, 'nomenclature.html')
+            return redirect(reverse('nomenclature:rup'))
 
     else:
         form = UploadFileForm()

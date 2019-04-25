@@ -4,6 +4,14 @@
 {% block content %}
 <div class="row">
     <div class="col">
+        <form action="" method="GET">
+            {{ form }}
+            <button type="submit" class="btn btn-primary">Получить</button>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
         <div id="scores_list" class="backgrid-container">
 
         </div>
@@ -12,11 +20,15 @@
 {% endblock %}
 
 {% block additional_css %}
+{{ form.media.css }}
 <link rel="stylesheet" href="{% static 'css/backgrid.css' %}" type="text/css">
 <style>
     table{
         table-layout:fixed;
         width:"100%";
+    }
+    select{
+        width: 200px;
     }
 </style>
 {% endblock %}
@@ -25,6 +37,7 @@
 <script src="{% static 'js/underscore.js' %}"></script>
 <script src="{% static 'js/backbone.js' %}"></script>
 <script src="{% static 'js/backgrid.js' %}"></script>
+{{ form.media.js }}
 {% endblock %}
 
 {% block scripts %}
