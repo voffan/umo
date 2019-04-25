@@ -1,9 +1,32 @@
 {% extends 'base.html' %}
-{% block title %}Вход в систему{% endblock %}
+{% load staticfiles %}
+{% block title %}Экран успеваемости{% endblock %}
 {% block content %}
+<div class="row">
+    <div class="col">
+        <div id="scores_list" class="backgrid-container">
 
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="{% static 'css/backgrid.css' %}" type="text/css">
+<style>
+    table{
+        table-layout:fixed;
+        width:"100%";
+    }
+</style>
+{% endblock %}
+
+{% block additional_js %}
+<script src="{% static 'js/underscore.js' %}"></script>
+<script src="{% static 'js/backbone.js' %}"></script>
+<script src="{% static 'js/backgrid.js' %}"></script>
 {% endblock %}
 
 {% block scripts %}
-
+{% include 'group_points.js' %}
 {% endblock %}

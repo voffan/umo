@@ -24,7 +24,8 @@ def add_edu_org(name, parent):
 
 
 def add_brs(course, group_list, check_points):
-    if course.brspoints_set.all().exists():
+    st_ids = group_list.values_list('student__id', flat=True)
+    if course.brspoints_set.filter(student__id__in=st_ids).exists():
         return
     with transaction.atomic():
         for student_in_list in group_list:

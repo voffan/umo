@@ -11,7 +11,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 import synch.models as sync_models
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
-                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam, Course)
+                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam, Course, Semester)
 
 
 # Create your views here.
@@ -155,17 +155,24 @@ class StudentUpdateView(PermissionRequiredMixin, UpdateView):
 #@permission_required('umo.delete_student', login_url='/auth/login')
 def group_points(request):
     try:
-        institute = request.user.teacher_set.select_related('Kafedra', 'Teacher').get().cathedra.institution
+        person = request.user.person_set.get()
+        institute = Teacher.objects.get(pk=person.id).cathedra.institution
     except:
         return HttpResponse('You are not teacher!')
-    group = Group.objects.filter(cathedra__institution__id=institute.id)
-    group = group.get(pk=request.GET['group']) if 'group' in request.GET else group.first()
+    #group = Group.objects.all()#filter(cathedra__institution__id=institute.id)
+    group = Group.objects.get(pk=request.GET['group']) if 'group' in request.GET else Group.objects.first()
+    if group.program is None:
+        return HttpResponse('Программа обучения группы не установлена')
     check_point = CheckPoint.objects.get(pk=request.GET['checkpoint']) if 'checkpoint' in request.GET else CheckPoint.objects.first()
-    group_points_data = {'group': group, 'group_points':  {}}
-    for student in group.grouplist_set.all():
-        group_points_data['group_points'][student.FIO] = dict(BRSpoints.objects.filter(student__id=student.id,
-                                                                                       checkpoint__id=check_point.id,
-                                                                                       course__disciplinedetail__semester__name=group.current_semester).values_list('course__id', 'points'))
-    group_points_data['courses'] = dict(Course.objects.filter(discipline_detail__discipline__program__id=group.program.id,
+    semester = Semester.objects.get(pk=request.GET['semester']).name if 'semester' in request.GET else group.current_semester
+    group_points_data = {'group': group, 'group_points':  []}
+    for sl in group.grouplist_set.all():
+        student_points = {}
+        student_points['scores'] = list(BRSpoints.objects.filter(student__id=sl.student.id,
+                                                                 checkpoint__id=check_point.id,
+                                                                 course__discipline_detail__semester__name=semester).values_list('course__id', 'points'))
+        student_points['fullname'] = sl.student.FIO
+        group_points_data['group_points'].append(student_points)
+    group_points_data['courses'] = list(Course.objects.filter(discipline_detail__discipline__program__id=group.program.id,
                                                               discipline_detail__semester__name=group.current_semester).values_list('id','discipline_detail__discipline__Name'))
-    return HttpResponse('Экран успеваемости!')
+    return render(request,'group_points.html', {'data':group_points_data})
