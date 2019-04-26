@@ -36,6 +36,8 @@ def parseRUP(filename):
     tree = ET.parse(filename)
     root = tree.getroot()
     title = root[0][0]
+    #имя плана
+    name = title.get('ПолноеИмяПлана')
     #Уровень образования
     level = root[0].get('УровеньОбразования')
     #тэг Специальность получение названия спец
@@ -74,7 +76,7 @@ def parseRUP(filename):
     })
     profile, created = Profile.objects.get_or_create(name=profile_name, defaults={'spec':sp})
 
-    edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year)
+    edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
 
     for elem in root[0][1]:
         disname = elem.get('Дис')

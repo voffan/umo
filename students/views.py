@@ -167,7 +167,7 @@ def group_points(request):
     check_point = CheckPoint.objects.get(pk=request.GET['checkpoint']) if 'checkpoint' in request.GET else CheckPoint.objects.first()
     semester = Semester.objects.get(pk=request.GET['semester']) if 'semester' in request.GET else Semester.objects.get(name=group.current_semester)
     group_points_data = {'group': group, 'group_points':  []}
-    for sl in group.grouplist_set.all():
+    for sl in group.grouplist_set.all().order_by('student__FIO'):
         student_points = {}
         student_points['scores'] = list(BRSpoints.objects.filter(student__id=sl.student.id,
                                                                  checkpoint__id=check_point.id,

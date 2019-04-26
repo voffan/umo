@@ -70,6 +70,7 @@ class Kafedra(Model):
 
 
 class EduProgram(Model):
+    name = CharField(verbose_name="Имя плана подготовки", db_index=True, max_length=100)
     specialization = ForeignKey('Specialization', verbose_name="специализация", db_index=True, on_delete=CASCADE)
     profile = ForeignKey('Profile', verbose_name="профиль", db_index=True, on_delete=CASCADE)
     year = ForeignKey('Year', verbose_name="год", db_index=True, null=True, on_delete=SET_NULL)
