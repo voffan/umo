@@ -3,8 +3,11 @@ H1 { text-align: center; }
 .backgrid-container {
     height: auto;
 }
-.rotate{
+th>a.rotate{
     writing-mode: vertical-lr;
+    text-orientation: sideways;
+}
+th.rotate{
     width: 75px;
-    text-align: 'center';
+    text-align: center;
 }

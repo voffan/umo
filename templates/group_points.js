@@ -11,6 +11,7 @@ function InitTable(table_columns, table_app){
     });
     var $backgrid = $("#scores_list");
     $backgrid.append(grid.render().el);
+    $('th.rotate>a').addClass('rotate');
 }
 
 var originalInitialize = Backgrid.HeaderCell.prototype.initialize;
