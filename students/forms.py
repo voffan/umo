@@ -1,4 +1,4 @@
-from django.forms import Form, ModelForm, ModelMultipleChoiceField, IntegerField, HiddenInput, ModelChoiceField
+from django.forms import Form, ModelForm, ModelMultipleChoiceField, IntegerField, HiddenInput, ModelChoiceField, BooleanField
 from django_select2.forms import ModelSelect2MultipleWidget, ModelSelect2Widget, Select2Widget
 from umo.models import Group, CheckPoint, Semester
 
@@ -22,6 +22,7 @@ class GetGroupPointsForm(Form):
     group = ModelChoiceField(widget=GroupWidget, queryset=Group.objects.all(), required=True, label='Группа')
     semester = ModelChoiceField(widget=Select2Widget, queryset=Semester.objects.all().order_by('name'), required=True, label='Семестр')
     checkpoint = ModelChoiceField(widget=Select2Widget, queryset=CheckPoint.objects.all(), required=True, label='Срез')
+    excel = BooleanField(required=False, label='Экспортировать в эксель')
 
 
 
