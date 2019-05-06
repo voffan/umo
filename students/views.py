@@ -185,7 +185,7 @@ def group_points(request):
     if 'excel' in request.GET:
         wb = export_group_points(group, semester)
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename=' + translit(group.Name, 'ru', reversed=True) + '.xlsx'
+        response['Content-Disposition'] = 'attachment; filename=' + translit(group.Name, 'ru', reversed=True) + '_sem_' + semester.name + '.xlsx'
         wb.save(response)
         return response
     else:
