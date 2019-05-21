@@ -33,6 +33,8 @@
                           {% endif %}
                           {% if user|has_group:"office" or user|has_group:"zavkaf" %}
                           <a class="dropdown-item" href="{% url 'teachers:list_teachers' %}">Список преподавателей</a>
+                          <a class="dropdown-item" href="{% url 'awards:list_employee_awards' %}">Список наград сотрудников</a>
+                              <a class="dropdown-item" href="{% url 'awards:list_issuers' %}">Список организаций</a>
                           {% if user|has_group:"zavkaf" %}
                           <a class="dropdown-item" href="{% url 'students:student_list' %}">Список студентов</a>
                           {% else %}

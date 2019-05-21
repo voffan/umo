@@ -70,6 +70,7 @@ class Kafedra(Model):
 
 
 class EduProgram(Model):
+    name = CharField(verbose_name="Имя плана подготовки", db_index=True, max_length=100)
     specialization = ForeignKey('Specialization', verbose_name="специализация", db_index=True, on_delete=CASCADE)
     profile = ForeignKey('Profile', verbose_name="профиль", db_index=True, on_delete=CASCADE)
     year = ForeignKey('Year', verbose_name="год", db_index=True, null=True, on_delete=SET_NULL)
@@ -104,6 +105,16 @@ class Group(Model):
         now = datetime.now()
         t = int(now.year) - self.begin_year.year + 1
         return t // 2 + t % 2
+
+    @property
+    def current_semester(self):
+        edu_period = EduPeriod.objects.get(active=True)
+        addition = 1
+        current_month = datetime.today().month
+        if current_month >= 2 and current_month <= 7:
+            addition = 2
+        return str((edu_period.begin_year.year - self.begin_year.year) * 2 + addition)
+
 
     def get_semesters(self, edu_period):
         try:

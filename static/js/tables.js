@@ -6,6 +6,13 @@ $(document).ready( function () {
     });
 } );
 $(document).ready( function () {
+    $('#awards_list').DataTable( {
+        "language": {
+            "url": "/static/Russian.json"
+        }
+    } );
+} );
+$(document).ready( function () {
     $('#my_table2').DataTable( {
         "language": {
             "url": "/static/Russian.json"
