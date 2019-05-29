@@ -2,13 +2,16 @@
 {% block title %}Список наград преподавателей{% endblock %}
 {% block content %}
     <h1>Список наград преподавателей</h1>
-    <table name="employee_awards"  id="employee_awards_list" class="table table-bordered">
+    <table name="employee_awards"  id="employee_awards" class="table table-bordered">
+        <p align="right" id="employee_awards_filter"><label><b>Уровень нарграды:</b></label><br></p>
+        <!-- <p align="right" id="employee_awards_list_filter"><label><b>Период:</b></label><br></p> -->
         <thead>
             <tr>
                 <th>№</th>
                 <th>ФИО</th>
                 <th>Дата награждения</th>
                 <th>Награда</th>
+                <th>Уровень награды</th>
                 <th>Организация</th>
                 <th></th>
             </tr>
@@ -20,6 +23,7 @@
             <td><a href="{% url 'awards:edit_employee_award' employee_awards.id %}">{{ employee_awards.employee.FIO }}</a></td>
             <td>{{ employee_awards.award_date }}</td>
             <td>{{ employee_awards.award.award_name }}</td>
+            <td>{{ employee_awards.award.award_level }}</td>
             <td>{{ employee_awards.award.issuer }}</td>
             <td>
                 <a href="{% url 'awards:delete_employee_award' employee_awards.id %}" class="btn btn-danger" role="button">
@@ -32,5 +36,4 @@
     </table>
     <br>
     <a href="{% url 'awards:create_employee_award' %}" class="btn btn-success">Добавить награду сотрудника</a>
-    <a href="{% url 'awards:list_awards' %}" class="btn btn-success">Просмотреть все награды</a>
 {% endblock %}

@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% block title %}Добавление награды сотрудника{% endblock %}
+
+{% block additional_css %}
+{{ form.media.css }}
+{% endblock %}
+
 {% block content %}
     <div class="container">
         <form action="{% url 'awards:create_employee_award' %}" method="post">
@@ -22,3 +27,5 @@
         </form>
     </div>
 {% endblock %}
+
+{% block additional_js %} {{ form.media.js }} {% endblock %}
