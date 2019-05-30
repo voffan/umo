@@ -500,11 +500,11 @@ class ExamPointsListView(ListView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
-        course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
+        course = Course.objects.select_related('discipline_detail', 'group').get(pk=self.kwargs['pk'])
         group_students = course.group.grouplist_set.select_related('student', 'group').all()
         checkpoints = get_check_points()
         if len(context['object_list']) < 1:
-            add_brs(course, group_students, checkpoints)
+            # add_brs(course, group_students, checkpoints)
             context['object_list'] = BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'checkpoint')
         context['points'] = {}
         context['maxpoints'] = {}
@@ -517,4 +517,7 @@ class ExamPointsListView(ListView):
         context['checkpoints'] = checkpoints
         context['group_list'] = group_students
         context['discipline'] = course
+        context['today'] = datetime.today().strftime('%Y-%m-%d')
+        context['period'] = EduPeriod.objects.get(active=True)
+        context['control_type'] = Control.CONTROL_FORM[course.discipline_detail.control_set.first().control_type][1]
         return context

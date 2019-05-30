@@ -4,34 +4,45 @@
 {% block title %}Ведомость{{ discipline.group.Name }}{% endblock %}
 {% block content %}
     {% csrf_token %}
+<h1>Ведомость</h1>
 <div class="row">
-            <div class="col">
-                <div style="position:fixed;top:0;left:0;width:100%;z-index:100;" id="error_container"></div>
-            </div>
-            <div>
-                <h1>Ведомость</h1>
-            </div>
-            <div class="col">
-                <h2>Предмет: {{ discipline.discipline_detail.discipline.Name }}</h2>
-            </div>
-            <div class="col">
-                <h2>Группа: {{ discipline.group.Name }}</h2>
-            </div>
-            <div class="col">
-                <h2>Тип контроля: {{ control_type }}</h2>
-             </div>
-            <div class="col">
-                <h2>Преподаватель: {{ discipline.lecturer.FIO }} </h2>
-            </div>
-            <div class="col">
-                <h2>Семестр: {{ discipline.discipline_detail.semester }}</h2>
-            </div>
-            <div class="col">
-                <h2>Курс: {{ discipline.discipline_detail.course }}</h2>
-            </div>
-            <div class="col">
-                <h2>Дата экзамена: <input type="date"></h2>
-            </div>
+    <div class="col">
+        <div style="position:fixed;top:0;left:0;width:100%;z-index:100;" id="error_container"></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <h2>Семестр: <u>{{ discipline.discipline_detail.semester }}</u></h2>
+    </div>
+    <div class="col">
+        <h2><u>{{ period }}</u> уч. г.</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <h2>Форма контроля: <u>{{ control_type }}</u></h2>
+    </div>
+    <div class="col">
+        <h2>Курс: <u>{{ discipline.group.year }}</u></h2>
+    </div>
+    <div class="col">
+        <h2>Группа: <u>{{ discipline.group.Name }}</u></h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <h2>Дисциплина: <u>{{ discipline.discipline_detail.discipline.Name }}</u></h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <h2>ФИО преподавателя: <u>{{ discipline.lecturer.FIO }}</u> </h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <h2>Дата экзамена:</h2> <input type="date" name="exam_date" id="exam_date" value="{{ today }}" class="form-control" style="width:300px;">
+    </div>
 </div>
         <div class="row">
             <div class="col">
@@ -55,7 +66,7 @@
 
 {% block scripts %}
 $(document).ready(function(){
-    $('#modal_error').hide();
+    /*$('#modal_error').hide();
     $('#error').hide();
 
     $('input[id*="checkpointinput_"]').on('keyup', function(e){
@@ -104,7 +115,7 @@ $(document).ready(function(){
 			$('#modal_error').show();
 			$('#modal_error').delay(3000).slideUp(500, function() {$(this).hide();});
         });
-    });
+    });*/
 
     function InitTable(table_columns, table_app){
         $('#scores_list').empty();
@@ -198,25 +209,43 @@ $(document).ready(function(){
             label: "ФИО",
             cell: "string"
         },
-        {% for checkpoint in checkpoints %}
-        {
-            editable: true,
-            name: "checkpoint_{{checkpoint.id}}",
-            label: "{{checkpoint.name}}",
-            cell: Backgrid.MyCell.extend({
-                decimals:1
-            })
-        },
-        {% endfor %}
-        {% for mark in marks %}
         {
             editable: false,
-            name: "mark__{{mark.id}}",
-            label:"{{mark.name}}",
+            name: "Номер зачетной книжки",
+            label: "student_id",
+            cell: "string"
+        },
+        {
+            editable: false,
+            name: "Сумма баллов за текущую работу",
+            label: "in_points",
+            cell: "string"
+        },
+        {
+            editable: true,
+            name: "Баллы за экзамен",
+            label:"exam_points",
             cell: Backgrid.MyCell.extend({
             })
         },
-        {% endfor %}
+        {
+            editable: false,
+            name: "Всего баллов",
+            label:"total_points",
+            cell: "string"
+        },
+        {
+            editable: false,
+            name: "Оценка прописью",
+            label:"exam_mark",
+            cell: "string"
+        },
+        {
+            editable: false,
+            name: "Буквенный эквивалент",
+            label:"exam_mark_symbol",
+            cell: "string"
+        }
     ];
     InitTable(columns, apps);
 });
