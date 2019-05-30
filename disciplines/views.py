@@ -10,10 +10,25 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required, login_required
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semester, Teacher, Person, BRSpoints, Course, GroupList
+from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semester, Teacher, Person, BRSpoints, Course, \
+    GroupList, CheckPoint
 from umo.objgens import get_check_points, add_brs
 from disciplines.view_excel import discipline_scores_to_excel
 from nomenclature.form import AddSubjectToteacherForm
+from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
+                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam)
+from datetime import datetime
+
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.models import Group as auth_groups
+from django.db import transaction
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from openpyxl import Workbook
+from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
 
 class DisciplineList(PermissionRequiredMixin, ListView):
@@ -137,7 +152,7 @@ def get_data_for_ekran(request):
     semester = get_object_or_404(Semester, pk=semester_id)
     grouplist = group.grouplist_set.select_related('student').filter(active=True)
     subjects = group.program.discipline_set.filter(disciplinedetails__semester__name=semester)
-    result={'data':[]}
+    result = {'data': []}
     for s in grouplist:
         m = [s.student.FIO]
         for gl in subjects:
@@ -153,7 +168,7 @@ def get_data_for_ekran(request):
 def subjects(request):
     group_id = request.GET.get('group', '')
     semester_id = request.GET.get('semester', '')
-    result = {'data':[]}
+    result = {'data': []}
     if len(group_id) > 0 and len(semester_id) > 0:
         group = get_object_or_404(Group, pk=group_id)
         semester = get_object_or_404(Semester, pk=semester_id)
@@ -176,14 +191,14 @@ def export_to_excel(request):
                      color='FF000000',
                      )
     font = Font(name='Calibri',
-                     size=10,
-                     bold=False,
-                     italic=False,
-                     vertAlign=None,
-                     underline='none',
-                     strike=False,
-                     color='FF000000',
-                     )
+                size=10,
+                bold=False,
+                italic=False,
+                vertAlign=None,
+                underline='none',
+                strike=False,
+                color='FF000000',
+                )
     font_bold = Font(name='Times New Roman',
                      size=16,
                      bold=True,
@@ -232,11 +247,11 @@ def export_to_excel(request):
                              shrink_to_fit=False,
                              indent=0)
     align_right = Alignment(horizontal='right',
-                             vertical='center',
-                             text_rotation=0,
-                             wrap_text=True,
-                             shrink_to_fit=False,
-                             indent=0)
+                            vertical='center',
+                            text_rotation=0,
+                            wrap_text=True,
+                            shrink_to_fit=False,
+                            indent=0)
     align_vertical = Alignment(horizontal='left',
                                vertical='bottom',
                                text_rotation=90,
@@ -287,7 +302,8 @@ def export_to_excel(request):
         _column = 3
         i += 1
         for s in subjects:
-            mark = ExamMarks.objects.filter(student__id=gl.student.id, exam__course__discipline_detail__discipline__id=s.id).first()
+            mark = ExamMarks.objects.filter(student__id=gl.student.id,
+                                            exam__course__discipline_detail__discipline__id=s.id).first()
             if mark is not None:
                 ws.cell(row=_row, column=_column).value = mark.mark.name
             _column += 1
@@ -301,49 +317,49 @@ def export_to_excel(request):
         xk = 'B'
     elif xk == 3:
         xk = 'C'
-    elif xk ==4:
+    elif xk == 4:
         xk = 'D'
-    elif xk ==5:
+    elif xk == 5:
         xk = 'E'
-    elif xk ==6:
+    elif xk == 6:
         xk = 'F'
-    elif xk ==7:
+    elif xk == 7:
         xk = 'G'
-    elif xk ==8:
+    elif xk == 8:
         xk = 'H'
-    elif xk ==9:
+    elif xk == 9:
         xk = 'I'
-    elif xk ==10:
+    elif xk == 10:
         xk = 'J'
-    elif xk ==11:
+    elif xk == 11:
         xk = 'K'
-    elif xk ==12:
+    elif xk == 12:
         xk = 'L'
-    elif xk ==13:
+    elif xk == 13:
         xk = 'M'
-    elif xk ==14:
+    elif xk == 14:
         xk = 'N'
-    elif xk ==15:
+    elif xk == 15:
         xk = 'O'
-    elif xk ==16:
+    elif xk == 16:
         xk = 'P'
-    elif xk ==17:
+    elif xk == 17:
         xk = 'Q'
-    elif xk ==18:
+    elif xk == 18:
         xk = 'R'
-    elif xk ==19:
+    elif xk == 19:
         xk = 'S'
-    elif xk ==20:
+    elif xk == 20:
         xk = 'T'
 
     # шрифты
-    for cellObj in ws['A1:'+str(xk)+str(zk)]:
+    for cellObj in ws['A1:' + str(xk) + str(zk)]:
         for cell in cellObj:
             ws[cell.coordinate].font = font_main
-    for cellObj in ws['C2:'+str(xk)+'2']:
+    for cellObj in ws['C2:' + str(xk) + '2']:
         for cell in cellObj:
             ws[cell.coordinate].font = font_small
-    for cellObj in ws['C1:'+str(xk)+'1']:
+    for cellObj in ws['C1:' + str(xk) + '1']:
         for cell in cellObj:
             ws[cell.coordinate].font = font
     ws['B1'].font = font_bold
@@ -361,18 +377,18 @@ def export_to_excel(request):
     rd.height = 90
 
     # сетка
-    for cellObj in ws['A1:'+str(xk)+str(zk)]:
+    for cellObj in ws['A1:' + str(xk) + str(zk)]:
         for cell in cellObj:
             # print(cell.coordinate, cell.value)
             ws[cell.coordinate].border = border
 
     # закрашивание столбца
-    for cellObj in ws['A2:'+str(xk)+'2']:
+    for cellObj in ws['A2:' + str(xk) + '2']:
         for cell in cellObj:
             ws[cell.coordinate].fill = fill
 
     # выравнивание столбца
-    for cellObj in ws['A1:'+str(xk)+'1']:
+    for cellObj in ws['A1:' + str(xk) + '1']:
         for cell in cellObj:
             ws[cell.coordinate].alignment = align_vertical
 
@@ -381,7 +397,7 @@ def export_to_excel(request):
 
     # перетягивание ячеек
     dims = {}
-    for cellObj in ws['B1:B'+str(zk)]:
+    for cellObj in ws['B1:B' + str(zk)]:
         for cell in cellObj:
             if cell.value:
                 dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
@@ -391,7 +407,7 @@ def export_to_excel(request):
 
     # перетягивание ячеек номеров
     dims = {}
-    for cellObj in ws['A1:A'+str(zk)]:
+    for cellObj in ws['A1:A' + str(zk)]:
         for cell in cellObj:
             if cell.value:
                 dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
@@ -414,7 +430,8 @@ def excel(request):
     semester_name = Semester.objects.all().order_by('-name')
     subjects = Discipline.objects.all().order_by('Name')
 
-    return render(request, 'export_to_excel.html', {'groupname': groupname, 'semester_name': semester_name, 'subjects': subjects})
+    return render(request, 'export_to_excel.html', {'groupname': groupname, 'semester_name': semester_name,
+                                                    'subjects': subjects})
 
 
 class StudentsScoresView(PermissionRequiredMixin, ListView):
@@ -466,3 +483,38 @@ def export_brs_points(request):
         response.status_code = 404
         response.write('<p>Ошибка при формировании отчета!!</p>')
     return response
+
+
+class ExamPointsListView(ListView):
+    model = GroupList
+    context_object_name = 'students_list'
+    success_url = reverse_lazy('disciplines:disciplines_list')
+    template_name = "exam_points.html"
+
+    def get_queryset(self):
+        course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
+        edu_begin_year = datetime.today().year - int(course.discipline_detail.semester.name) // 2
+        students = GroupList.objects.select_related('student').filter(group__program__id=course.discipline_detail.discipline.program.id, group__begin_year__year=edu_begin_year).values_list('student__id', flat=True)
+        return BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=students).select_related('student', 'checkpoint')
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
+        group_students = course.group.grouplist_set.select_related('student', 'group').all()
+        checkpoints = get_check_points()
+        if len(context['object_list']) < 1:
+            add_brs(course, group_students, checkpoints)
+            context['object_list'] = BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'checkpoint')
+        context['points'] = {}
+        context['maxpoints'] = {}
+        for item in context['object_list']:
+            if item.student.id not in context['points']:
+                context['points'][item.student.id] = {}
+            context['points'][item.student.id][item.checkpoint.id] = item.points
+        for mpoint in course.coursemaxpoints_set.all():
+            context['maxpoints'][mpoint.checkpoint.id] = mpoint.max_point
+        context['checkpoints'] = checkpoints
+        context['group_list'] = group_students
+        context['discipline'] = course
+        return context

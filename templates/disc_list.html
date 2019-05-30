@@ -44,6 +44,7 @@
                             <a class="dropdown-item" href="{% url 'disciplines:brs_scores' discipline.id %}">Баллы БРС</a>
                             {% if teacher %}
                             <a class="dropdown-item" href="#" name="delete_course" id="{{ discipline.id }}">Снять привязку</a>
+                            <a class="dropdown-item" href="{% url 'disciplines:brs_student_list' discipline.id %}"> Открыть ведомость</a>
                             {% endif %}
                         </div>
                     </div>

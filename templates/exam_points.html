@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load extra_tags %}
+{% block title %}Ведомость{{ discipline.group.Name }}{% endblock %}
+{% block content %}
+    {% csrf_token %}
+<div class="row">
+            <div class="col">
+                <div style="position:fixed;top:0;left:0;width:100%;z-index:100;" id="error_container"></div>
+            </div>
+            <div>
+                <h1>Ведомость</h1>
+            </div>
+            <div class="col">
+                <h2>Предмет: {{ discipline.discipline_detail.discipline.Name }}</h2>
+            </div>
+            <div class="col">
+                <h2>Группа: {{ discipline.group.Name }}</h2>
+            </div>
+            <div class="col">
+                <h2>Тип контроля: {{ control_type }}</h2>
+             </div>
+            <div class="col">
+                <h2>Преподаватель: {{ discipline.lecturer.FIO }} </h2>
+            </div>
+            <div class="col">
+                <h2>Семестр: {{ discipline.discipline_detail.semester }}</h2>
+            </div>
+            <div class="col">
+                <h2>Курс: {{ discipline.discipline_detail.course }}</h2>
+            </div>
+            <div class="col">
+                <h2>Дата экзамена: <input type="date"></h2>
+            </div>
+</div>
+        <div class="row">
+            <div class="col">
+                <div id="scores_list" class="backgrid-container">
+                </div>
+            </div>
+        </div>
+           <button type="submit" class="btn btn-success" name="save" value="save">Сохранить</button>
+            <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>
+{% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="{% static 'css/backgrid.css' %}" type="text/css">
+{% endblock %}
+
+{% block additional_js %}
+<script src="{% static 'js/underscore.js' %}"></script>
+<script src="{% static 'js/backbone.js' %}"></script>
+<script src="{% static 'js/backgrid.js' %}"></script>
+{% endblock %}
+
+{% block scripts %}
+$(document).ready(function(){
+    $('#modal_error').hide();
+    $('#error').hide();
+
+    $('input[id*="checkpointinput_"]').on('keyup', function(e){
+        var s = 0;
+        $('input[id*="checkpointinput_"]').each(function(index){
+            s += parseInt($(this).val());
+        });
+        if(s > 100){$(this).className = 'invalid'; $(this).focus();}
+    });
+
+    $('#SetMaxPointsLink').on('click',function(e){
+        e.preventDefault();
+        $('input[id*="checkpointinput_"]').val('');
+        $('#SetMaxPointsModal').modal('show');
+    });
+
+    $('#SetMaxPoints').on('click', function(){
+        if(!($('#maxpointsform')[0].checkValidity())){
+            $('#maxpointsform')[0].reportValidity();
+            return;
+        }
+        $.ajax({
+            url:"{% url 'disciplines:api:set_max_points' %}",
+            method:"POST",
+            data:{
+                {% for checkpoint in checkpoints %}
+                "checkpoint_{{ checkpoint.id }}": $("#checkpointinput_{{ checkpoint.id }}").val(),
+                {% endfor %}
+                "course":{{ discipline.id }}
+            },
+            dataType:"json"
+        }).done(function(data, textStatus, jqXHR){
+            $.each(data['data'], function(key, value){
+                $(columns).each(function(index){
+                    if($(this)[0].name === "checkpoint_" + key){
+                        $(this)[0].label = $(this)[0].label + " " + value;
+                    }
+                });
+            });
+            InitTable(columns, apps);
+            $('#SetMaxPointsModal').modal('hide');
+            $('div.alert').hide();
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            var msg = get_error_msg(jqXHR.statusCode().status, 1);
+            $('#modal_error').html(msg);
+			$('#modal_error').show();
+			$('#modal_error').delay(3000).slideUp(500, function() {$(this).hide();});
+        });
+    });
+
+    function InitTable(table_columns, table_app){
+        $('#scores_list').empty();
+        var grid = new Backgrid.Grid({
+            columns: table_columns,
+            collection: table_app,
+            className: "backgrid table table-bordered table-hover"
+        });
+        var $backgrid = $("#scores_list");
+        $backgrid.append(grid.render().el);
+    }
+
+    function getCSRF(){
+        return $('input[name=csrfmiddlewaretoken]').val();
+    }
+
+	function csrfSafeMethod(method) {
+		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+
+	// Для методов DELETE, POST и PUT установим CSRF-токен
+	$.ajaxSetup({
+		beforeSend: function (xhr, settings) {
+			if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader('X-CSRFToken', getCSRF());
+			}
+		}
+	});
+
+    Backgrid.MyCell = Backgrid.NumberCell.extend({
+        className: "my-cell",
+        editor: Backgrid.InputCellEditor.extend({
+          postRender: function (model, column) {
+            if (column == null || column.get("name") == this.column.get("name")) {
+              // move the cursor to the end on firefox if text is right aligned
+              if (this.$el.css("text-align") === "right") {
+                var val = this.$el.val();
+                this.$el.focus().val(null).val(val).select();
+              }
+              else {
+                this.$el.focus().select();
+              }
+            }
+
+            return this;
+          }
+        })
+    });
+
+    var data=[{% for student in group_list %}
+                {
+                        "student_id":"{{ student.student.id }}",
+                        "course_id":"{{ discipline.id }}",
+                        "fullname":"{{ student.student.FIO }}",
+                        {% for checkpoint in checkpoints %}
+                        "checkpoint":"{{ checkpoint.id}}",
+                        {% endfor %}
+                },
+              {% endfor %}
+            ];
+
+    var Application = Backbone.Model.extend({
+        initialize: function(){
+            this.on("change", function(model, response, options){
+                if (options && options.save === false) return;
+                model.url = "{% url 'disciplines:api:brs_scores' %}";
+                model.save(null, { type: "POST", error: function (model, response, options){
+                    let msg = get_error_msg(response.status, 2);
+                    let error_obj = $('<div class="alert alert-danger" role="alert" id="error">'+msg+'</div>').appendTo('#error_container');
+			        $(error_obj).delay(2000).slideUp(500, function() {$(this).alert('close');});
+                }});
+                //model.off("change", null, this);
+                console.log("Changed model " + model.get("fullname") + " " + model.get("student_id"));
+            });
+        }
+    });
+    var Applications = Backbone.Collection.extend({
+        model: Application,
+        state: {
+                pageSize: 30
+        },
+        mode: "client" // page entirely on the client side.
+    });
+
+    var apps = new Applications(data);
+
+    var columns=[
+        {
+            editable: false,
+            name: "fullname",
+            label: "ФИО",
+            cell: "string"
+        },
+        {% for checkpoint in checkpoints %}
+        {
+            editable: true,
+            name: "checkpoint_{{checkpoint.id}}",
+            label: "{{checkpoint.name}}",
+            cell: Backgrid.MyCell.extend({
+                decimals:1
+            })
+        },
+        {% endfor %}
+        {% for mark in marks %}
+        {
+            editable: false,
+            name: "mark__{{mark.id}}",
+            label:"{{mark.name}}",
+            cell: Backgrid.MyCell.extend({
+            })
+        },
+        {% endfor %}
+    ];
+    InitTable(columns, apps);
+});
+{% endblock %}
