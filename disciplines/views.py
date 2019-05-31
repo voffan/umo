@@ -12,7 +12,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required, login_required
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semester, Teacher, Person, BRSpoints, Course, \
     GroupList, CheckPoint
-from umo.objgens import get_check_points, add_brs
+from umo.objgens import get_check_points, add_brs, add_exam
 from disciplines.view_excel import discipline_scores_to_excel
 from nomenclature.form import AddSubjectToteacherForm
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
@@ -492,34 +492,25 @@ class ExamPointsListView(ListView):
     template_name = "exam_points.html"
 
     def get_queryset(self):
-        course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
-        edu_begin_year = datetime.today().year - int(course.discipline_detail.semester.name) // 2
-        students = GroupList.objects.select_related('student').filter(group__program__id=course.discipline_detail.discipline.program.id, group__begin_year__year=edu_begin_year).values_list('student__id', flat=True)
-        return BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=students).select_related('student', 'checkpoint')
+        course = Course.objects.select_related('discipline_detail', 'group').get(pk=self.kwargs['pk'])
+        students = course.group.grouplist_set.values_list('student__id', flat=True)
+        return ExamMarks.objects.filter(exam__course__id=self.kwargs['pk'], student__id__in=students).select_related('student', 'exam').order_by('student__FIO')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
-        #exammarks = ExamMarks.objects.filter()
+        # exammarks = ExamMarks.objects.filter()
         course = Course.objects.select_related('discipline_detail', 'group').get(pk=self.kwargs['pk'])
         group_students = course.group.grouplist_set.select_related('student', 'group').all()
         checkpoints = get_check_points()
+        control_type = course.discipline_detail.control_set.first()
         if len(context['object_list']) < 1:
-            # add_brs(course, group_students, checkpoints)
-            context['object_list'] = BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'checkpoint')
-        context['points'] = {}
-        context['maxpoints'] = {}
-        for item in context['object_list']:
-            if item.student.id not in context['points']:
-                context['points'][item.student.id] = {}
-            context['points'][item.student.id][item.checkpoint.id] = item.points
-        for mpoint in course.coursemaxpoints_set.all():
-            context['maxpoints'][mpoint.checkpoint.id] = mpoint.max_point
-        context['checkpoints'] = checkpoints
+            add_exam(course, group_students, datetime.today(), control_type.control_type)
+            context['object_list'] = ExamMarks.objects.filter(exam__course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'exam').order_by('student__FIO')
         context['group_list'] = group_students
         context['discipline'] = course
         #totalPoints = exammarks.examPoints + exammarks.inPoints
         context['today'] = datetime.today().strftime('%Y-%m-%d')
         context['period'] = EduPeriod.objects.get(active=True)
-        context['control_type'] = Control.CONTROL_FORM[course.discipline_detail.control_set.first().control_type][1]
+        context['control_type'] = Control.CONTROL_FORM[control_type.control_type][1]
         return context

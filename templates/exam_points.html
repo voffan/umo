@@ -57,6 +57,12 @@
 
 {% block additional_css %}
 <link rel="stylesheet" href="{% static 'css/backgrid.css' %}" type="text/css">
+<style>
+    table{
+        table-layout:fixed;
+        width:"100%";
+    }
+</style>
 {% endblock %}
 
 {% block additional_js %}
@@ -127,6 +133,7 @@ $(document).ready(function(){
         });
         var $backgrid = $("#scores_list");
         $backgrid.append(grid.render().el);
+        $('th.rotate>a').addClass('rotate');
     }
 
     function getCSRF(){
@@ -165,17 +172,30 @@ $(document).ready(function(){
           }
         })
     });
+    var originalInitialize = Backgrid.HeaderCell.prototype.initialize;
+    Backgrid.HeaderCell.prototype.initialize = function (options) {
+        originalInitialize.apply(this, arguments);
+        var width = options.column.get("width");
+        if (width)
+        {
+            this.$el.addClass(width);
+        }
+    }
 
-    var data=[{% for student in group_list %}
+    var data=[
+                {% for student_mark in object_list %}
                 {
-                        "student_id":"{{ student.student.id }}",
+                        "student_id":"{{ student_mark.student.id }}",
                         "course_id":"{{ discipline.id }}",
-                        "fullname":"{{ student.student.FIO }}",
-                        {% for checkpoint in checkpoints %}
-                        "checkpoint":"{{ checkpoint.id}}",
-                        {% endfor %}
+                        "fullname":"{{ student_mark.student.FIO }}",
+                        "in_points": "{{ student_mark.inPoints }}",
+                        "additional_points": "{{ student_mark.additional_points }}",
+                        "exam_points": "{{ student_mark.examPoints }}",
+                        "total_points": "0.0",
+                        "exam_mark": "{{ student_mark.mark }}",
+                        "mark_symbol": "{{ student_mark.mark_symbol }}"
                 },
-              {% endfor %}
+                {% endfor %}
             ];
 
     var Application = Backbone.Model.extend({
@@ -214,13 +234,24 @@ $(document).ready(function(){
             editable: false,
             name: "student_id",
             label: "Номер зачетной книжки",
-            cell: "string"
+            cell: "string",
+            width: 'rotate'
         },
         {
             editable: false,
             name: "in_points" ,
             label: "Сумма баллов за текущую работу",
-            cell: "string"
+            cell: "string",
+            width: 'rotate'
+        },
+        {
+            editable: true,
+            name: "additional_points",
+            label: "Дополнительные баллы" ,
+            cell: Backgrid.MyCell.extend({
+                decimals:1
+            }),
+            width: 'rotate'
         },
         {
             editable: true,
@@ -228,33 +259,29 @@ $(document).ready(function(){
             label: "Баллы за экзамен",
             cell: Backgrid.MyCell.extend({
                 decimals:1
-            })
-        },
- {
-            editable: true,
-            name: "additional_points",
-            label: "Дополнительные баллы" ,
-            cell: Backgrid.MyCell.extend({
-                decimals:1
-            })
+            }),
+            width: 'rotate'
         },
         {
             editable: false,
             name: "total_points",
             label: "Всего баллов",
-            cell: "string"
+            cell: "string",
+            width: 'rotate'
         },
         {
             editable: false,
             name: "exam_mark",
             label: "Оценка прописью",
-            cell: "string"
+            cell: "string",
+            width: 'rotate'
         },
         {
             editable: false,
             name: "mark_symbol",
             label:"Буквенный эквивалент",
-            cell: "string"
+            cell: "string",
+            width: 'rotate'
         }
     ];
     InitTable(columns, apps);
