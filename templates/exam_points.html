@@ -15,6 +15,9 @@
         <h2>Семестр: <u>{{ discipline.discipline_detail.semester }}</u></h2>
     </div>
     <div class="col">
+        <h2>Курс: <u>{{ discipline.group.year }}</u></h2>
+    </div>
+    <div class="col">
         <h2><u>{{ period }}</u> уч. г.</h2>
     </div>
 </div>
@@ -22,9 +25,7 @@
     <div class="col">
         <h2>Форма контроля: <u>{{ control_type }}</u></h2>
     </div>
-    <div class="col">
-        <h2>Курс: <u>{{ discipline.group.year }}</u></h2>
-    </div>
+
     <div class="col">
         <h2>Группа: <u>{{ discipline.group.Name }}</u></h2>
     </div>
@@ -211,39 +212,48 @@ $(document).ready(function(){
         },
         {
             editable: false,
-            name: "Номер зачетной книжки",
-            label: "student_id",
+            name: "student_id",
+            label: "Номер зачетной книжки",
             cell: "string"
         },
         {
             editable: false,
-            name: "Сумма баллов за текущую работу",
-            label: "in_points",
+            name: "in_points" ,
+            label: "Сумма баллов за текущую работу",
             cell: "string"
         },
         {
             editable: true,
-            name: "Баллы за экзамен",
-            label:"exam_points",
+            name: "exam_points",
+            label: "Баллы за экзамен",
             cell: Backgrid.MyCell.extend({
+                decimals:1
+            })
+        },
+ {
+            editable: true,
+            name: "additional_points",
+            label: "Дополнительные баллы" ,
+            cell: Backgrid.MyCell.extend({
+                decimals:1
             })
         },
         {
             editable: false,
-            name: "Всего баллов",
-            label:"total_points",
+            name: "total_points",
+            label: "Всего баллов",
             cell: "string"
         },
         {
             editable: false,
-            name: "Оценка прописью",
-            label:"exam_mark",
+            name: "exam_mark",
+            label: "Оценка прописью",
             cell: "string"
         },
         {
             editable: false,
-            name: "Буквенный эквивалент",
-            label:"exam_mark_symbol",
+            name: "mark_symbol",
+            label:"Буквенный эквивалент",
             cell: "string"
         }
     ];

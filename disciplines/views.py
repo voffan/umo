@@ -500,6 +500,7 @@ class ExamPointsListView(ListView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
+        #exammarks = ExamMarks.objects.filter()
         course = Course.objects.select_related('discipline_detail', 'group').get(pk=self.kwargs['pk'])
         group_students = course.group.grouplist_set.select_related('student', 'group').all()
         checkpoints = get_check_points()
@@ -517,6 +518,7 @@ class ExamPointsListView(ListView):
         context['checkpoints'] = checkpoints
         context['group_list'] = group_students
         context['discipline'] = course
+        #totalPoints = exammarks.examPoints + exammarks.inPoints
         context['today'] = datetime.today().strftime('%Y-%m-%d')
         context['period'] = EduPeriod.objects.get(active=True)
         context['control_type'] = Control.CONTROL_FORM[course.discipline_detail.control_set.first().control_type][1]
