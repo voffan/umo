@@ -2,10 +2,23 @@
 {% block title %}Список наград преподавателей{% endblock %}
 {% block content %}
     <h1>Список наград преподавателей</h1>
-    <table name="employee_awards"  id="employee_awards" class="table table-bordered">
-        <p align="right" id="employee_awards_filter"><label><b>Уровень нарграды:</b></label><br></p>
-        <!-- <p align="right" id="employee_awards_list_filter"><label><b>Период:</b></label><br></p> -->
-        <thead>
+    <table border="0" cellspacing="5" cellpadding="5">
+        <tbody>
+            <tr>
+                <td>Поиск по годам</td>
+            </tr>
+            <tr>
+                <td>начиная с:</td>
+                <td><input type="text" id="min" name="min"></td>
+            </tr>
+            <tr>
+                <td>заканчивая по:</td>
+                <td><input type="text" id="max" name="max"></td>
+            </tr>
+        </tbody>
+    </table>
+    <table id="employee_awards_list" class="table table-bordered" class="display">
+        <thead class="thead-light">
             <tr>
                 <th>№</th>
                 <th>ФИО</th>
@@ -17,16 +30,16 @@
             </tr>
         </thead>
         <tbody>
-        {% for employee_awards in object_list %}
+        {% for employee_award in object_list %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td><a href="{% url 'awards:edit_employee_award' employee_awards.id %}">{{ employee_awards.employee.FIO }}</a></td>
-            <td>{{ employee_awards.award_date }}</td>
-            <td>{{ employee_awards.award.award_name }}</td>
-            <td>{{ employee_awards.award.award_level }}</td>
-            <td>{{ employee_awards.award.issuer }}</td>
+            <td><a href="{% url 'awards:edit_employee_award' employee_award.id %}">{{ employee_award.employee.FIO }}</a></td>
+            <td>{{ employee_award.award_date }}</td>
+            <td>{{ employee_award.award.award_name }}</td>
+            <td>{{ employee_award.award.get_award_level_display }}</td>
+            <td>{{ employee_award.award.issuer }}</td>
             <td>
-                <a href="{% url 'awards:delete_employee_award' employee_awards.id %}" class="btn btn-danger" role="button">
+                <a href="{% url 'awards:delete_employee_award' employee_award.id %}" class="btn btn-danger" role="button">
                     Удалить
                 </a>
             </td>

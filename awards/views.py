@@ -21,14 +21,25 @@ class EmployeeAwardsList(ListView):
     template_name = 'awards/employee_awards.html'
     model = EmployeeAward
     context_object_name = 'employee_awards'
-    # def get_context_data(self, *, object_list=None, **kwargs):
-    #     pass
 
     # def get_queryset(self):
-    #     # return EmployeeAward.award.objects.filter(award__award_level=self.request.POST.get['award_level'])
-    #     # return EmployeeAward.objects.filter(award__award_level=self.request.POST.get['award_level'])
+    #     # return EmployeeAward.objects.filter(self.model.award.award_level,award__award_level__isnull=self.request.POST('award_level'))
     #     # return EmployeeAward.objects.filter(award__award_level=self.request.POST['award_level'])
-    #     return EmployeeAward.objects.filter(award__award_level=2)
+    #     # return EmployeeAward.objects.filter(award__award_level=2)
+    #     pass
+    #
+    # def get_context_data(self, **kwargs):
+    #     context = super(EmployeeAwardsList, self).get_context_data(**kwargs)
+    #     award = Award.objects.last()
+    #     if award is not None:
+    #         context['award_level'] = str(award.award_level)
+    #     else:
+    #         context['award_level'] = 'нет'
+    #     return context
+
+
+# class EmployeeAwardsListView(EmployeeAwardsList):
+#     pass
 
 
 class EmployeeWidget(ModelSelect2Widget):

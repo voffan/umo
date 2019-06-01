@@ -2,8 +2,8 @@
 {% block title %}Список наград{% endblock %}
 {% block content %}
     <h1>Список наград</h1>
-    <table name="awards"  id="awards_list" class="table table-bordered">
-        <thead>
+    <table id="awards_list" class="table table-bordered">
+        <thead class="thead-light">
             <tr>
                 <th>№</th>
                 <th>наименование награды</th>
@@ -19,7 +19,7 @@
             <td>{{ forloop.counter }}</td>
             <td><a href="{% url 'awards:edit_award' award.id %}">{{ award.award_name }}</a></td>
             <td>{{ award.award_type }}</td>
-            <td>{{ award.award_level }}</td>
+            <td>{{ award.get_award_level_display }}</td>
             <td>{{ award.issuer }}</td>
             <td>
                 <a href="{% url 'awards:delete_award' award.id %}" class="btn btn-danger" role="button">
