@@ -33,13 +33,13 @@ class Award(Model):
 
 
 class EmployeeAward(Model):
-    employee = ForeignKey(Teacher, verbose_name='Сотрудник', db_index=True, on_delete=CASCADE)
+    employee = ForeignKey(Teacher, verbose_name='Преподаватель', db_index=True, on_delete=CASCADE)
     award = ForeignKey('Award', verbose_name='Награда', on_delete=CASCADE)
     award_date = YearField(verbose_name='Дата нагрждения')
 
     class Meta:
-        verbose_name = 'Награда сотрудника'
-        verbose_name_plural = 'Награды сотрудников'
+        verbose_name = 'Награда преподавателя'
+        verbose_name_plural = 'Награды преподавателей'
 
     def __str__(self):
         return self.employee.FIO + '-' + self.award.award_name

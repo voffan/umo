@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-{% block title %}Добавление награды сотрудника{% endblock %}
+{% block title %}Добавление награды преподавателя{% endblock %}
 
 {% block additional_css %}
 {{ form.media.css }}
@@ -10,7 +10,7 @@
     <div class="container">
         <form action="{% url 'awards:create_employee_award' %}" method="post">
             {% csrf_token %}
-            <h1>Добавление награды сотрудника</h1>
+            <h1>Добавление награды преподавателя</h1>
             <br>
             <div class="row">
                 <div class="col-md-6 offset-md-3">
