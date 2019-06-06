@@ -6,16 +6,22 @@ from djangoyearlessdate.models import YearField
 
 class Award(Model):
     NONE = 0
-    FEDERAL = 1
-    REGIONAL = 2
-    OCCUPATION = 3
-    USSR = 4
+    GOVERNMENTAL = 1
+    STATE1 = 2
+    MINISTRY = 3
+    STATE2 = 4
+    INDUSTRIES = 5
+    SVFU = 6
+    USSR = 7
 
     AWARD_LEVEL = (
         (NONE, '----'),
-        (FEDERAL, 'Федеральный'),
-        (REGIONAL, 'Республиканский'),
-        (OCCUPATION, 'Отрослевой'),
+        (GOVERNMENTAL, 'ПРАВИТЕЛЬСТВЕННЫЕ НАГРАДЫ РФ '),
+        (STATE1, 'ГОСУДАРСТВЕННЫЕ НАГРАДЫ РФ '),
+        (MINISTRY, 'НАГРАДЫ МИНИСТЕРСТВА ОБРАЗОВАНИЯ И НАУКИ РФ'),
+        (STATE2, 'ГОСУДАРСТВЕННЫЕ НАГРАДЫ РС (Я)'),
+        (INDUSTRIES, 'ОТРАСЛЕВЫЕ НАГРАДЫ РС (Я)'),
+        (SVFU, 'ВИДЫ НАГРАД СВФУ'),
         (USSR, 'Всесоюзный'),
     )
 
