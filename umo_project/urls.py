@@ -14,4 +14,5 @@ urlpatterns = [
     url(r'^student/', include(('students.urls', 'students'), namespace='students')),
     url(r'^brspoints/(?P<pk>[0-9]+)/$', views.BRSPointsListView.as_view(), name='brs_studentlist'),
     url(r'^select2/', include('django_select2.urls')),
+    url(r'^awards/',include(('awards.urls', 'awards'), namespace='awards')),
 ]

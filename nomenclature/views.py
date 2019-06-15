@@ -82,8 +82,7 @@ def upload_file(request):
             parseRUP(f)
             return redirect(reverse('nomenclature:rup'))
 
-    else:
-        form = UploadFileForm()
+    form = UploadFileForm()
     return render(request, 'rup_upload.html', {'form': form})
 
 

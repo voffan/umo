@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Список организаций{% endblock %}
+{% block content %}
+    <h1>Список организаций</h1>
+    <table id="issuers_list" class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>№</th>
+                <th>Наименование организации</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for issuer in object_list %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td><a href="{% url 'awards:edit_issuer' issuer.id %}">{{ issuer.name }}</a></td>
+            <td>
+                <a href="{% url 'awards:delete_issuer' issuer.id %}" class="btn btn-danger" role="button">
+                    Удалить
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{% url 'awards:create_issuer' %}" class="btn btn-success">Добавить организацию</a>
+{% endblock %}

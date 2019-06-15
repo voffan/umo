@@ -13,6 +13,49 @@ $(document).ready( function () {
     } );
 } );
 $(document).ready( function () {
+    $('#awards_list').DataTable( {
+        "language": {
+            "url": "/static/Russian.json"
+        }
+    } );
+} );
+
+$.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+        var min = parseInt( $('#min').val(), 10 );
+        var max = parseInt( $('#max').val(), 10 );
+        var age = parseFloat( data[2] ) || 0;
+
+        if ( ( isNaN( min ) && isNaN( max ) ) ||
+             ( isNaN( min ) && age <= max ) ||
+             ( min <= age   && isNaN( max ) ) ||
+             ( min <= age   && age <= max ) )
+        {
+            return true;
+        }
+        return false;
+    }
+);
+
+$(document).ready( function () {
+    var table = $('#employee_awards_list').DataTable( {
+        "language": {
+            "url": "/static/Russian.json"
+        }
+    } )
+
+    $('#min, #max').keyup( function() {
+        table.draw();
+    } );
+} );
+$(document).ready( function () {
+    $('#issuers_list').DataTable( {
+        "language": {
+            "url": "/static/Russian.json"
+        }
+    } );
+} );
+$(document).ready( function () {
     var table = $('#students_list').DataTable({
         "columnDefs": [
             {
