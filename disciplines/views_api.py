@@ -3,12 +3,19 @@ import json
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from nomenclature.form import AddSubjectToteacherForm
-from umo.models import BRSpoints, CheckPoint, CourseMaxPoints, Course, Teacher
+from umo.models import BRSpoints, CheckPoint, CourseMaxPoints, Course, Teacher, ExamMarks
+
+
+def to_number(data):
+    if type(data) is str:
+        return float(data.replace(',','.'))
+    else:
+        return float(data)
 
 
 @login_required
@@ -115,3 +122,36 @@ def delete_course_teacher(requst):
     except Exception as e:
         result['result'] = False
     return HttpResponse(json.dumps(result), content_type='application/json')
+
+
+@login_required
+@permission_required('umo.change_exammarks', login_url='login')
+def exam_scores(request):
+    result = {'result': False}
+    serialized_data = request.body.decode("utf-8")
+    serialized_data = json.loads(serialized_data)
+    score = ExamMarks.objects.select_related('mark').filter(exam__pk=serialized_data['exam_id'],
+                                                            student__id=serialized_data['student_id']).first()
+    result['old'] = {'additional_points': score.additional_points, 'exam_points': score.examPoints,
+                     'mark': score.mark.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points }
+    serialized_data['additional_points'] = to_number(serialized_data['additional_points'])
+    serialized_data['exam_points'] = to_number(serialized_data['exam_points'])
+    if score is None:
+        status = 404
+    elif request.user.id != score.exam.course.lecturer.user.id:
+        status = 403
+    elif score.inPoints + serialized_data['exam_points'] + serialized_data['additional_points'] > 100:
+        status = 400
+    else:
+        try:
+            score.additional_points = serialized_data['additional_points']
+            score.examPoints = serialized_data['exam_points']
+            score.save()
+            result['new'] = {'additional_points': score.additional_points, 'exam_points': score.examPoints,
+                             'mark': score.mark.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points }
+            result['result'] = True
+            status = 200
+        except Exception as e:
+            status = 500
+    result['status'] = status
+    return JsonResponse(result)

@@ -73,8 +73,22 @@
 
 {% block scripts %}
 $(document).ready(function(){
-    /*$('#modal_error').hide();
-    $('#error').hide();
+    function get_error_msg(status, type){
+        if(status == 404){
+            msg = 'Дисциплина не найдена!'
+        }else if(status == 403 || status == 200){
+            msg = 'Вы не можете устанавливать ';
+            if (type == 1)msg += 'максимальные ';
+            msg += 'баллы для данной дисциплины!';
+        }else if(status == 500){
+            msg = 'Ошибка при сохранении баллов, обратитесь к администратору!'
+        } else if(status == 400){
+            msg = 'Сумма баллов не может превышать "100"!';
+        }
+        return msg;
+    }
+
+    /*$('#error').hide();
 
     $('input[id*="checkpointinput_"]').on('keyup', function(e){
         var s = 0;
@@ -175,10 +189,10 @@ $(document).ready(function(){
     var originalInitialize = Backgrid.HeaderCell.prototype.initialize;
     Backgrid.HeaderCell.prototype.initialize = function (options) {
         originalInitialize.apply(this, arguments);
-        var width = options.column.get("width");
-        if (width)
+        var additional_class = options.column.get("additional_class");
+        if (additional_class)
         {
-            this.$el.addClass(width);
+            this.$el.addClass(additional_class);
         }
     }
 
@@ -186,13 +200,13 @@ $(document).ready(function(){
                 {% for student_mark in object_list %}
                 {
                         "student_id":"{{ student_mark.student.id }}",
-                        "course_id":"{{ discipline.id }}",
+                        "exam_id":"{{ exam.id }}",
                         "fullname":"{{ student_mark.student.FIO }}",
                         "in_points": "{{ student_mark.inPoints }}",
                         "additional_points": "{{ student_mark.additional_points }}",
                         "exam_points": "{{ student_mark.examPoints }}",
-                        "total_points": "0.0",
-                        "exam_mark": "{{ student_mark.mark }}",
+                        "total_points": "{{ student_mark.total_points }}",
+                        "exam_mark": "{{ student_mark.mark.mark_to_text }}",
                         "mark_symbol": "{{ student_mark.mark_symbol }}"
                 },
                 {% endfor %}
@@ -202,13 +216,34 @@ $(document).ready(function(){
         initialize: function(){
             this.on("change", function(model, response, options){
                 if (options && options.save === false) return;
-                model.url = "{% url 'disciplines:api:brs_scores' %}";
+                model.url = "{% url 'disciplines:api:exam_scores' %}";
                 model.save(null, { type: "POST", error: function (model, response, options){
+                    model.set("exam_mark", response["old"]["mark"]);
+                    model.set("mark_symbol", response["old"]["symbol"]);
+                    model.set("additional_points", response["old"]["additional_points"]);
+                    model.set("exam_points", response["old"]["exam_points"]);
+                    model.set("total_points", response["old"]["total"]);
                     let msg = get_error_msg(response.status, 2);
                     let error_obj = $('<div class="alert alert-danger" role="alert" id="error">'+msg+'</div>').appendTo('#error_container');
 			        $(error_obj).delay(2000).slideUp(500, function() {$(this).alert('close');});
-                }});
-                //model.off("change", null, this);
+                }, success: function(model, response, options){
+                    var response_data;
+                    if (response['result'] == true){
+                        response_data = response['new']
+                    }else{
+                        response_data = response['old']
+                        let msg = get_error_msg(response.status, 2);
+                        let error_obj = $('<div class="alert alert-danger" role="alert" id="error">'+msg+'</div>').appendTo('#error_container');
+                        $(error_obj).delay(2000).slideUp(500, function() {$(this).alert('close');});
+                        model.set("additional_points", response_data["additional_points"]);
+                        model.set("exam_points", response_data["exam_points"]);
+                    }
+                    model.set("exam_mark", response_data["mark"]);
+                    model.set("mark_symbol", response_data["symbol"]);
+                    model.set("total_points", response_data["total"]);
+                    //InitTable(columns, apps);
+                }
+                });
                 console.log("Changed model " + model.get("fullname") + " " + model.get("student_id"));
             });
         }
@@ -235,14 +270,14 @@ $(document).ready(function(){
             name: "student_id",
             label: "Номер зачетной книжки",
             cell: "string",
-            width: 'rotate'
+            additional_class: 'rotate'
         },
         {
             editable: false,
             name: "in_points" ,
             label: "Сумма баллов за текущую работу",
             cell: "string",
-            width: 'rotate'
+            additional_class: 'rotate'
         },
         {
             editable: true,
@@ -251,7 +286,7 @@ $(document).ready(function(){
             cell: Backgrid.MyCell.extend({
                 decimals:1
             }),
-            width: 'rotate'
+            additional_class: 'rotate'
         },
         {
             editable: true,
@@ -260,28 +295,28 @@ $(document).ready(function(){
             cell: Backgrid.MyCell.extend({
                 decimals:1
             }),
-            width: 'rotate'
+            additional_class: 'rotate'
         },
         {
             editable: false,
             name: "total_points",
             label: "Всего баллов",
             cell: "string",
-            width: 'rotate'
+            additional_class: 'rotate'
         },
         {
             editable: false,
             name: "exam_mark",
             label: "Оценка прописью",
             cell: "string",
-            width: 'rotate'
+            additional_class: 'rotate'
         },
         {
             editable: false,
             name: "mark_symbol",
             label:"Буквенный эквивалент",
             cell: "string",
-            width: 'rotate'
+            additional_class: 'rotate'
         }
     ];
     InitTable(columns, apps);

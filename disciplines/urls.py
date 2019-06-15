@@ -7,6 +7,7 @@ api = ([
     url(r'^set_max_points$', views_api.set_max_points, name='set_max_points'),
     url(r'^add_course_to_teacher$', views_api.add_course_to_teacher, name='add_course_to_teacher'),
     url(r'^delete_course_teacher$', views_api.delete_course_teacher, name='delete_course_teacher'),
+    url(r'^exam_scores$', views_api.exam_scores, name='exam_scores'),
 ], 'api')
 
 excel = ([

@@ -485,31 +485,31 @@ def export_brs_points(request):
     return response
 
 
-class ExamPointsListView(ListView):
+class ExamPointsListView(PermissionRequiredMixin, ListView):
     model = GroupList
     context_object_name = 'students_list'
     success_url = reverse_lazy('disciplines:disciplines_list')
     template_name = "exam_points.html"
+    permission_required = 'umo.add_changemarks'
 
     def get_queryset(self):
         course = Course.objects.select_related('discipline_detail', 'group').get(pk=self.kwargs['pk'])
         students = course.group.grouplist_set.values_list('student__id', flat=True)
-        return ExamMarks.objects.filter(exam__course__id=self.kwargs['pk'], student__id__in=students).select_related('student', 'exam').order_by('student__FIO')
+        return ExamMarks.objects.filter(exam__course__id=self.kwargs['pk'], student__id__in=students).select_related('student', 'mark').order_by('student__FIO')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
-        # exammarks = ExamMarks.objects.filter()
         course = Course.objects.select_related('discipline_detail', 'group').get(pk=self.kwargs['pk'])
         group_students = course.group.grouplist_set.select_related('student', 'group').all()
-        checkpoints = get_check_points()
         control_type = course.discipline_detail.control_set.first()
-        if len(context['object_list']) < 1:
-            add_exam(course, group_students, datetime.today(), control_type.control_type)
-            context['object_list'] = ExamMarks.objects.filter(exam__course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'exam').order_by('student__FIO')
+        exam = Exam.objects.filter(course__id=self.kwargs['pk'], controlType=control_type.control_type).first()
+        if exam is None:
+            exam = add_exam(course, group_students, datetime.today(), control_type.control_type)
+            context['object_list'] = ExamMarks.objects.filter(exam__id=exam.id).select_related('student', 'mark').order_by('student__FIO')
+        context['exam'] = exam
         context['group_list'] = group_students
         context['discipline'] = course
-        #totalPoints = exammarks.examPoints + exammarks.inPoints
         context['today'] = datetime.today().strftime('%Y-%m-%d')
         context['period'] = EduPeriod.objects.get(active=True)
         context['control_type'] = Control.CONTROL_FORM[control_type.control_type][1]

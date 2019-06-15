@@ -57,6 +57,7 @@ def add_exam(course, group_list, exam_date, control_type, prev_exam=None):
         exam.prev_exam = prev_exam
         exam.save()
         add_exam_marks(exam, group_list)
+        return exam
 
 
 def add_exam_marks(exam, group_list):
