@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from nomenclature.form import AddSubjectToteacherForm
-from umo.models import BRSpoints, CheckPoint, CourseMaxPoints, Course, Teacher, ExamMarks
+from umo.models import BRSpoints, CheckPoint, CourseMaxPoints, Course, Teacher, ExamMarks, Exam
 
 
 def to_number(data):
@@ -134,14 +134,23 @@ def exam_scores(request):
                                                             student__id=serialized_data['student_id']).first()
     result['old'] = {'additional_points': score.additional_points, 'exam_points': score.examPoints,
                      'mark': score.mark.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points }
+    final = CheckPoint.objects.get(name__icontains='Рубеж')
+    max_in_points = CourseMaxPoints.objects.get(course__id=score.exam.course.id, checkpoint__id=final.id).max_point
     serialized_data['additional_points'] = to_number(serialized_data['additional_points'])
     serialized_data['exam_points'] = to_number(serialized_data['exam_points'])
+    result['max_exam_points'] = 0
+
     if score is None:
         status = 404
+    elif score.exam.is_finished:
+        status = 405
     elif request.user.id != score.exam.course.lecturer.user.id:
         status = 403
     elif score.inPoints + serialized_data['exam_points'] + serialized_data['additional_points'] > 100:
         status = 400
+    elif serialized_data['exam_points'] > 100 - max_in_points:
+        result['max_exam_points'] = 100 - max_in_points
+        status = 406
     else:
         try:
             score.additional_points = serialized_data['additional_points']
@@ -149,6 +158,27 @@ def exam_scores(request):
             score.save()
             result['new'] = {'additional_points': score.additional_points, 'exam_points': score.examPoints,
                              'mark': score.mark.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points }
+            result['result'] = True
+            status = 200
+        except Exception as e:
+            status = 500
+    result['status'] = status
+    return JsonResponse(result)
+
+
+@login_required
+@permission_required('umo.change_exam', login_url='login')
+def finish_exam(request):
+    result = {'result': False}
+    exam = Exam.objects.filter(id=request.POST['exam_id']).first()
+    if exam is None:
+        status = 400
+    elif request.user.id != exam.course.lecturer.user.id:
+        status = 403
+    else:
+        try:
+            exam.is_finished = True
+            exam.save()
             result['result'] = True
             status = 200
         except Exception as e:

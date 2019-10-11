@@ -426,10 +426,11 @@ class Exam(Model):
     course = ForeignKey(Course, db_index=True, on_delete=CASCADE)
     controlType = IntegerField('форма контроля', choices=Control.CONTROL_FORM)
     prev_exam = ForeignKey('self', verbose_name="предыдущий экзамен", blank=True, null=True, on_delete=SET_NULL)
+    is_finished = BooleanField('Экзамен закончен', default=False)
 
     class Meta:
         verbose_name = 'контрольное мероприятие для курса обучения дисциплине'
-        verbose_name_plural = 'контрольные мероприятия для курсов обучения дисциплнам'
+        verbose_name_plural = 'контрольные мероприятия для курсов обучения дисциплинам'
 
     def __str__(self):
         return self.course.discipline_detail.discipline.Name + '"' + self.examDate + '"'
@@ -484,7 +485,7 @@ class ExamMarks(Model):
         elif total_points >= 85 and total_points < 95:
             mark = Mark.objects.get(name='5')
             symbol = self.SYMBOL_MARK[1][0]
-        else:
+        elif total_points>= 95 and total_points < 100:
             mark = Mark.objects.get(name='5')
             symbol = self.SYMBOL_MARK[0][0]
         self.mark = mark

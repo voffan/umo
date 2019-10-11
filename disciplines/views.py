@@ -12,7 +12,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required, login_required
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semester, Teacher, Person, BRSpoints, Course, \
     GroupList, CheckPoint
-from umo.objgens import get_check_points, add_brs, add_exam
+from umo.objgens import get_check_points, add_brs, add_exam, add_exam_marks
 from disciplines.view_excel import discipline_scores_to_excel
 from nomenclature.form import AddSubjectToteacherForm
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
@@ -490,7 +490,7 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
     context_object_name = 'students_list'
     success_url = reverse_lazy('disciplines:disciplines_list')
     template_name = "exam_points.html"
-    permission_required = 'umo.add_changemarks'
+    permission_required = 'umo.add_exammarks'
 
     def get_queryset(self):
         course = Course.objects.select_related('discipline_detail', 'group').get(pk=self.kwargs['pk'])
@@ -506,7 +506,10 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
         exam = Exam.objects.filter(course__id=self.kwargs['pk'], controlType=control_type.control_type).first()
         if exam is None:
             exam = add_exam(course, group_students, datetime.today(), control_type.control_type)
-            context['object_list'] = ExamMarks.objects.filter(exam__id=exam.id).select_related('student', 'mark').order_by('student__FIO')
+        elif not exam.is_finished:
+            with transaction.atomic():
+                add_exam_marks(exam, group_students)
+        context['object_list'] = ExamMarks.objects.filter(exam__id=exam.id).select_related('student', 'mark').order_by('student__FIO')
         context['exam'] = exam
         context['group_list'] = group_students
         context['discipline'] = course
@@ -514,3 +517,5 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
         context['period'] = EduPeriod.objects.get(active=True)
         context['control_type'] = Control.CONTROL_FORM[control_type.control_type][1]
         return context
+
+

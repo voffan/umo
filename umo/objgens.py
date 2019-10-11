@@ -63,12 +63,14 @@ def add_exam(course, group_list, exam_date, control_type, prev_exam=None):
 def add_exam_marks(exam, group_list):
     checkpoint = CheckPoint.objects.get(name__icontains='Рубежный')
     for gl in group_list:
-        mark = ExamMarks()
-        mark.exam = exam
-        mark.student = gl.student
+        mark = ExamMarks.objects.filter(exam__id=exam.id, student__id=gl.student.id).first()
+        if mark is None:
+            mark = ExamMarks()
+            mark.exam = exam
+            mark.student = gl.student
+            mark.additional_points = 0
+            mark.examPoints = 0
+            mark.mark = Mark.objects.get(name='2')
+            mark.mark_symbol = ExamMarks.SYMBOL_MARK[-1][0]
         mark.inPoints = BRSpoints.objects.get(course__id=exam.course.id, student__id=gl.student.id, checkpoint__id=checkpoint.id).points
-        mark.additional_points = 0
-        mark.examPoints = 0
-        mark.mark = Mark.objects.get(name='2')
-        mark.mark_symbol = ExamMarks.SYMBOL_MARK[-1][0]
         mark.save()

@@ -51,7 +51,7 @@
                 </div>
             </div>
         </div>
-           <button type="submit" class="btn btn-success" name="save" value="save">Сохранить</button>
+           <button type="submit" class="btn btn-success" id="SaveButton" name="save" value="save">{% if not exam.is_finished %}Завершить экзамен{% else %}Скачать ведомость{% endif %}</button>
             <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>
 {% endblock %}
 
@@ -73,70 +73,64 @@
 
 {% block scripts %}
 $(document).ready(function(){
-    function get_error_msg(status, type){
+    function get_error_msg(status, type, max_exam_points=0){
         if(status == 404){
-            msg = 'Дисциплина не найдена!'
+            if (type == 1) msg = 'Баллы не проставлены!'
+            else msg = 'Экзамен не найден!';
         }else if(status == 403 || status == 200){
-            msg = 'Вы не можете устанавливать ';
-            if (type == 1)msg += 'максимальные ';
-            msg += 'баллы для данной дисциплины!';
+            if (type == 1) msg = 'Вы не можете устанавливать баллы за экзамен!';
+            else msg = 'Вы не можете закрыть закрыть экзамен!';
         }else if(status == 500){
             msg = 'Ошибка при сохранении баллов, обратитесь к администратору!'
         } else if(status == 400){
             msg = 'Сумма баллов не может превышать "100"!';
+        } else if (status == 406){
+            msg = 'Количество баллов за экзамен не может превышать "' + max_exam_points + '"!'
+        }else if(status == 405){
+            msg = 'Экзамен уже завершен!';
         }
         return msg;
     }
 
-    /*$('#error').hide();
+    function show_error(message){
+        let error_obj = $('<div class="alert alert-danger" role="alert" id="error">' + msg + '</div>').appendTo('#error_container');
+        $(error_obj).delay(2000).slideUp(500, function() {$(this).alert('close');});
+    }
 
-    $('input[id*="checkpointinput_"]').on('keyup', function(e){
-        var s = 0;
-        $('input[id*="checkpointinput_"]').each(function(index){
-            s += parseInt($(this).val());
-        });
-        if(s > 100){$(this).className = 'invalid'; $(this).focus();}
+    $('[name="save"]').on('click', function(){
+        {% if exam.is_finished %}
+            download_report();
+        {% else %}
+            close_exam();
+        {% endif %}
     });
 
-    $('#SetMaxPointsLink').on('click',function(e){
-        e.preventDefault();
-        $('input[id*="checkpointinput_"]').val('');
-        $('#SetMaxPointsModal').modal('show');
-    });
-
-    $('#SetMaxPoints').on('click', function(){
-        if(!($('#maxpointsform')[0].checkValidity())){
-            $('#maxpointsform')[0].reportValidity();
-            return;
-        }
-        $.ajax({
-            url:"{% url 'disciplines:api:set_max_points' %}",
-            method:"POST",
-            data:{
-                {% for checkpoint in checkpoints %}
-                "checkpoint_{{ checkpoint.id }}": $("#checkpointinput_{{ checkpoint.id }}").val(),
-                {% endfor %}
-                "course":{{ discipline.id }}
-            },
-            dataType:"json"
-        }).done(function(data, textStatus, jqXHR){
-            $.each(data['data'], function(key, value){
-                $(columns).each(function(index){
-                    if($(this)[0].name === "checkpoint_" + key){
-                        $(this)[0].label = $(this)[0].label + " " + value;
-                    }
-                });
+    function close_exam(){
+        if(confirm("Экзамен закончился?")){
+            $.ajax({
+                url: "{% url 'disciplines:api:finish_exam' %}",
+                method: "POST",
+                data: {"exam_id": {{ exam.id }}},
+                dataType: "json"
+            }).done(function(data){
+                if(data['result'] == true){
+                    $("#SaveButton").html("Скачать ведомость");
+                    $('#SaveButton').off('click').on('click', download_report);
+                }else{
+                    //show error
+                    show_error(get_error_msg(data['result']['status'], 2));
+                }
+            }).fail(function(jqXHR, textStatus){
+                //show error
+                show_error(get_error_msg(jqXHR.status, 2));
             });
-            InitTable(columns, apps);
-            $('#SetMaxPointsModal').modal('hide');
-            $('div.alert').hide();
-        }).fail(function(jqXHR, textStatus, errorThrown){
-            var msg = get_error_msg(jqXHR.statusCode().status, 1);
-            $('#modal_error').html(msg);
-			$('#modal_error').show();
-			$('#modal_error').delay(3000).slideUp(500, function() {$(this).hide();});
-        });
-    });*/
+        }
+    }
+
+    function download_report(){
+        console.log('report');
+
+    }
 
     function InitTable(table_columns, table_app){
         $('#scores_list').empty();
@@ -218,23 +212,24 @@ $(document).ready(function(){
                 if (options && options.save === false) return;
                 model.url = "{% url 'disciplines:api:exam_scores' %}";
                 model.save(null, { type: "POST", error: function (model, response, options){
-                    model.set("exam_mark", response["old"]["mark"]);
-                    model.set("mark_symbol", response["old"]["symbol"]);
-                    model.set("additional_points", response["old"]["additional_points"]);
-                    model.set("exam_points", response["old"]["exam_points"]);
-                    model.set("total_points", response["old"]["total"]);
-                    let msg = get_error_msg(response.status, 2);
-                    let error_obj = $('<div class="alert alert-danger" role="alert" id="error">'+msg+'</div>').appendTo('#error_container');
-			        $(error_obj).delay(2000).slideUp(500, function() {$(this).alert('close');});
+                    max_exam_points = 0;
+                    if ('old' in response ){
+                        model.set("exam_mark", response["old"]["mark"]);
+                        model.set("mark_symbol", response["old"]["symbol"]);
+                        model.set("additional_points", response["old"]["additional_points"]);
+                        model.set("exam_points", response["old"]["exam_points"]);
+                        model.set("total_points", response["old"]["total"]);
+                        max_exam_points = response['max_exam_points']
+                    }
+                    show_error(get_error_msg(response.status, 1, max_exam_points));
                 }, success: function(model, response, options){
                     var response_data;
+                    console.log(response);
                     if (response['result'] == true){
                         response_data = response['new']
                     }else{
                         response_data = response['old']
-                        let msg = get_error_msg(response.status, 2);
-                        let error_obj = $('<div class="alert alert-danger" role="alert" id="error">'+msg+'</div>').appendTo('#error_container');
-                        $(error_obj).delay(2000).slideUp(500, function() {$(this).alert('close');});
+                        show_error(get_error_msg(response.status, 1, response['max_exam_points']));
                         model.set("additional_points", response_data["additional_points"]);
                         model.set("exam_points", response_data["exam_points"]);
                     }
