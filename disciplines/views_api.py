@@ -28,7 +28,7 @@ def brs_scores(request):
     scores = BRSpoints.objects.select_related('student', 'course').filter(course__id=serialized_data['course_id'], student__id=serialized_data['student_id'])
     if not scores:
         status = 404
-    elif request.user.id != scores[0].course.lecturer.user.id:
+    elif request.user.id != scores[0].course.lecturer.user.id and (not request.user.groups.filter(name='UMO').exists()):
         status = 403
     else:
         result = {
@@ -58,7 +58,7 @@ def set_max_points(request):
     status = 200
     checkpoints = CheckPoint.objects.all()
     course = get_object_or_404(Course, pk=request.POST['course'])
-    if course.lecturer.user.id != request.user.id:
+    if course.lecturer.user.id != request.user.id and (not request.user.groups.filter(name='UMO').exists()):
         status = 403
     else:
         result['data'] = {}
@@ -144,7 +144,7 @@ def exam_scores(request):
         status = 404
     elif score.exam.is_finished:
         status = 405
-    elif request.user.id != score.exam.course.lecturer.user.id:
+    elif request.user.id != score.exam.course.lecturer.user.id and (not request.user.groups.filter(name='UMO').exists()):
         status = 403
     elif score.inPoints + serialized_data['exam_points'] + serialized_data['additional_points'] > 100:
         status = 400
@@ -173,7 +173,7 @@ def finish_exam(request):
     exam = Exam.objects.filter(id=request.POST['exam_id']).first()
     if exam is None:
         status = 400
-    elif request.user.id != exam.course.lecturer.user.id:
+    elif request.user.id != exam.course.lecturer.user.id and (not request.user.groups.filter(name='UMO').exists()):
         status = 403
     else:
         try:

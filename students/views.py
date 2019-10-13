@@ -55,9 +55,12 @@ class StudentListView(StudentsList):
                     synch.finished = False
                 synch.date = datetime.now()
                 synch.save()
-                synch = Synch.objects.last()
+                #synch = Synch.objects.last()
                 synch_groups = sync_models.PlnGroupStud.objects.filter(id_pln__id_dop__id_institute=1118)
+                n = synch_groups.count()
+                i = 1
                 for sg in synch_groups:
+                    print(i, 'of', n)
                     eduprogyear = sync_models.PlnEduProgYear.objects.filter(id_pln=sg.id_pln.id_pln).first()
                     if synch.date > eduprogyear.dateend:
                         continue
@@ -70,14 +73,19 @@ class StudentListView(StudentsList):
                     g.begin_year = Year.objects.get_or_create(year=eduprogyear.year)[0]
                     g.Name = sg.name
                     g.program = EduProgram.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code, year__year__lte=eduprogyear.year).order_by('-year__year').first()
+                    if g.program is not None:
+                        g.cathedra = g.program.cathedra
                     g.save()
 
                     synch_people = sync_models.PeoplePln.objects.filter(id_group=sg.id_group)
                     for sp in synch_people:
+                        gl = GroupList.objects.filter(id=sp.id_peoplepln).first()
                         if sp.id_status != 2:
+                            if gl is not None:
+                                gl.active = False
+                                gl.save()
                             continue
-                        if GroupList.objects.filter(id=sp.id_peoplepln).first() is not None:
-                            gl = GroupList.objects.filter(id=sp.id_peoplepln).first()
+                        if gl is not None:
                             st = gl.student
                         else:
                             gl = GroupList()
@@ -93,6 +101,7 @@ class StudentListView(StudentsList):
                         gl.save()
                 synch.finished = True
                 synch.save()
+                i += 1
         return redirect(self.success_url)
 
 

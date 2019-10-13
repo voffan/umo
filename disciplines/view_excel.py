@@ -104,7 +104,6 @@ def get_styles():
     return (font_main, font_bold, font_bold_s, font_calibri, font_arial, fill, border, align_center, align_center2, align_left, align_right)
 
 
-@login_required
 def discipline_scores_to_excel(course_id):
     # определяем стили
     font_main, font_bold, font_bold_s, font_calibri, font_arial, fill, border, align_center, align_center2, align_left, align_right = get_styles()
@@ -301,7 +300,6 @@ def discipline_scores_to_excel(course_id):
     return wb
 
 
-@login_required
 def exam_scores(exam_id):
     wb = Workbook()
 

@@ -105,7 +105,7 @@ DATABASES = {
         'USER': 'imi',
         'PASSWORD': '31412',
         'OPTIONS': {
-            'driver': 'SQL Server',
+            'driver': 'ODBC Driver 11 for SQL Server',
         },
     }
 }
