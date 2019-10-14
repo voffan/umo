@@ -494,8 +494,8 @@ class ExamMarks(Model):
 
 
 class Synch(Model):
-    date = DateTimeField()
-    finished = BooleanField()
+    date = DateTimeField('Дата синхронизации')
+    finished = BooleanField('Синхронизация не выполнена')
 
     class Meta:
         verbose_name = 'признак успешного завершения редактирования зачисления студентов в группу'
