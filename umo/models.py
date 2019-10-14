@@ -321,6 +321,14 @@ class Mark(Model):
     def __str__(self):
             return self.name
 
+    @property
+    def mark_to_text(self):
+        marks = ["Неудовлетворительно", "Удовлетворительно", "Хорошо", "Отлично"]
+        try:
+            return marks[int(self.name) - 2]
+        except:
+            return self.name
+
 
 class CheckPoint(Model):
     name = CharField(verbose_name="срез", db_index=True, max_length=255, unique=True)
@@ -418,10 +426,11 @@ class Exam(Model):
     course = ForeignKey(Course, db_index=True, on_delete=CASCADE)
     controlType = IntegerField('форма контроля', choices=Control.CONTROL_FORM)
     prev_exam = ForeignKey('self', verbose_name="предыдущий экзамен", blank=True, null=True, on_delete=SET_NULL)
+    is_finished = BooleanField('Экзамен закончен', default=False)
 
     class Meta:
         verbose_name = 'контрольное мероприятие для курса обучения дисциплине'
-        verbose_name_plural = 'контрольные мероприятия для курсов обучения дисциплнам'
+        verbose_name_plural = 'контрольные мероприятия для курсов обучения дисциплинам'
 
     def __str__(self):
         return self.course.discipline_detail.discipline.Name + '"' + self.examDate + '"'
@@ -454,10 +463,39 @@ class ExamMarks(Model):
     def __str__(self):
         return self.student.FIO + ' - ' + self.exam.course.discipline_detail.discipline.Name + ' - ' + self.mark.name
 
+    @property
+    def total_points(self):
+        return self.inPoints + self.additional_points + self.examPoints
+
+    def save(self, *args, **kwargs):
+        total_points = self.inPoints + self.additional_points + self.examPoints
+        mark = Mark.objects.get(name='2')
+        symbol = self.SYMBOL_MARK[6][0]
+        if total_points >= 25 and total_points < 55:
+            symbol = self.SYMBOL_MARK[5][0]
+        elif total_points >= 55 and total_points < 65:
+            mark = Mark.objects.get(name='3')
+            symbol = self.SYMBOL_MARK[4][0]
+        elif total_points >= 65 and total_points < 75:
+            mark = Mark.objects.get(name='4')
+            symbol = self.SYMBOL_MARK[3][0]
+        elif total_points >= 75 and total_points < 85:
+            mark = Mark.objects.get(name='4')
+            symbol = self.SYMBOL_MARK[2][0]
+        elif total_points >= 85 and total_points < 95:
+            mark = Mark.objects.get(name='5')
+            symbol = self.SYMBOL_MARK[1][0]
+        elif total_points>= 95 and total_points < 100:
+            mark = Mark.objects.get(name='5')
+            symbol = self.SYMBOL_MARK[0][0]
+        self.mark = mark
+        self.mark_symbol = symbol
+        super().save(*args, **kwargs)
+
 
 class Synch(Model):
-    date = DateTimeField()
-    finished = BooleanField()
+    date = DateTimeField('Дата синхронизации')
+    finished = BooleanField('Синхронизация не выполнена')
 
     class Meta:
         verbose_name = 'признак успешного завершения редактирования зачисления студентов в группу'

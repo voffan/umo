@@ -1,16 +1,19 @@
 from django.conf.urls import url, include
 
-from disciplines import views, views_api
+from disciplines import views, views_api, view_excel
 
 api = ([
     url(r'^brs_scores$', views_api.brs_scores, name='brs_scores'),
     url(r'^set_max_points$', views_api.set_max_points, name='set_max_points'),
     url(r'^add_course_to_teacher$', views_api.add_course_to_teacher, name='add_course_to_teacher'),
     url(r'^delete_course_teacher$', views_api.delete_course_teacher, name='delete_course_teacher'),
+    url(r'^exam_scores$', views_api.exam_scores, name='exam_scores'),
+    url(r'^finish_exam$', views_api.finish_exam, name='finish_exam')
 ], 'api')
 
 excel = ([
     url(r'^brs_scores$', views.export_brs_points, name='brs_scores'),
+    url(r'^exam_scores$', view_excel.exam_scores, name='exam_scores')
 ], 'excel')
 
 urlpatterns = [
@@ -31,4 +34,5 @@ urlpatterns = [
     url(r'^$', views.teachers_subjects, name='mysubjects'),
     url(r'^api/',include(api, namespace='api')),
     url(r'^excel/',include(excel, namespace='excel')),
+    url(r'^exam_points/(?P<pk>[0-9]+)/$', views.ExamPointsListView.as_view(), name='brs_student_list')
 ]

@@ -30,7 +30,7 @@
         </tbody>
     </table>
     <br>
-    <form method="post">
+    <form method="post" action="{% url 'students:student_changelist' %}">
         {% csrf_token %}
         <p><button type="submit" class="btn btn-success" name="synch" value="synch">Синхронизация</button>
         <a href="{% url 'students:student_add' %}" class="btn btn-success">Добавить нового студента</a></p>

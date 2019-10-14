@@ -11,3 +11,7 @@ th.rotate{
     width: 75px;
     text-align: center;
 }
+th.wordwrap{
+    width: 100px;
+    word-break: break-all;
+}

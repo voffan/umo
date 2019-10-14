@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from openpyxl import Workbook
@@ -296,4 +297,16 @@ def discipline_scores_to_excel(course_id):
         # value * коэфициент
         ws.column_dimensions[col].width = value * 1.2
 
+    return wb
+
+
+def exam_scores(exam_id):
+    wb = Workbook()
+
+    # активный лист
+    ws = wb.active
+
+    # название страницы
+    # ws = wb.create_sheet('первая страница', 0)
+    ws.title = 'первая страница'
     return wb
