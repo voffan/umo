@@ -458,7 +458,7 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
                     add_brs(course, GroupList.objects.filter(student__id__in=students_to_add), checkpoints)
                 context['object_list'] = BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'checkpoint')
         else:
-            students = set(context['object_list'].values_list('student__id', falt=True))
+            students = set(context['object_list'].values_list('student__id', flat=True))
             group_students = group_students.filter(student__id__in=students)
         #elif len(context['object_list']) // 3
         context['points'] = {}
