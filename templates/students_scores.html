@@ -95,6 +95,8 @@ $(document).ready(function(){
     function get_error_msg(status, type){
         if(status == 404){
             msg = 'Дисциплина не найдена!'
+        }else if(status == 405){
+            msg = 'Курс уже окончен!'
         }else if(status == 403 || status == 200){
             msg = 'Вы не можете устанавливать ';
             if (type == 1)msg += 'максимальные ';

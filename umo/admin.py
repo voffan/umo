@@ -4,7 +4,12 @@ from umo import models
 
 # Register your models here.
 
-admin.site.register(models.BRSpoints)
+@admin.register(models.BRSpoints)
+class AdminBRSpoints(admin.ModelAdmin):
+    list_display = ['course', 'checkpoint', 'student', 'points']
+    search_fields = ['student__FIO']
+    list_filter = ['course']
+
 admin.site.register(models.CheckPoint)
 admin.site.register(models.Control)
 admin.site.register(models.Discipline)
@@ -22,8 +27,11 @@ class AdminGroup(admin.ModelAdmin):
     search_fields = ['Name']
     list_filter = ['program']
 
-
-admin.site.register(models.GroupList)
+@admin.register(models.GroupList)
+class AdminGroupList(admin.ModelAdmin):
+    list_display = ['group', 'student', 'active']
+    search_fields = ['student__FIO']
+    list_filter = ['group']
 admin.site.register(models.Kafedra)
 admin.site.register(models.Mark)
 admin.site.register(models.Position)

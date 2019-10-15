@@ -382,6 +382,7 @@ class Course(Model):
     discipline_detail = ForeignKey(DisciplineDetails, verbose_name="дисциплина", db_index=True, on_delete=CASCADE)
     lecturer = ForeignKey(Teacher, verbose_name="преподаватель", db_index=True, blank=True, null=True,
                           on_delete=SET_NULL)
+    is_finished = BooleanField('Курс окончен', default=False)
 
     class Meta:
         verbose_name = 'курс обучения дисциплине'

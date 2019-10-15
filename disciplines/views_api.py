@@ -25,11 +25,14 @@ def brs_scores(request):
     status = 200
     serialized_data = request.body.decode("utf-8")
     serialized_data = json.loads(serialized_data)
-    scores = BRSpoints.objects.select_related('student', 'course').filter(course__id=serialized_data['course_id'], student__id=serialized_data['student_id'])
+    course = Course.objects.filter(id=serialized_data['course_id']).first()
+    scores = BRSpoints.objects.select_related('student', 'course').filter(course__id=course.id, student__id=serialized_data['student_id'])
     if not scores:
         status = 404
     elif request.user.id != scores[0].course.lecturer.user.id and (not request.user.groups.filter(name='UMO').exists()):
         status = 403
+    elif course.is_finished:
+        status = 405
     else:
         result = {
             "student_id": str(scores[0].student.id),
@@ -58,7 +61,9 @@ def set_max_points(request):
     status = 200
     checkpoints = CheckPoint.objects.all()
     course = get_object_or_404(Course, pk=request.POST['course'])
-    if course.lecturer.user.id != request.user.id and (not request.user.groups.filter(name='UMO').exists()):
+    if course.is_finished:
+        status = 405
+    elif course.lecturer.user.id != request.user.id and (not request.user.groups.filter(name='UMO').exists()):
         status = 403
     else:
         result['data'] = {}
@@ -163,7 +168,7 @@ def exam_scores(request):
         except Exception as e:
             status = 500
     result['status'] = status
-    return JsonResponse(result)
+    return JsonResponse(result, status=status)
 
 
 @login_required
@@ -184,4 +189,4 @@ def finish_exam(request):
         except Exception as e:
             status = 500
     result['status'] = status
-    return JsonResponse(result)
+    return JsonResponse(result, status=status)

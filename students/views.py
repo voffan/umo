@@ -80,7 +80,7 @@ class StudentListView(StudentsList):
                     synch_people = sync_models.PeoplePln.objects.filter(id_group=sg.id_group)
                     for sp in synch_people:
                         gl = GroupList.objects.filter(id=sp.id_peoplepln).first()
-                        if sp.id_status != 2:
+                        if sp.id_status != 2 and sp.id_status != 6 and sp.id_status != 9:
                             if gl is not None:
                                 gl.active = False
                                 gl.save()
