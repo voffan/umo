@@ -156,6 +156,11 @@ class Specialization(Model):
     MASTER = 3
     BACHELOR_ACADEMIC = 4
     BACHELOR_APPLIED = 5
+    MASTER_ACADEMIC = 6
+    MASTER_APPLIED = 7
+    POSTGRADUATE = 8
+    INTERN = 9
+
 
     QUALIFICATION = (
         (UNDEFINED, '—'),
@@ -164,6 +169,10 @@ class Specialization(Model):
         (MASTER, 'магистратура'),
         (BACHELOR_ACADEMIC, 'академический бакалавриат'),
         (BACHELOR_APPLIED, 'прикладной бакалавриат'),
+        (MASTER_ACADEMIC, 'академическая магистратура'),
+        (MASTER_APPLIED, 'прикладная магистратура'),
+        (POSTGRADUATE, 'аспирантура'),
+        (INTERN, 'ординатура'),
     )
 
     MIDDLE_PROFESSIONAL = 1
@@ -242,6 +251,14 @@ class Control(Model):
     CREDIT = 2
     CREDIT_WITH_GRADE = 3
     COURSEWORK = 4
+    COURSEPROJECT = 5
+    TEST = 6
+    HOMETEST = 7
+    GRADE = 8
+    ESSAY = 9
+    REVIEW = 10
+    RGR = 11
+    OTHERS = 49
 
     CONTROL_FORM = (
         (NONE, 'без контроля'),
@@ -249,6 +266,14 @@ class Control(Model):
         (CREDIT, 'зачет'),
         (CREDIT_WITH_GRADE, 'зачет с оценкой'),
         (COURSEWORK, 'курсовая работа'),
+        (COURSEPROJECT, "Курсовой проект"),
+        (TEST, "Контрольная работа"),
+        (HOMETEST, "Домашняя контрольная работа"),
+        (GRADE, "Оценка"),
+        (ESSAY, "Эссе"),
+        (REVIEW, "Реферат"),
+        (RGR, "Расчетно-графическая работа"),
+        (OTHERS, "Другие формы контроля"),
     )
 
     discipline_detail = ForeignKey('DisciplineDetails', verbose_name="дисциплина", db_index=True, blank=True, null=True,
