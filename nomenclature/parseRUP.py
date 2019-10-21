@@ -82,7 +82,7 @@ def parseRUP(filename):
     disciplines = root.findall(ns + 'ПланыСтроки')
     controls = {"1": 1, "2": 2, "3": 3, "4": 5, "5": 4, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "11": 11, "49": 49}
     for d in disciplines:
-        d_code = d.get('Код', '')
+        d_code = d.get('ДисциплинаКод', '')
         d_name = d.get('Дисциплина','')
         dis, created = Discipline.objects.get_or_create(Name=d_name, code=d_code, program=edu_prog)
         data = {}
