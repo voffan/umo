@@ -73,8 +73,9 @@ class StudentListView(StudentsList):
                     g.begin_year = Year.objects.get_or_create(year=eduprogyear.year)[0]
                     g.Name = sg.name
                     g.program = EduProgram.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code, year__year=eduprogyear.year).order_by('-year__year').first()
-                    if g.program is not None:
-                        g.cathedra = g.program.cathedra
+                    edu_program = EduProgram.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code, year__year__lte=eduprogyear.year).order_by('-year__year').first()
+                    if edu_program is not None:
+                        g.cathedra = edu_program.cathedra
                     g.save()
 
                     synch_people = sync_models.PeoplePln.objects.filter(id_group=sg.id_group)
