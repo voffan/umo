@@ -30,7 +30,7 @@ def get_qualification(name, program_code=''):
 
 
 @transaction.atomic
-def parseRUP(filename):
+def parseRUP_fgos3plusplus(filename):
     #name_file_xml = os.path.join('upload', filename)
     ns = '{http://tempuri.org/dsMMISDB.xsd}'
     tree = ET.parse(filename)
@@ -123,7 +123,78 @@ def parseRUP(filename):
                                                           defaults={'control_hours': data[key]['control']['hours']})
 
 
-    '''for elem in root[0][1]:
+def get_qualification_fgos3(name):
+    name = name.lower()
+    if 'специали' in name:
+        return 1
+    elif 'бакалавр' in name:
+        if 'академ' in name:
+            return 4
+        elif 'приклад' in name:
+            return 5
+        return 2
+    elif 'магистр' in name:
+        return 3
+    return 0
+
+
+def get_education_level_fgos3(name):
+    name = name.lower()
+    if 'спо' in name:
+        return 1
+    elif 'впо' in name:
+        return 2
+    return 0
+
+
+@transaction.atomic
+def parseRUP_fgos3(filename):
+    #name_file_xml = os.path.join('upload', filename)
+    tree = ET.parse(filename)
+    root = tree.getroot()
+    title = root[0][0]
+    name = title.get('ПолноеИмяПлана')
+    #Уровень образования
+    level = root[0].get('УровеньОбразования')
+    #тэг Специальность получение названия спец
+    specs = title.find('Специальности')
+    spec_name = ' '.join(specs[0].get('Название').split()[1:])
+    #тэг Специальность ном2 получения названия профиль
+    if len(specs) > 1:
+        profile_name = ' '.join(specs[1].get('Название').split()[1:])
+    else:
+        profile_name = 'Общий'
+    #qual = root[0][0][7][0] #тэг Квалификация получения квалиф
+    qual_name = title.find('Квалификации')[0].get('Название')
+    #code = root[0][0] #тэг План получения КодКафедры и ПоследнийШифр
+    name_institute = title.get('ИмяВуза2')
+    name_university = re.findall('(?<=\").*(?=\")',title.get('ИмяВуза'))
+    if len(name_university) > 1:
+        name_university = name_university[0]
+    elif len(re.findall('(?<=«).*(?=»)',title.get('ИмяВуза')))>0:
+        name_university = re.findall('(?<=«).*(?=»)',title.get('ИмяВуза'))
+    else:
+        name_university = title.get('ИмяВуза')
+    code_kaf = title.get('КодКафедры')
+    code = title.get('ПоследнийШифр')
+    yearp = title.get('ГодНачалаПодготовки')
+
+    institute = check_edu_org(name_institute, name_university)
+
+    kaf, created = Kafedra.objects.get_or_create(number=code_kaf, defaults={'name':'', 'institution':institute})
+    year, created = Year.objects.get_or_create(year=yearp)
+
+    sp, created = Specialization.objects.get_or_create(code=code, defaults={
+        'name': spec_name,
+        'brief_name': '',
+        'qual': get_qualification_fgos3(qual_name),
+        'level': get_education_level_fgos3(level)
+    })
+    profile, created = Profile.objects.get_or_create(name=profile_name, defaults={'spec':sp})
+
+    edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
+
+    for elem in root[0][1]:
         disname = elem.get('Дис')
         code_dis = elem.get('ИдетификаторДисциплины')
         if code_dis is None or len(code_dis) < 1:
@@ -168,4 +239,10 @@ def parseRUP(filename):
                 control_type = 3
             if CW is not None:
                 control_type = 4
-            c, created = Control.objects.update_or_create(discipline_detail=d, control_type=control_type, defaults={'control_hours': data['108']})'''
+            c, created = Control.objects.update_or_create(discipline_detail=d, control_type=control_type, defaults={'control_hours': data['108']})
+
+def parseRUP(filename):
+    if '.plx' in filename:
+        parseRUP_fgos3plusplus(filename)
+    else:
+        parseRUP_fgos3(filename)
