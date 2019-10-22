@@ -182,8 +182,11 @@ def finish_exam(request):
         status = 403
     else:
         try:
-            exam.is_finished = True
-            exam.save()
+            with transaction.atomic():
+                exam.course.is_finished=True
+                exam.course.save()
+                exam.is_finished = True
+                exam.save()
             result['result'] = True
             status = 200
         except Exception as e:
