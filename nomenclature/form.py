@@ -30,7 +30,7 @@ class SelectTeacher(ModelForm):
 
 class CourseWidget(ModelSelect2MultipleWidget):
     model = Course
-    queryset = Course.objects.filter(lecturer__isnull=True)
+    queryset = Course.objects.filter(lecturer__isnull=True, is_finished=False)
     search_fields = ['discipline_detail__discipline__Name__icontains', 'group__Name__icontains']
 
 
