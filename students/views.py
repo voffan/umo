@@ -170,7 +170,10 @@ class StudentUpdateView(PermissionRequiredMixin, UpdateView):
 
 def group_brs_points(group, semester, check_point):
     group_data = {'group': group, 'group_points': []}
-    for sl in group.grouplist_set.all().order_by('student__FIO'):
+    students = set(BRSpoints.objects.filter(student__grouplist__group__id=group.id,
+                                            course__discipline_detail__semester__id=semester.id
+                                            ).values_list('student__id', flat=True))
+    for sl in group.grouplist_set.filter(student__id__in=students).order_by('student__FIO'):
         student_points = {}
         student_points['scores'] = list(BRSpoints.objects.filter(student__id=sl.student.id,
                                                                  checkpoint__id=check_point.id,
