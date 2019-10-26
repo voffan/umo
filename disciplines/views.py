@@ -439,19 +439,21 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
     permission_required = 'umo.can_view_scores'
     template_name = 'students_scores.html'
 
+    def add_group_brs_points(self):
+        pass
+
     def get_queryset(self):
-        course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
-        students = course.group.grouplist_set.all().values_list('student__id', flat=True)
-        return BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=students).select_related('student', 'checkpoint')
+        #students = course.group.grouplist_set.filter(active=True).values_list('student__id', flat=True)
+        return BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__grouplist__active=True).select_related('student', 'checkpoint')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
         course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
-        group_students = course.group.grouplist_set.select_related('student', 'group').all()
         checkpoints = get_check_points()
         if not course.is_finished:
-            if len(group_students) != len(context['object_list']) // 3:
+            group_students = course.group.grouplist_set.select_related('student', 'group').filter(active=True)
+            if len(group_students) > len(context['object_list']) // 3:
                 #calc students to add
                 students_to_add = list(set(group_students.values_list('student__id', flat=True)) - set(context['object_list'].values_list('student__id', flat=True)))
                 if len(students_to_add) > 0:
@@ -459,7 +461,7 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
                 context['object_list'] = BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'checkpoint')
         else:
             students = set(context['object_list'].values_list('student__id', flat=True))
-            group_students = group_students.filter(student__id__in=students)
+            group_students = course.group.grouplist_set.select_related('student', 'group').filter(student__id__in=students)
         #elif len(context['object_list']) // 3
         context['points'] = {}
         context['maxpoints'] = {}
