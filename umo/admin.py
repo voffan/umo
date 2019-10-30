@@ -68,6 +68,6 @@ admin.site.register(models.Synch)
 
 @admin.register(models.CourseMaxPoints)
 class CourseMaxPoints(admin.ModelAdmin):
-    list_display = ['course', 'checkpoint', 'maxpoint']
+    list_display = ['course', 'checkpoint', 'max_point']
     search_fields = ['course__discipline_detail__discipline__Name']
     list_filter = ['course__lecturer']
