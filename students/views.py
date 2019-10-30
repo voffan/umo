@@ -70,12 +70,10 @@ class StudentListView(StudentsList):
                     else:
                         g = Group()
                         g.id = sg.id_group
-                        g.program = EduProgram.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code,
-                                                              year__year=eduprogyear.year).order_by(
-                                                              '-year__year').first()
                         edu_program = EduProgram.objects.filter(specialization__code=eduprogyear.id_dop.id_spec.code,
                                                                 year__year__lte=eduprogyear.year).order_by(
                                                                 '-year__year').first()
+                        g.program = edu_program
                         if edu_program is not None:
                             g.cathedra = edu_program.cathedra
                     g.begin_year = Year.objects.get_or_create(year=eduprogyear.year)[0]

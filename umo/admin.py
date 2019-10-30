@@ -64,4 +64,10 @@ class AdminGroup(admin.ModelAdmin):
 
 
 admin.site.register(models.Synch)
-admin.site.register(models.CourseMaxPoints)
+
+
+@admin.register(models.CourseMaxPoints)
+class CourseMaxPoints(admin.ModelAdmin):
+    list_display = ['course', 'checkpoint', 'maxpoint']
+    search_fields = ['course__discipline_detail__discipline__Name']
+    list_filter = ['course__lecturer']

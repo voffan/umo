@@ -315,11 +315,12 @@ class Position(Model):
 
 class Profile(Model):
     spec = ForeignKey('Specialization', verbose_name="специализация", db_index=True, on_delete=CASCADE)
-    name = CharField(verbose_name="профиль", db_index=True, max_length=255, unique=True)
+    name = CharField(verbose_name="профиль", db_index=True, max_length=255)
 
     class Meta:
         verbose_name = 'профиль'
         verbose_name_plural = 'профили'
+        unique_together = ['spec', 'name']
 
     def __str__(self):
             return self.spec.name + self.name
