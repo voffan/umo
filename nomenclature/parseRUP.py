@@ -75,7 +75,7 @@ def parseRUP_fgos3plusplus(filename):
         'qual': get_qualification(qual_name, program_code),
         'level': level
     })
-    profile, created = Profile.objects.get_or_create(name=profile_name, defaults={'spec':sp})
+    profile, created = Profile.objects.get_or_create(name=profile_name, spec=sp)
 
     edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
 
@@ -190,7 +190,7 @@ def parseRUP_fgos3(filename):
         'qual': get_qualification_fgos3(qual_name),
         'level': get_education_level_fgos3(level)
     })
-    profile, created = Profile.objects.get_or_create(name=profile_name, defaults={'spec':sp})
+    profile, created = Profile.objects.get_or_create(name=profile_name, spec=sp)
 
     edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
 

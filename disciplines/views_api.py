@@ -74,11 +74,20 @@ def set_max_points(request):
                     result['data'][checkpoint.id] = mpoints.max_point
         except:
             status = 500
-    return HttpResponse(
-        json.dumps(result),
-        content_type='application/json',
+    return JsonResponse(
+        result,
         status=status
     )
+
+
+@login_required
+@permission_required('umo.change_brspoints', login_url='login')
+def get_max_points(request):
+    result = {'result': False}
+    if 'course' in request.GET:
+        result['result'] = True
+        result['data'] = dict(CourseMaxPoints.objects.filter(course__id=request.GET['course']).values_list('checkpoint__id', 'max_point'))
+    return JsonResponse(result)
 
 
 @login_required
