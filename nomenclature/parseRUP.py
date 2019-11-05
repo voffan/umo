@@ -54,9 +54,15 @@ def parseRUP_fgos3plusplus(filename):
     program_code = root.find(ns + 'Планы').get('КодПрограммы','')
     #code = root[0][0] #тэг План получения КодКафедры и ПоследнийШифр
     f = root.findall(ns + 'Филиалы')
-    name_institute = f[1].get('Полное_название')
+    if len(f) > 1:
+        name_institute = f[1].get('Полное_название')
+    else:
+        name_institute = 'Институт математики и информатики'
     name_university = f[0].get('Полное_название', 'Северо-Восточный федеральный университет имени М.К. Аммосова')
-    start = name_university.lower().index('северо-восточный')
+    try:
+        start = name_university.lower().index('северо-восточный')
+    except:
+        start = 0
     end = name_university.lower().rfind('а')
     name_university = name_university[start:end + 1]
 
