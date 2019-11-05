@@ -16,7 +16,14 @@ admin.site.register(models.Discipline)
 admin.site.register(models.DisciplineDetails)
 admin.site.register(models.EduOrg)
 admin.site.register(models.EduPeriod)
-admin.site.register(models.EduProgram)
+
+
+@admin.register(models.EduProgram)
+class AdminEduProgram(admin.ModelAdmin):
+    list_display = ['name', 'specialization', 'profile', 'year', 'cathedra']
+    search_fields = ['specialization__name']
+    list_filter = ['cathedra']
+
 admin.site.register(models.Exam)
 admin.site.register(models.ExamMarks)
 
