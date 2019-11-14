@@ -1,9 +1,20 @@
 from django.db import transaction
 from umo.models import EduOrg, Kafedra, EduProgram, Specialization, Discipline, \
-    DisciplineDetails, Profile, Year, Semester, Teacher, Control, Position
+    DisciplineDetails, Profile, Year, Semester, Teacher, Control, Position, BRSpoints
 from umo.objgens import check_edu_org
 import xml.etree.ElementTree as ET
 import re
+
+
+def exclude_disciplines_from_program(education_program, including_disciplines=[], except_discipline=[]):
+    disciplines = Discipline.objects.filter(program=education_program)
+    if len(including_disciplines) > 0:
+        disciplines = disciplines.filter(id__in=including_disciplines)
+    if len(except_discipline) > 0:
+        disciplines = disciplines.exclude(id__in=except_discipline)
+    for dis in disciplines:
+        if not BRSpoints.objects.filter(course__discipline_details__discipline__id=dis.id, points__gt=0).exists():
+            dis.delete()
 
 
 def get_qualification(name, program_code=''):
@@ -30,7 +41,7 @@ def get_qualification(name, program_code=''):
 
 
 @transaction.atomic
-def parseRUP_fgos3plusplus(filename):
+def parseRUP_fgos3plusplus(filename, kaf):
     #name_file_xml = os.path.join('upload', filename)
     ns = '{http://tempuri.org/dsMMISDB.xsd}'
     tree = ET.parse(filename)
@@ -49,30 +60,12 @@ def parseRUP_fgos3plusplus(filename):
     profile_oop = oop.find(ns + 'ООП')
     if profile_oop is not None:
         profile_name = profile_oop.get('Название',)
-    #qual = root[0][0][7][0] #тэг Квалификация получения квалиф
     qual_name = oop.get('Квалификация', '')
     program_code = root.find(ns + 'Планы').get('КодПрограммы','')
-    #code = root[0][0] #тэг План получения КодКафедры и ПоследнийШифр
-    f = root.findall(ns + 'Филиалы')
-    if len(f) > 1:
-        name_institute = f[1].get('Полное_название')
-    else:
-        name_institute = 'Институт математики и информатики'
-    name_university = f[0].get('Полное_название', 'Северо-Восточный федеральный университет имени М.К. Аммосова')
-    try:
-        start = name_university.lower().index('северо-восточный')
-    except:
-        start = 0
-    end = name_university.lower().rfind('а')
-    name_university = name_university[start:end + 1]
 
-    code_kaf = root.find(ns + 'Планы').get('КодПрофКафедры', '')
     code = oop.get('Шифр','')
     yearp = root.find(ns + 'Планы').get('ГодНачалаПодготовки')
 
-    institute = check_edu_org(name_institute, name_university)
-
-    kaf, created = Kafedra.objects.get_or_create(number=code_kaf, defaults={'name': '', 'institution': institute})
     year, created = Year.objects.get_or_create(year=yearp)
 
     sp, created = Specialization.objects.get_or_create(code=code, defaults={
@@ -87,11 +80,13 @@ def parseRUP_fgos3plusplus(filename):
 
     disciplines = root.findall(ns + 'ПланыСтроки')
     controls = {"1": 1, "2": 2, "3": 3, "4": 5, "5": 4, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "11": 11, "49": 49}
+    ids = []
     for d in disciplines:
         d_code = d.get('ДисциплинаКод', '')
         obj_code = d.get('Код', '')
         d_name = d.get('Дисциплина','')
-        dis, created = Discipline.objects.get_or_create(Name=d_name, code=d_code, program=edu_prog)
+        dis, created = Discipline.objects.update_or_create(code=d_code, program=edu_prog, defaults={'Name': d_name})
+        ids.append(dis.id)
         data = {}
         hours = root.findall(ns + 'ПланыНовыеЧасы[@КодОбъекта="' + obj_code + '"][@КодТипаЧасов="1"]')
         for item in hours:
@@ -122,11 +117,13 @@ def parseRUP_fgos3plusplus(filename):
                         'Lab': data[key]['hours']['102'],
                         'KSR': data[key]['hours']['106'],
                         'SRS': data[key]['hours']['107']}
-            dd, created = DisciplineDetails.objects.get_or_create(discipline=dis,
-                                                                  semester=semester,
-                                                                  defaults=defaults)
+            dd, created = DisciplineDetails.objects.update_or_create(discipline=dis,
+                                                                     semester=semester,
+                                                                     defaults=defaults)
+            dd.control_set.all().delete()
             c, created = Control.objects.update_or_create(discipline_detail=dd, control_type=data[key]['control']['type'],
                                                           defaults={'control_hours': data[key]['control']['hours']})
+    exclude_disciplines_from_program(edu_prog, except_discipline=ids)
 
 
 def get_qualification_fgos3(name):
@@ -154,7 +151,7 @@ def get_education_level_fgos3(name):
 
 
 @transaction.atomic
-def parseRUP_fgos3(filename):
+def parseRUP_fgos3(filename, kaf):
     #name_file_xml = os.path.join('upload', filename)
     tree = ET.parse(filename)
     root = tree.getroot()
@@ -173,21 +170,9 @@ def parseRUP_fgos3(filename):
     #qual = root[0][0][7][0] #тэг Квалификация получения квалиф
     qual_name = title.find('Квалификации')[0].get('Название')
     #code = root[0][0] #тэг План получения КодКафедры и ПоследнийШифр
-    name_institute = title.get('ИмяВуза2')
-    name_university = re.findall('(?<=\").*(?=\")',title.get('ИмяВуза'))
-    if len(name_university) > 1:
-        name_university = name_university[0]
-    elif len(re.findall('(?<=«).*(?=»)',title.get('ИмяВуза')))>0:
-        name_university = re.findall('(?<=«).*(?=»)',title.get('ИмяВуза'))
-    else:
-        name_university = title.get('ИмяВуза')
-    code_kaf = title.get('КодКафедры')
     code = title.get('ПоследнийШифр')
     yearp = title.get('ГодНачалаПодготовки')
 
-    institute = check_edu_org(name_institute, name_university)
-
-    kaf, created = Kafedra.objects.get_or_create(number=code_kaf, defaults={'name':'', 'institution':institute})
     year, created = Year.objects.get_or_create(year=yearp)
 
     sp, created = Specialization.objects.get_or_create(code=code, defaults={
@@ -199,15 +184,15 @@ def parseRUP_fgos3(filename):
     profile, created = Profile.objects.get_or_create(name=profile_name, spec=sp)
 
     edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
-
+    ids = []
     for elem in root[0][1]:
         disname = elem.get('Дис')
         code_dis = elem.get('ИдетификаторДисциплины')
         if code_dis is None or len(code_dis) < 1:
             code_dis = elem.get('НовИдДисциплины')
 
-        dis, created = Discipline.objects.get_or_create(Name=disname, code=code_dis, program=edu_prog)
-
+        dis, created = Discipline.objects.update_or_create(code=code_dis, program=edu_prog, defaults={'Name': disname})
+        ids.append(dis.id)
         for details in elem.findall('Сем'):
             #if details is ('Ном' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Пр') or ('Ном' and 'СРС'):
             data = {'101': 0, '102': 0, '103': 0, '106': 0, '107': 0, '108': 0}
@@ -234,9 +219,9 @@ def parseRUP_fgos3(filename):
                       'Lab': data['102'],
                       'KSR': data['106'],
                       'SRS': data['107']}
-            d, created = DisciplineDetails.objects.get_or_create(discipline=dis,
-                                                                 semester=semester,
-                                                                 defaults=defaults)
+            d, created = DisciplineDetails.objects.update_or_create(discipline=dis,
+                                                                    semester=semester,
+                                                                    defaults=defaults)
             if z is not None:
                 control_type = 2
             if exam is not None:
@@ -245,10 +230,13 @@ def parseRUP_fgos3(filename):
                 control_type = 3
             if CW is not None:
                 control_type = 4
+            d.control_set.all().delete()
             c, created = Control.objects.update_or_create(discipline_detail=d, control_type=control_type, defaults={'control_hours': data['108']})
+    exclude_disciplines_from_program(edu_prog, except_discipline=ids)
 
-def parseRUP(filename):
+
+def parseRUP(filename, cathedra):
     if '.plx' in filename:
-        parseRUP_fgos3plusplus(filename)
+        parseRUP_fgos3plusplus(filename, cathedra)
     else:
-        parseRUP_fgos3(filename)
+        parseRUP_fgos3(filename, cathedra)

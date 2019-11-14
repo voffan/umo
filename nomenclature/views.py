@@ -79,7 +79,8 @@ def upload_file(request):
             #path = default_storage.save(save_path, request.FILES['file'])
             #return default_storage.path(path)
             f=hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
-            parseRUP(f)
+            cathedra = Teacher.objects.get(user__id=request.user.id).cathedra
+            parseRUP(f, cathedra)
             return redirect(reverse('nomenclature:rup'))
 
     form = UploadFileForm()
