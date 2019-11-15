@@ -13,7 +13,7 @@ def exclude_disciplines_from_program(education_program, including_disciplines=[]
     if len(except_discipline) > 0:
         disciplines = disciplines.exclude(id__in=except_discipline)
     for dis in disciplines:
-        if not BRSpoints.objects.filter(course__discipline_details__discipline__id=dis.id, points__gt=0).exists():
+        if not BRSpoints.objects.filter(course__discipline_detail__discipline__id=dis.id, points__gt=0).exists():
             dis.delete()
 
 
@@ -98,15 +98,14 @@ def parseRUP_fgos3plusplus(filename, kaf):
                     'hours': {'101': 0, '102': 0, '103': 0, '104': 0, '105': 0, '106': 0, '107': 0, '108': 0, '109': 0, '110': 0,
                               '111': 0, '112': 0, '113': 0, '114': 0, '115': 0, '116': 0, '117': 0, '118': 0, '119': 0, '139': 0,
                               '140': 0, '141': 0, '142': 0},
-                    'control': {'type': 0, 'hours': 0},
+                    'control': {},
                     'zed' : 0
                     }
             w_type = item.get('КодВидаРаботы', '0')
             if w_type in data[semester]['hours'].keys():
                 data[semester]['hours'][w_type] = int(item.get('Количество', '0'))
             elif w_type in controls.keys():
-                data[semester]['control']['type'] = controls[w_type]
-                data[semester]['control']['hours'] = int(item.get('Количество','0'))
+                data[semester]['control'][controls[w_type]] = int(item.get('Количество','0'))
             elif w_type == '50':
                 data[semester]['zed'] = int(item.get('Количество','0'))
         for key in data.keys():
@@ -121,8 +120,9 @@ def parseRUP_fgos3plusplus(filename, kaf):
                                                                      semester=semester,
                                                                      defaults=defaults)
             dd.control_set.all().delete()
-            c, created = Control.objects.update_or_create(discipline_detail=dd, control_type=data[key]['control']['type'],
-                                                          defaults={'control_hours': data[key]['control']['hours']})
+            for control_type in data[key]['control'].keys():
+                c, created = Control.objects.update_or_create(discipline_detail=dd, control_type=control_type,
+                                                              defaults={'control_hours': data[key]['control'][control_type]})
     exclude_disciplines_from_program(edu_prog, except_discipline=ids)
 
 
@@ -188,10 +188,20 @@ def parseRUP_fgos3(filename, kaf):
     for elem in root[0][1]:
         disname = elem.get('Дис')
         code_dis = elem.get('ИдетификаторДисциплины')
-        if code_dis is None or len(code_dis) < 1:
-            code_dis = elem.get('НовИдДисциплины')
+        new_code = elem.get('НовИдДисциплины', code_dis)
+        dis_kaf = elem.get('Кафедра', None)
+        if dis_kaf is None or len(dis_kaf) < 1:
+            continue
 
-        dis, created = Discipline.objects.update_or_create(code=code_dis, program=edu_prog, defaults={'Name': disname})
+        dis = Discipline.objects.filter(code=code_dis, program=edu_prog, Name=disname).first()
+        if dis is None:
+            dis = Discipline.objects.filter(code=new_code, program=edu_prog, Name=disname).first()
+        if dis is None:
+            dis = Discipline.objects.create(Name=disname, code=new_code, program=edu_prog)
+        else:
+            dis.Name = disname
+            dis.code = new_code
+            dis.save()
         ids.append(dis.id)
         for details in elem.findall('Сем'):
             #if details is ('Ном' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Пр') or ('Ном' and 'СРС'):
@@ -222,16 +232,19 @@ def parseRUP_fgos3(filename, kaf):
             d, created = DisciplineDetails.objects.update_or_create(discipline=dis,
                                                                     semester=semester,
                                                                     defaults=defaults)
-            if z is not None:
-                control_type = 2
-            if exam is not None:
-                control_type = 1
-            if zO is not None:
-                control_type = 3
-            if CW is not None:
-                control_type = 4
             d.control_set.all().delete()
-            c, created = Control.objects.update_or_create(discipline_detail=d, control_type=control_type, defaults={'control_hours': data['108']})
+            if z is not None:
+                c, created = Control.objects.get_or_create(discipline_detail=d, control_type=2,
+                                                           defaults={'control_hours': data['108']})
+            if exam is not None:
+                c, created = Control.objects.get_or_create(discipline_detail=d, control_type=1,
+                                                           defaults={'control_hours': data['108']})
+            if zO is not None:
+                c, created = Control.objects.get_or_create(discipline_detail=d, control_type=3,
+                                                           defaults={'control_hours': data['108']})
+            if CW is not None:
+                c, created = Control.objects.get_or_create(discipline_detail=d, control_type=4,
+                                                           defaults={'control_hours': 0})
     exclude_disciplines_from_program(edu_prog, except_discipline=ids)
 
 
