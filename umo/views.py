@@ -42,7 +42,7 @@ class TeacherUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'teacher_edit.html'
     success_url = reverse_lazy('teachers:list_teachers')
     model = Teacher
-    fields = ['FIO', 'position', 'zvanie', 'cathedra', 'user']
+    fields = ['FIO', 'position', 'title', 'cathedra', 'user']
 
 
 class TeacherDelete(PermissionRequiredMixin, DeleteView):
