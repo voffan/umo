@@ -3,11 +3,14 @@ from datetime import datetime
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group as auth_groups
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import login
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.forms import ModelForm, CharField, ValidationError, PasswordInput, HiddenInput
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
@@ -42,7 +45,7 @@ class TeacherUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'teacher_edit.html'
     success_url = reverse_lazy('teachers:list_teachers')
     model = Teacher
-    fields = ['FIO', 'position', 'title', 'cathedra', 'user']
+    fields = ['last_name', 'first_name', 'second_name', 'position', 'title', 'cathedra']
 
 
 class TeacherDelete(PermissionRequiredMixin, DeleteView):
@@ -52,10 +55,72 @@ class TeacherDelete(PermissionRequiredMixin, DeleteView):
     template_name = 'teacher_delete.html'
 
 
+class TeacherProfileForm(ModelForm):
+    #success_url = reverse_lazy('teachers:list_teachers')
+    password = CharField(max_length=50, label='Пароль', required=False, widget=PasswordInput)
+    confirmation = CharField(max_length=50, label='Подтверждение пароля', required=False, widget=PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        super(ModelForm, self).__init__(*args, **kwargs)
+        self.fields['position'].widget.attrs['readonly'] = True
+        self.fields['title'].widget.attrs['readonly'] = True
+        self.fields['cathedra'].widget.attrs['readonly'] = True
+
+
+    class Meta:
+        model = Teacher
+        fields = ['last_name', 'first_name', 'second_name', 'position', 'title', 'cathedra']
+        #widgets = {'id': HiddenInput()}
+
+    def clean(self):
+        #cleaned_data = super.clean()
+        pwd = self.cleaned_data['password']
+        confirmation = self.cleaned_data['confirmation']
+        if pwd != confirmation:
+            raise ValidationError('Введенные пароли не совпадают!')
+        if pwd != '':
+            validate_password(pwd)
+        return self.cleaned_data
+
+    '''def clean_password(self):
+        confirmation = self'''
+
+    def save(self, commit=True):
+        with transaction.atomic():
+            teacher = super(TeacherProfileForm, self).save(commit=False)
+            teacher.FIO = self.cleaned_data['last_name'] + ' ' + self.cleaned_data['first_name'] + ' ' + self.cleaned_data['second_name']
+            teacher.save()
+            user = teacher.user
+            if user is not None and self.cleaned_data['password'] != '':
+                user.set_password(self.cleaned_data['password'])
+                user.save()
+            return teacher
+
+
+@permission_required('umo.change_teacher', login_url='/auth/login')
+def teacher_profile(request):
+    teacher = Teacher.objects.filter(user__id=request.user.id).first()
+    success_message = None
+    if teacher is not None:
+        if request.method == 'POST':
+            form = TeacherProfileForm(request.POST, instance=teacher)
+            if form.is_valid():
+                try:
+                    form.save()
+                    login(request, teacher.user)
+                    success_message = 'Профиль успешно сохранен!!'
+                except:
+                    form.add_error('first_name', 'Ошибка сохранения данных!')
+        else:
+            form = TeacherProfileForm(instance=teacher)
+        return render(request, 'teacher_edit.html', {'form': form, 'success_message': success_message})
+    return HttpResponse('You are not teacher!!')# render(request, 'teacher_edit.html')
+'''
 @permission_required('umo.add_teacher', login_url='/auth/login')
 def list_teachers(request):
     all = Teacher.objects.all()
     return render(request, 'teachers_list.html', {'teachers': all})
+'''
 
 
 def get_mark(str, value):

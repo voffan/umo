@@ -9,6 +9,22 @@
             <br>
             <div class="row">
                 <div class="col-md-6 offset-md-3">
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 offset-md-3">
+                    {% if success_message %}
+                    <div class="alert alert-success" role="alert">
+                        {{ success_message }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 offset-md-3">
                     {% for field in form.visible_fields %}
                         <div class="form-group">
                             {{ field.label_tag }}
@@ -21,4 +37,8 @@
             </div>
         </form>
     </div>
+{% endblock %}
+
+{% block scripts %}
+$('.alert').delay(5000).slideUp(500, function() {$(this).hide();});
 {% endblock %}

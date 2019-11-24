@@ -29,6 +29,7 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="admin">
                           {% if user|has_group:"teacher" %}
+                          <a class="dropdown-item" href="{% url 'teachers:teacher_profile' %}">Профиль преподавателя</a>
                           <a class="dropdown-item" href="{% url 'disciplines:mysubjects' %}">Мои дисциплины</a>
                           <a class="dropdown-item" href="{% url 'students:group_points' %}">Экран успеваемости</a>
                           {% endif %}
