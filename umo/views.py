@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group as auth_groups
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth import login
+from django.contrib.auth import login, update_session_auth_hash
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -98,6 +98,7 @@ class TeacherProfileForm(ModelForm):
 
 
 @permission_required('umo.change_teacher', login_url='/auth/login')
+@login_required
 def teacher_profile(request):
     teacher = Teacher.objects.filter(user__id=request.user.id).first()
     success_message = None
@@ -107,7 +108,7 @@ def teacher_profile(request):
             if form.is_valid():
                 try:
                     form.save()
-                    login(request, teacher.user)
+                    update_session_auth_hash(request, teacher.user)
                     success_message = 'Профиль успешно сохранен!!'
                 except:
                     form.add_error('first_name', 'Ошибка сохранения данных!')
