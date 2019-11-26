@@ -82,11 +82,11 @@ class TeacherProfileForm(ModelForm):
         crnt_pwd = self.cleaned_data['current_password']
         pwd = self.cleaned_data['password']
         confirmation = self.cleaned_data['confirmation']
-        if not self.instance.user.check_password(crnt_pwd):
-            raise ValidationError('Текущий пароль неверен!')
         if pwd != confirmation:
             raise ValidationError('Введенные пароли не совпадают!')
         if pwd != '':
+            if not self.instance.user.check_password(crnt_pwd):
+                raise ValidationError('Текущий пароль неверен!')
             validate_password(pwd)
         return self.cleaned_data
 
