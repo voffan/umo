@@ -119,7 +119,7 @@ def teacher_profile(request):
                     form.add_error('first_name', 'Ошибка сохранения данных!')
         else:
             form = TeacherProfileForm(instance=teacher, initial={'email': request.user.email})
-        return render(request, 'teacher_edit.html', {'form': form, 'success_message': success_message})
+        return render(request, 'teacher_edit.html', {'form': form, 'success_message': success_message, 'profile': 1})
     return HttpResponse('You are not teacher!!')# render(request, 'teacher_edit.html')
 '''
 @permission_required('umo.add_teacher', login_url='/auth/login')
