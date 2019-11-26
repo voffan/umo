@@ -58,7 +58,7 @@ class TeacherDelete(PermissionRequiredMixin, DeleteView):
 
 class TeacherProfileForm(ModelForm):
     #success_url = reverse_lazy('teachers:list_teachers')
-    email = CharField(max_length=50, label='Email', required=False)
+    email = CharField(max_length=50, label='Email', required=True)
     current_password = CharField(max_length=100, label='Текущий пароль', required=False, widget=PasswordInput)
     password = CharField(max_length=100, label='Пароль', required=False, widget=PasswordInput)
     confirmation = CharField(max_length=100, label='Подтверждение пароля', required=False, widget=PasswordInput)
@@ -69,7 +69,6 @@ class TeacherProfileForm(ModelForm):
         self.fields['title'].widget.attrs['readonly'] = True
         self.fields['cathedra'].widget.attrs['readonly'] = True
 
-
     class Meta:
         model = Teacher
         fields = ['last_name', 'first_name', 'second_name', 'position', 'title', 'cathedra']
@@ -77,8 +76,7 @@ class TeacherProfileForm(ModelForm):
 
     def clean(self):
         #cleaned_data = super.clean()
-        if self.cleaned_data['email'] != '':
-            validate_email(self.cleaned_data['email'])
+        validate_email(self.cleaned_data['email'])
         crnt_pwd = self.cleaned_data['current_password']
         pwd = self.cleaned_data['password']
         confirmation = self.cleaned_data['confirmation']
@@ -90,9 +88,6 @@ class TeacherProfileForm(ModelForm):
             validate_password(pwd)
         return self.cleaned_data
 
-    '''def clean_password(self):
-        confirmation = self'''
-
     def save(self, commit=True):
         with transaction.atomic():
             teacher = super(TeacherProfileForm, self).save(commit=False)
@@ -100,7 +95,7 @@ class TeacherProfileForm(ModelForm):
             teacher.save()
             user = teacher.user
             if user is not None and self.cleaned_data['password'] != '':
-                if self.cleaned_data['email'] != '' and self.cleaned_data['email'] != self.instance.user.email:
+                if self.cleaned_data['email'] != self.instance.user.email:
                     user.email = self.cleaned_data['email']
                 user.set_password(self.cleaned_data['password'])
                 user.save()
