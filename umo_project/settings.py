@@ -168,6 +168,6 @@ LOGIN_EXEMPT_URLS = (
     r'^auth/reset/complete',
 )
 
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sentemails")
+#EMAIL_FILE_PATH = ''#os.path.join(BASE_DIR, "sentemails")
