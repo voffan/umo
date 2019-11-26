@@ -162,4 +162,12 @@ LOGIN_URL = '/auth/login/'
 LOGIN_EXEMPT_URLS = (
     r'^auth/logout/$',
     r'^auth/register/$',
+    r'^auth/password_reset',
+    r'^auth/password_reset/done',
+    r'^auth/reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})',
+    r'^auth/reset/complete',
 )
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sentemails")

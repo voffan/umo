@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group as auth_groups
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import login, update_session_auth_hash
+from django.core.validators import validate_email
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -57,8 +58,10 @@ class TeacherDelete(PermissionRequiredMixin, DeleteView):
 
 class TeacherProfileForm(ModelForm):
     #success_url = reverse_lazy('teachers:list_teachers')
-    password = CharField(max_length=50, label='Пароль', required=False, widget=PasswordInput)
-    confirmation = CharField(max_length=50, label='Подтверждение пароля', required=False, widget=PasswordInput)
+    email = CharField(max_length=50, label='Email', required=False)
+    current_password = CharField(max_length=100, label='Текущий пароль', required=False, widget=PasswordInput)
+    password = CharField(max_length=100, label='Пароль', required=False, widget=PasswordInput)
+    confirmation = CharField(max_length=100, label='Подтверждение пароля', required=False, widget=PasswordInput)
 
     def __init__(self, *args, **kwargs):
         super(ModelForm, self).__init__(*args, **kwargs)
@@ -74,8 +77,13 @@ class TeacherProfileForm(ModelForm):
 
     def clean(self):
         #cleaned_data = super.clean()
+        if self.cleaned_data['email'] != '':
+            validate_email(self.cleaned_data['email'])
+        crnt_pwd = self.cleaned_data['current_password']
         pwd = self.cleaned_data['password']
         confirmation = self.cleaned_data['confirmation']
+        if not self.instance.user.check_password(crnt_pwd):
+            raise ValidationError('Текущий пароль неверен!')
         if pwd != confirmation:
             raise ValidationError('Введенные пароли не совпадают!')
         if pwd != '':
@@ -92,6 +100,8 @@ class TeacherProfileForm(ModelForm):
             teacher.save()
             user = teacher.user
             if user is not None and self.cleaned_data['password'] != '':
+                if self.cleaned_data['email'] != '' and self.cleaned_data['email'] != self.instance.user.email:
+                    user.email = self.cleaned_data['email']
                 user.set_password(self.cleaned_data['password'])
                 user.save()
             return teacher
@@ -113,7 +123,7 @@ def teacher_profile(request):
                 except:
                     form.add_error('first_name', 'Ошибка сохранения данных!')
         else:
-            form = TeacherProfileForm(instance=teacher)
+            form = TeacherProfileForm(instance=teacher, initial={'email': request.user.email})
         return render(request, 'teacher_edit.html', {'form': form, 'success_message': success_message})
     return HttpResponse('You are not teacher!!')# render(request, 'teacher_edit.html')
 '''
