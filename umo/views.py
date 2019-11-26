@@ -94,11 +94,11 @@ class TeacherProfileForm(ModelForm):
             teacher.FIO = self.cleaned_data['last_name'] + ' ' + self.cleaned_data['first_name'] + ' ' + self.cleaned_data['second_name']
             teacher.save()
             user = teacher.user
+            if self.cleaned_data['email'] != self.instance.user.email:
+                user.email = self.cleaned_data['email']
             if user is not None and self.cleaned_data['password'] != '':
-                if self.cleaned_data['email'] != self.instance.user.email:
-                    user.email = self.cleaned_data['email']
                 user.set_password(self.cleaned_data['password'])
-                user.save()
+            user.save()
             return teacher
 
 
