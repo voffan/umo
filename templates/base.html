@@ -28,8 +28,8 @@
                           Меню
                         </a>
                         <div class="dropdown-menu" aria-labelledby="admin">
+                          <a class="dropdown-item" href="{% url 'teachers:teacher_profile' %}">Профиль пользователя</a>
                           {% if user|has_group:"teacher" %}
-                          <a class="dropdown-item" href="{% url 'teachers:teacher_profile' %}">Профиль преподавателя</a>
                           <a class="dropdown-item" href="{% url 'disciplines:mysubjects' %}">Мои дисциплины</a>
                           <a class="dropdown-item" href="{% url 'students:group_points' %}">Экран успеваемости</a>
                           {% endif %}
