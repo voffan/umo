@@ -453,11 +453,10 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
         checkpoints = get_check_points()
         if not course.is_finished:
             group_students = course.group.grouplist_set.select_related('student', 'group').filter(active=True)
-            if len(group_students) > len(context['object_list']) // 3:
+            students_to_add = list(set(group_students.values_list('student__id', flat=True)) - set(context['object_list'].values_list('student__id', flat=True)))
+            if len(students_to_add) > 0:
                 #calc students to add
-                students_to_add = list(set(group_students.values_list('student__id', flat=True)) - set(context['object_list'].values_list('student__id', flat=True)))
-                if len(students_to_add) > 0:
-                    add_brs(course, GroupList.objects.filter(student__id__in=students_to_add), checkpoints)
+                add_brs(course, GroupList.objects.filter(student__id__in=students_to_add), checkpoints)
                 context['object_list'] = BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'checkpoint')
         else:
             students = set(context['object_list'].values_list('student__id', flat=True))
