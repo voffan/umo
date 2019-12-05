@@ -90,7 +90,7 @@ def print_table_row(work_sheet, start, number, student, scores, courses, checkpo
 
 def print_table_body(work_sheet, group, semester, courses, start):
     i = 1
-    for sl in group.grouplist_set.all().order_by('student__FIO'):
+    for sl in group.grouplist_set.filter(active=True).order_by('student__FIO'):
         scores = {(item[0],item[1]): item[2] for item in BRSpoints.objects.filter(student__id=sl.student.id, course__discipline_detail__semester__id=semester.id).values_list('course__id', 'checkpoint__id', 'points')}
         print_table_row(work_sheet, start, i, sl.student, scores, courses, CheckPoint.objects.values_list('id', flat=True))
         start += 1

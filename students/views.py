@@ -102,9 +102,9 @@ class StudentListView(StudentsList):
                         gl.group = g
                         gl.active = True
                         gl.save()
+                    i += 1
                 synch.finished = True
                 synch.save()
-                i += 1
         return redirect(self.success_url)
 
 
