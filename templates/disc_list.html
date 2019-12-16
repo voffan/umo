@@ -45,9 +45,9 @@
                             {% if teacher %}
                             <a class="dropdown-item" href="#" name="delete_course" id="{{ discipline.id }}">Снять привязку</a>
                             {% endif %}
-                            {% if 'экзамен' in discipline.discipline_detail.controls %}
-                            <a class="dropdown-item" href="{% url 'disciplines:brs_student_list' discipline.id %}"> Экзамен/Зачет</a>
-                            {% endif %}
+                            {% for control in discipline.discipline_detail.controls_list %}
+                            <a class="dropdown-item" href="{% url 'disciplines:brs_student_list' discipline.id control.0 %}">{{control.1}}</a>
+                            {% endfor %}
                         </div>
                     </div>
                 </td>

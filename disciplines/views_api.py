@@ -144,10 +144,10 @@ def exam_scores(request):
     result = {'result': False}
     serialized_data = request.body.decode("utf-8")
     serialized_data = json.loads(serialized_data)
-    score = ExamMarks.objects.select_related('mark').filter(exam__pk=serialized_data['exam_id'],
-                                                            student__id=serialized_data['student_id']).first()
+    score = ExamMarks.objects.filter(exam__pk=serialized_data['exam_id'],
+                                     student__id=serialized_data['student_id']).first()
     result['old'] = {'additional_points': score.additional_points, 'exam_points': score.examPoints,
-                     'mark': score.mark.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points }
+                     'mark': score.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points }
     final = CheckPoint.objects.get(name__icontains='Рубеж')
     max_in_points = CourseMaxPoints.objects.get(course__id=score.exam.course.id, checkpoint__id=final.id).max_point
     serialized_data['additional_points'] = to_number(serialized_data['additional_points'])
@@ -171,7 +171,7 @@ def exam_scores(request):
             score.examPoints = serialized_data['exam_points']
             score.save()
             result['new'] = {'additional_points': score.additional_points, 'exam_points': score.examPoints,
-                             'mark': score.mark.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points }
+                             'mark': score.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points }
             result['result'] = True
             status = 200
         except Exception as e:

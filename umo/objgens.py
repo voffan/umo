@@ -72,5 +72,10 @@ def add_exam_marks(exam, group_list):
             mark.examPoints = 0
             mark.mark = 2
             mark.mark_symbol = ExamMarks.SYMBOL_MARK[-1][0]
-        mark.inPoints = BRSpoints.objects.filter(course__id=exam.course.id, student__id=gl.student.id, points__gt=0).order_by('-checkpoint__id').first().points
+        p = BRSpoints.objects.filter(course__id=exam.course.id, student__id=gl.student.id, points__gt=0).order_by(
+            '-checkpoint__id').first()
+        if p is not None:
+            mark.inPoints = p.points
+        else:
+            mark.inPoints = 0
         mark.save()

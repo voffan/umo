@@ -485,7 +485,7 @@ class ExamMarks(Model):
         verbose_name_plural = 'экзаменационные оценки'
 
     def __str__(self):
-        return self.student.FIO + ' - ' + self.exam.course.discipline_detail.discipline.Name + ' - ' + self.mark.name
+        return self.student.FIO + ' - ' + self.exam.course.discipline_detail.discipline.Name + ' - ' + self.MARKS[self.mark][1]
 
     @property
     def total_points(self):
@@ -512,28 +512,27 @@ class ExamMarks(Model):
         points = self.total_points
         mark = 9
         if self.exam.controlType != Control.NONE and self.exam.controlType != Control.CREDIT:
-            if points < 45 and self.exam.controlType == Control.EXAM:
+            if 0 <= points < 45 and self.exam.controlType == Control.EXAM:
                 mark = 8
-            elif points >= 0 and points < 55:
+            elif 45 <= points < 55:
                 mark = 2
-            elif points >= 55 and points < 65:
+            elif 55 <= points < 65:
                 mark = 3
-            elif points >= 65 and points < 85:
+            elif 65 <= points < 85:
                 mark = 4
-            elif points >= 85 and points <= 100:
+            elif 85 <= points <= 100:
                 mark = 5
         elif self.exam.controlType == Control.CREDIT:
             mark = 6
-            if points >=0 and points < 60:
+            if 0 <= points < 60:
                 mark = 7
         return mark
 
     def save(self, *args, **kwargs):
-        if self.mark >= 2:
-            self.mark = self.get_control_mark()
-            self.mark_symbol = self.get_mark_symbol()
-        else:
+        if self.exam.controlType == 2:
             self.examPoints = 0
+        self.mark = self.get_control_mark()
+        self.mark_symbol = self.get_mark_symbol()
         super().save(*args, **kwargs)
 
     @property

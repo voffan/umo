@@ -508,10 +508,10 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         course = Course.objects.select_related('discipline_detail', 'group').get(pk=self.kwargs['pk'])
         group_students = course.group.grouplist_set.select_related('student', 'group').filter(active=True)
-        control_type = course.discipline_detail.control_set.first()
-        exam = Exam.objects.filter(course__id=self.kwargs['pk'], controlType=control_type.control_type).first()
+        control = course.discipline_detail.control_set.filter(id=self.kwargs['control_id']).first()
+        exam = Exam.objects.filter(course__id=self.kwargs['pk'], controlType=control.control_type).first()
         if exam is None:
-            exam = add_exam(course, group_students, datetime.today(), control_type.control_type)
+            exam = add_exam(course, group_students, datetime.today(), control.control_type)
         elif not exam.is_finished:
             with transaction.atomic():
                 add_exam_marks(exam, group_students)
@@ -521,7 +521,9 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
         context['discipline'] = course
         context['today'] = datetime.today().strftime('%Y-%m-%d')
         context['period'] = EduPeriod.objects.get(active=True)
-        context['control_type'] = Control.CONTROL_FORM[control_type.control_type][1]
+        context['control_type'] = Control.CONTROL_FORM[control.control_type][1]
+        if control.control_type == 1:
+            context['is_exam'] = True
         return context
 
 
