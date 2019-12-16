@@ -11,6 +11,10 @@ th.rotate{
     width: 60px;
     text-align: center;
 }
+th.rotate-width-100{
+    width: 100px;
+    text-align: center;
+}
 th.wordwrap{
     width: 100px;
     word-break: break-all;

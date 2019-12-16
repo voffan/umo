@@ -1,6 +1,6 @@
 from datetime import *
 from django.db import transaction
-from umo.models import EduOrg, CheckPoint, Group, BRSpoints, Exam, ExamMarks, Mark
+from umo.models import EduOrg, CheckPoint, Group, BRSpoints, Exam, ExamMarks
 
 
 def check_edu_org(name, parent):
@@ -70,7 +70,7 @@ def add_exam_marks(exam, group_list):
             mark.student = gl.student
             mark.additional_points = 0
             mark.examPoints = 0
-            mark.mark = Mark.objects.get(name='2')
+            mark.mark = 2
             mark.mark_symbol = ExamMarks.SYMBOL_MARK[-1][0]
-        mark.inPoints = BRSpoints.objects.get(course__id=exam.course.id, student__id=gl.student.id, checkpoint__id=checkpoint.id).points
+        mark.inPoints = BRSpoints.objects.filter(course__id=exam.course.id, student__id=gl.student.id, points__gt=0).order_by('-checkpoint__id').first().points
         mark.save()

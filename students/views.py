@@ -11,7 +11,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 import synch.models as sync_models
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
-                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam, Course, Semester)
+                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam, Course, Semester)
 from students.forms import GetGroupPointsForm
 from students.views_excel import export_group_points
 

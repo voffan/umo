@@ -141,7 +141,7 @@ $(document).ready(function(){
         });
         var $backgrid = $("#scores_list");
         $backgrid.append(grid.render().el);
-        $('th.rotate>a').addClass('rotate');
+        $('th.rotate-width-100>a').addClass('rotate');
     }
 
     function getCSRF(){
@@ -200,7 +200,7 @@ $(document).ready(function(){
                         "additional_points": "{{ student_mark.additional_points }}",
                         "exam_points": "{{ student_mark.examPoints }}",
                         "total_points": "{{ student_mark.total_points }}",
-                        "exam_mark": "{{ student_mark.mark.mark_to_text }}",
+                        "exam_mark": "{{ student_mark.mark_to_text }}",
                         "mark_symbol": "{{ student_mark.mark_symbol }}"
                 },
                 {% endfor %}
@@ -262,17 +262,17 @@ $(document).ready(function(){
         },
         {
             editable: false,
-            name: "student_id",
+            name: "student_code",
             label: "Номер зачетной книжки",
             cell: "string",
-            additional_class: 'rotate'
+            additional_class: 'rotate-width-100'
         },
         {
             editable: false,
             name: "in_points" ,
             label: "Сумма баллов за текущую работу",
             cell: "string",
-            additional_class: 'rotate'
+            additional_class: 'rotate-width-100'
         },
         {
             editable: true,
@@ -281,7 +281,7 @@ $(document).ready(function(){
             cell: Backgrid.MyCell.extend({
                 decimals:1
             }),
-            additional_class: 'rotate'
+            additional_class: 'rotate-width-100'
         },
         {
             editable: true,
@@ -290,28 +290,28 @@ $(document).ready(function(){
             cell: Backgrid.MyCell.extend({
                 decimals:1
             }),
-            additional_class: 'rotate'
+            additional_class: 'rotate-width-100'
         },
         {
             editable: false,
             name: "total_points",
             label: "Всего баллов",
             cell: "string",
-            additional_class: 'rotate'
+            additional_class: 'rotate-width-100'
         },
         {
             editable: false,
             name: "exam_mark",
             label: "Оценка прописью",
             cell: "string",
-            additional_class: 'rotate'
+            additional_class: 'rotate-width-100'
         },
         {
             editable: false,
             name: "mark_symbol",
             label:"Буквенный эквивалент",
             cell: "string",
-            additional_class: 'rotate'
+            additional_class: 'rotate-width-100'
         }
     ];
     InitTable(columns, apps);

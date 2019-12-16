@@ -243,6 +243,10 @@ class DisciplineDetails(Model):
     def controls(self):
         return ', '.join(map(lambda x: Control.CONTROL_FORM[x][1], list(self.control_set.all().values_list('control_type', flat=True))))
 
+    @property
+    def controls_list(self):
+        return [(control.id, Control.CONTROL_FORM[control.control_type][1]) for control in self.control_set.all()]
+
 
 class Control(Model):
 
@@ -287,8 +291,8 @@ class Control(Model):
         unique_together = (('discipline_detail', 'control_type'),)
 
     def __str__(self):
-            return self.get_control_type_display() + ' - ' + self.discipline_detail.discipline.Name + ' - ' \
-                   + self.discipline_detail.semester.name + ' семестр'
+        return self.get_control_type_display() + ' - ' + self.discipline_detail.discipline.Name + ' - ' \
+               + self.discipline_detail.semester.name + ' семестр'
 
 
 class Year(Model):
@@ -337,25 +341,6 @@ class Semester(Model):
             return self.name
 
 
-class Mark(Model):
-    name = CharField(verbose_name="оценка", db_index=True, max_length=255, unique=True)
-
-    class Meta:
-        verbose_name = 'оценка'
-        verbose_name_plural = 'оценки'
-
-    def __str__(self):
-            return self.name
-
-    @property
-    def mark_to_text(self):
-        marks = ["Неудовлетворительно", "Удовлетворительно", "Хорошо", "Отлично"]
-        try:
-            return marks[int(self.name) - 2]
-        except:
-            return self.name
-
-
 class CheckPoint(Model):
     name = CharField(verbose_name="срез", db_index=True, max_length=255, unique=True)
 
@@ -364,7 +349,7 @@ class CheckPoint(Model):
         verbose_name_plural = 'контрольные срезы'
 
     def __str__(self):
-            return self.name
+        return self.name
 
 
 class EduPeriod(Model):
@@ -464,7 +449,6 @@ class Exam(Model):
 
 
 class ExamMarks(Model):
-
     SYMBOL_MARK = (
         ('A', 'A'),
         ('B', 'B'),
@@ -475,12 +459,25 @@ class ExamMarks(Model):
         ('FX', 'FX'),
     )
 
+    MARKS = (
+        (0, "Неявка"),
+        (1, "Индивидуальный план"),
+        (2, "Неудовлетворительно"),
+        (3, "Удовлетворительно"),
+        (4, "Хорошо"),
+        (5, "Отлично"),
+        (6, "Зачтено"),
+        (7, "Не зачтено"),
+        (8, "Не допущен"),
+        (9, "---")
+    )
+
     exam = ForeignKey(Exam, db_index=True, on_delete=CASCADE)
     student = ForeignKey(Student, db_index=True, on_delete=CASCADE)
     inPoints = FloatField(verbose_name="баллы за срез", max_length=255)
     additional_points = FloatField(verbose_name="баллы за отработку", blank=True, null=True, max_length=255)
     examPoints = FloatField(verbose_name="баллы за экзамен", blank=True, null=True, max_length=255)
-    mark = ForeignKey(Mark, db_index=True, on_delete=CASCADE)
+    mark = IntegerField(verbose_name='Оценка', choices=MARKS, db_index=True, default=0)
     mark_symbol = CharField('буквенный эквивалент оценки', max_length=2, default='')
 
     class Meta:
@@ -494,30 +491,54 @@ class ExamMarks(Model):
     def total_points(self):
         return self.inPoints + self.additional_points + self.examPoints
 
+    def get_mark_symbol(self):
+        points = self.total_points
+        symbol = ExamMarks.SYMBOL_MARK[6][0]
+        if points >= 25 and points < 55:
+            symbol = ExamMarks.SYMBOL_MARK[5][0]
+        elif points >= 55 and points < 65:
+            symbol = ExamMarks.SYMBOL_MARK[4][0]
+        elif points >= 65 and points < 75:
+            symbol = ExamMarks.SYMBOL_MARK[3][0]
+        elif points >= 75 and points < 85:
+            symbol = ExamMarks.SYMBOL_MARK[2][0]
+        elif points >= 85 and points < 95:
+            symbol = ExamMarks.SYMBOL_MARK[1][0]
+        elif points >= 95 and points < 100:
+            symbol = ExamMarks.SYMBOL_MARK[0][0]
+        return symbol
+
+    def get_control_mark(self):
+        points = self.total_points
+        mark = 9
+        if self.exam.controlType != Control.NONE and self.exam.controlType != Control.CREDIT:
+            if points < 45 and self.exam.controlType == Control.EXAM:
+                mark = 8
+            elif points >= 0 and points < 55:
+                mark = 2
+            elif points >= 55 and points < 65:
+                mark = 3
+            elif points >= 65 and points < 85:
+                mark = 4
+            elif points >= 85 and points <= 100:
+                mark = 5
+        elif self.exam.controlType == Control.CREDIT:
+            mark = 6
+            if points >=0 and points < 60:
+                mark = 7
+        return mark
+
     def save(self, *args, **kwargs):
-        total_points = self.inPoints + self.additional_points + self.examPoints
-        mark = Mark.objects.get(name='2')
-        symbol = self.SYMBOL_MARK[6][0]
-        if total_points >= 25 and total_points < 55:
-            symbol = self.SYMBOL_MARK[5][0]
-        elif total_points >= 55 and total_points < 65:
-            mark = Mark.objects.get(name='3')
-            symbol = self.SYMBOL_MARK[4][0]
-        elif total_points >= 65 and total_points < 75:
-            mark = Mark.objects.get(name='4')
-            symbol = self.SYMBOL_MARK[3][0]
-        elif total_points >= 75 and total_points < 85:
-            mark = Mark.objects.get(name='4')
-            symbol = self.SYMBOL_MARK[2][0]
-        elif total_points >= 85 and total_points < 95:
-            mark = Mark.objects.get(name='5')
-            symbol = self.SYMBOL_MARK[1][0]
-        elif total_points>= 95 and total_points < 100:
-            mark = Mark.objects.get(name='5')
-            symbol = self.SYMBOL_MARK[0][0]
-        self.mark = mark
-        self.mark_symbol = symbol
+        if self.mark >= 2:
+            self.mark = self.get_control_mark()
+            self.mark_symbol = self.get_mark_symbol()
+        else:
+            self.examPoints = 0
         super().save(*args, **kwargs)
+
+    @property
+    def mark_to_text(self):
+        return self.MARKS[self.mark][1]
 
 
 class Synch(Model):

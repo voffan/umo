@@ -17,7 +17,7 @@ from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Si
 
 import synch.models as sync_models
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
-                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam)
+                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam)
 
 
 def index(request):
@@ -272,9 +272,7 @@ class BRSPointsListView(ListView):
                     # if (newMarkSymbol is None):
                     #     newMarkSymbol = MarkSymbol.objects.create(name='F')
 
-                    newMark = Mark.objects.filter(name='неуд').first()
-                    if (newMark is None):
-                        newMark = Mark.objects.create(name='неуд')
+                    newMark = 2
 
                     newExam = Exam.objects.filter(discipline__id = discipline.id, semester=s).first()
                     if (newExam is None):
@@ -344,9 +342,7 @@ class BRSPointsListView(ListView):
                 #     if (newMarkSymbol is None):
                 #         newMarkSymbol = MarkSymbol.objects.create(name=tempMarkSymbol)
 
-                newMark = Mark.objects.filter(name=tempMark).first()
-                if (newMark is None):
-                    newMark = Mark.objects.create(name=tempMark)
+                newMark = 2
 
                 # exammarks.markSymbol = newMarkSymbol
                 exammarks.mark_symbol = tempMarkSymbol if tempMarkSymbol else ''

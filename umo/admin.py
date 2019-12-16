@@ -40,7 +40,6 @@ class AdminGroupList(admin.ModelAdmin):
     search_fields = ['student__FIO']
     list_filter = ['group']
 admin.site.register(models.Kafedra)
-admin.site.register(models.Mark)
 admin.site.register(models.Position)
 admin.site.register(models.Profile)
 admin.site.register(models.Semester)

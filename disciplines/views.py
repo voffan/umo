@@ -16,7 +16,7 @@ from umo.objgens import get_check_points, add_brs, add_exam, add_exam_marks
 from disciplines.view_excel import discipline_scores_to_excel
 from nomenclature.form import AddSubjectToteacherForm
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
-                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Mark, Exam)
+                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam)
 from datetime import datetime
 
 from django.contrib.auth.decorators import permission_required
@@ -507,7 +507,7 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
         course = Course.objects.select_related('discipline_detail', 'group').get(pk=self.kwargs['pk'])
-        group_students = course.group.grouplist_set.select_related('student', 'group').all()
+        group_students = course.group.grouplist_set.select_related('student', 'group').filter(active=True)
         control_type = course.discipline_detail.control_set.first()
         exam = Exam.objects.filter(course__id=self.kwargs['pk'], controlType=control_type.control_type).first()
         if exam is None:
@@ -515,7 +515,7 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
         elif not exam.is_finished:
             with transaction.atomic():
                 add_exam_marks(exam, group_students)
-        context['object_list'] = ExamMarks.objects.filter(exam__id=exam.id).select_related('student', 'mark').order_by('student__FIO')
+        context['object_list'] = ExamMarks.objects.filter(exam__id=exam.id).select_related('student').order_by('student__FIO')
         context['exam'] = exam
         context['group_list'] = group_students
         context['discipline'] = course
