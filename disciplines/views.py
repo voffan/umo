@@ -452,7 +452,7 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
         course = Course.objects.select_related('discipline_detail').get(pk=self.kwargs['pk'])
         checkpoints = get_check_points()
         if not course.is_finished:
-            group_students = course.group.grouplist_set.select_related('student', 'group').filter(active=True)
+            group_students = course.group.grouplist_set.select_related('student', 'group').filter(active=True).order_by('student__FIO')
             students_to_add = list(set(group_students.values_list('student__id', flat=True)) - set(context['object_list'].values_list('student__id', flat=True)))
             if len(students_to_add) > 0:
                 #calc students to add
@@ -460,7 +460,7 @@ class StudentsScoresView(PermissionRequiredMixin, ListView):
                 context['object_list'] = BRSpoints.objects.filter(course__id=self.kwargs['pk'], student__id__in=group_students.values_list('student__id', flat=True)).select_related('student', 'checkpoint')
         else:
             students = set(context['object_list'].values_list('student__id', flat=True))
-            group_students = course.group.grouplist_set.select_related('student', 'group').filter(student__id__in=students)
+            group_students = course.group.grouplist_set.select_related('student', 'group').filter(student__id__in=students).order_by('student__FIO')
         #elif len(context['object_list']) // 3
         context['points'] = {}
         context['maxpoints'] = {}
