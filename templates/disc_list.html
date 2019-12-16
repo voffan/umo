@@ -12,6 +12,10 @@
 
 {% block content %}
     <div class="alert alert-danger" role="alert" id="error" style="visibility:hidden;position:fixed;top:0;left:0;width:100%;z-index:100;"></div>
+    <div class="alert alert-info" role="alert">
+        <b>ВНИМАНИЕ! Уважаемые пользователи!</b> теперь для просмотра баллов БРС необходимо <b>нажимать на <u>название предмета</u> в списке!</b><br/>
+        Пункт меню "Баллы БРС" в контекстном меню "Действия" <b>ИСКЛЮЧЕН!</b>
+    </div>
     {% include 'select_disc_modal.html' %}
     <h1>Список дисциплин</h1>
     {% if teacher %}
@@ -33,7 +37,7 @@
             {% for discipline in discipline_list %}
             <tr>
                 <td> {{ discipline.discipline_detail.discipline.code }} </td>
-                <td> <a href="{% url 'disciplines:detail' discipline.id %}">{{ discipline.discipline_detail.discipline.Name }}</a> </td>
+                <td> <a href="{% url 'disciplines:brs_scores' discipline.id %}">{{ discipline.discipline_detail.discipline.Name }}</a> </td>
                 <td> {{ discipline.discipline_detail.semester }} </td>
                 <td> {{ discipline.group.Name }} </td>
                 <td> {{ discipline.lecturer.FIO }} </td>
@@ -41,7 +45,8 @@
                     <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Действия</button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="{% url 'disciplines:brs_scores' discipline.id %}">Баллы БРС</a>
+                            <!--a class="dropdown-item" href="{% url 'disciplines:brs_scores' discipline.id %}">Баллы БРС</a-->
+                            <a class="dropdown-item" href="{% url 'disciplines:detail' discipline.id %}">Часы дисциплины</a>
                             {% if teacher %}
                             <a class="dropdown-item" href="#" name="delete_course" id="{{ discipline.id }}">Снять привязку</a>
                             {% endif %}
