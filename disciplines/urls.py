@@ -14,7 +14,7 @@ api = ([
 
 excel = ([
     url(r'^brs_scores$', views.export_brs_points, name='brs_scores'),
-    url(r'^exam_scores$', view_excel.exam_scores, name='exam_scores')
+    url(r'^exam_scores', views.exam_report, name='exam_scores')
 ], 'excel')
 
 urlpatterns = [

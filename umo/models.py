@@ -103,8 +103,8 @@ class Group(Model):
     @property
     def year(self):
         now = datetime.now()
-        t = int(now.year) - self.begin_year.year + 1
-        return t // 2 + t % 2
+        t = int(now.year) - self.begin_year.year
+        return t + int(now.month >= 7)
 
     @property
     def current_semester(self):
@@ -529,10 +529,13 @@ class ExamMarks(Model):
         return mark
 
     def save(self, *args, **kwargs):
-        if self.exam.controlType == 2:
+        if self.mark > 1 and self.mark != 8:
+            if self.exam.controlType == 2:
+                self.examPoints = 0
+            self.mark = self.get_control_mark()
+            self.mark_symbol = self.get_mark_symbol()
+        else:
             self.examPoints = 0
-        self.mark = self.get_control_mark()
-        self.mark_symbol = self.get_mark_symbol()
         super().save(*args, **kwargs)
 
     @property

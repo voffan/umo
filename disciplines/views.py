@@ -29,6 +29,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
+import disciplines.view_excel as excel_forms
 
 
 class DisciplineList(PermissionRequiredMixin, ListView):
@@ -527,3 +528,16 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
         return context
 
 
+@login_required
+@permission_required('umo.can_view_scores', login_url='login')
+def exam_report(request):
+    wb = excel_forms.exam_scores(int(request.GET['exam_id']))
+    if wb is not None:
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=vedomost.xlsx'
+        wb.save(response)
+    else:
+        response = HttpResponse()
+        response.status_code = 404
+        response.write('<p>Ошибка при формировании отчета!!</p>')
+    return response

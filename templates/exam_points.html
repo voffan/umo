@@ -51,8 +51,7 @@
                 </div>
             </div>
         </div>
-           <button type="submit" class="btn btn-success" id="SaveButton" name="save" value="save">{% if not exam.is_finished %}Завершить экзамен{% else %}Скачать ведомость{% endif %}</button>
-            <input type="button" class="btn btn-secondary" onclick="history.back();" value="Назад"/>
+           <a href="{% url 'disciplines:excel:exam_scores' %}?exam_id={{ exam.id }}" class="btn btn-primary" id="SaveButton" name="save">{% if not exam.is_finished %}Завершить {{control_type}}{% else %}Скачать ведомость{% endif %}</a>
 {% endblock %}
 
 {% block additional_css %}
@@ -97,16 +96,17 @@ $(document).ready(function(){
         $(error_obj).delay(2000).slideUp(500, function() {$(this).alert('close');});
     }
 
-    $('[name="save"]').on('click', function(){
+    $('[name="save"]').on('click', function(event){
         {% if exam.is_finished %}
-            download_report();
+            //download_report();
         {% else %}
-            close_exam();
+            close_exam(event);
         {% endif %}
     });
 
-    function close_exam(){
-        if(confirm("Экзамен закончился?")){
+    function close_exam(event){
+        event.preventDefault();
+        if(confirm("{{control_type}} закончился?")){
             $.ajax({
                 url: "{% url 'disciplines:api:finish_exam' %}",
                 method: "POST",
@@ -129,7 +129,6 @@ $(document).ready(function(){
 
     function download_report(){
         console.log('report');
-
     }
 
     function InitTable(table_columns, table_app){
@@ -232,9 +231,9 @@ $(document).ready(function(){
                     }else{
                         response_data = response['old']
                         show_error(get_error_msg(response.status, 1, response['max_exam_points']));
-                        model.set("additional_points", response_data["additional_points"]);
-                        model.set("exam_points", response_data["exam_points"]);
                     }
+                    model.set("additional_points", response_data["additional_points"]);
+                    model.set("exam_points", response_data["exam_points"]);
                     model.set("exam_mark", response_data["mark"]);
                     model.set("mark_symbol", response_data["symbol"]);
                     model.set("total_points", response_data["total"]);
