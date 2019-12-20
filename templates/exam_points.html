@@ -4,13 +4,27 @@
 {% block title %}Ведомость{{ discipline.group.Name }}{% endblock %}
 {% block content %}
     {% csrf_token %}
-<h1>Ведомость</h1>
+<div class="row">
+    <div class="col">
+        <div class="alert alert-info" role="alert">
+            Уважаемые коллеги! В данной форме вы должны устанавливать только баллы за {{ control_type }}{% if is_exam %},
+            и дополнительные баллы (если таковые есть){% endif %}. Все остальное устанавливается автоматически.<br/>
+            Если студент отсутсвует или у него индивидуальный план сдачи сессии, необходимо поставить галочку на соответствующей
+            колонке.
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col">
         <div style="position:fixed;top:0;left:0;width:100%;z-index:100;" id="error_container"></div>
     </div>
     <div class="col">
         <div style="position:fixed;top:0;left:0;width:100%;z-index:100;" id="success_container"></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <h1>Ведомость</h1>
     </div>
 </div>
 <div class="row">
@@ -44,7 +58,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-2">
+    <div class="col-3">
         <h2>Дата экзамена:</h2>
     </div>
     <div class="col-9">
@@ -127,7 +141,7 @@ $(document).ready(function(){
         }).done(function(data){
             if(data['result'] == true){
                 $('#exam_date').readOnly = false;
-                show_success('Дата экзамена успешно установлена!');
+                show_success('Дата {{ control_type }}а успешно установлена!');
                 console.log('success');
             }else{
                 $('#exam_date').val(data['date']);
