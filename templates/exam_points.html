@@ -7,10 +7,11 @@
 <div class="row">
     <div class="col">
         <div class="alert alert-info" role="alert">
-            Уважаемые коллеги! В данной форме вы должны устанавливать только баллы за {{ control_type }}{% if is_exam %},
-            и дополнительные баллы (если таковые есть){% endif %}. Все остальное устанавливается автоматически.<br/>
+            Уважаемые коллеги! В данной форме вы должны устанавливать {% if is_exam %}только баллы за экзамен,{% endif %}
+            дополнительные баллы (если таковые есть). Все остальное устанавливается автоматически.<br/>
             Если студент отсутсвует или у него индивидуальный план сдачи сессии, необходимо поставить галочку на соответствующей
-            колонке.
+            колонке. {% if is_exam %}Для студентов, которые отсутствуюти или имеют индивидуальный план, не допущены к экзамену,
+            то баллы за экзамен нельзя уставить.{% endif %}
         </div>
     </div>
 </div>
@@ -325,18 +326,6 @@ $(document).ready(function(){
 
     var columns=[
         {
-            name: "absence",
-            cell: BooleanCell,
-            label: "Не явился",
-            additional_class: 'rotate',
-        },
-        {
-            name: "individual",
-            cell: BooleanCell,
-            label: "Индивидуальный план",
-            additional_class: 'rotate',
-        },
-        {
             editable: false,
             name: "Num",
             label: "№",
@@ -355,6 +344,18 @@ $(document).ready(function(){
             label: "Номер зачетной книжки",
             cell: "string",
             additional_class: 'rotate-width-100'
+        },
+        {
+            name: "absence",
+            cell: BooleanCell,
+            label: "Не явился",
+            additional_class: 'rotate',
+        },
+        {
+            name: "individual",
+            cell: BooleanCell,
+            label: "Индивидуальный план",
+            additional_class: 'rotate',
         },
         {
             editable: false,

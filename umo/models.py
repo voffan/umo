@@ -445,7 +445,7 @@ class Exam(Model):
         verbose_name_plural = 'контрольные мероприятия для курсов обучения дисциплинам'
 
     def __str__(self):
-        return self.course.discipline_detail.discipline.Name + '"' + self.examDate + '"'
+        return self.course.discipline_detail.discipline.Name + '"' + self.examDate.strftime('%d.%m.%Y') + '"'
 
 
 class ExamMarks(Model):
