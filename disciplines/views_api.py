@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.contrib.auth.decorators import login_required, permission_required
@@ -169,9 +170,16 @@ def exam_scores(request):
         try:
             score.additional_points = serialized_data['additional_points']
             score.examPoints = serialized_data['exam_points']
+            if serialized_data['absence']:
+                score.mark = 0
+            elif serialized_data['individual']:
+                score.mark = 1
+            else:
+                score.mark = 9
             score.save()
             result['new'] = {'additional_points': score.additional_points, 'exam_points': score.examPoints,
-                             'mark': score.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points }
+                             'mark': score.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points ,
+                             'absence': score.mark == 0, 'individual': score.mark == 1}
             result['result'] = True
             status = 200
         except Exception as e:
@@ -201,4 +209,30 @@ def finish_exam(request):
         except Exception as e:
             status = 500
     result['status'] = status
+    return JsonResponse(result, status=status)
+
+
+@login_required
+@permission_required('umo.change_exam', login_url='login')
+def set_exam_date(request):
+    date = datetime.datetime.strptime(request.POST['date'], '%Y-%m-%d')
+    exam_id = int(request.POST['exam_id'])
+    exam = Exam.objects.filter(id=exam_id).first()
+    result = {'result': False, 'date': exam.examDate.strftime('%Y-%m-%d')}
+    status = 200
+    if exam is None:
+        status = 400
+    elif request.user.id != exam.course.lecturer.user.id and (not request.user.groups.filter(name='UMO').exists()):
+        status = 403
+    elif date > datetime.datetime.now():
+        status = 406
+    else:
+        try:
+            exam.examDate = date
+            exam.save()
+            result['result'] = True
+        except:
+            status = 500
+    print(result, status)
+    print(request.POST)
     return JsonResponse(result, status=status)

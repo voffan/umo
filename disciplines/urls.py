@@ -9,7 +9,8 @@ api = ([
     url(r'^add_course_to_teacher$', views_api.add_course_to_teacher, name='add_course_to_teacher'),
     url(r'^delete_course_teacher$', views_api.delete_course_teacher, name='delete_course_teacher'),
     url(r'^exam_scores$', views_api.exam_scores, name='exam_scores'),
-    url(r'^finish_exam$', views_api.finish_exam, name='finish_exam')
+    url(r'^finish_exam$', views_api.finish_exam, name='finish_exam'),
+    url(r'^set_exam_date$', views_api.set_exam_date, name='set_exam_date'),
 ], 'api')
 
 excel = ([

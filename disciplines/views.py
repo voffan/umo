@@ -520,7 +520,7 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
         context['exam'] = exam
         context['group_list'] = group_students
         context['discipline'] = course
-        context['today'] = datetime.today().strftime('%Y-%m-%d')
+        context['today'] = exam.examDate.strftime('%Y-%m-%d')
         context['period'] = EduPeriod.objects.get(active=True)
         context['control_type'] = Control.CONTROL_FORM[control.control_type][1]
         if control.control_type == 1:

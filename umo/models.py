@@ -434,7 +434,7 @@ class BRSpoints(Model):
 
 
 class Exam(Model):
-    examDate = CharField(verbose_name="дата экзамена", db_index=True, max_length=255)
+    examDate = DateTimeField(verbose_name="дата экзамена", db_index=True, auto_now_add=True)
     course = ForeignKey(Course, db_index=True, on_delete=CASCADE)
     controlType = IntegerField('форма контроля', choices=Control.CONTROL_FORM)
     prev_exam = ForeignKey('self', verbose_name="предыдущий экзамен", blank=True, null=True, on_delete=SET_NULL)

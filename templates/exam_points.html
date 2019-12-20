@@ -9,6 +9,9 @@
     <div class="col">
         <div style="position:fixed;top:0;left:0;width:100%;z-index:100;" id="error_container"></div>
     </div>
+    <div class="col">
+        <div style="position:fixed;top:0;left:0;width:100%;z-index:100;" id="success_container"></div>
+    </div>
 </div>
 <div class="row">
     <div class="col">
@@ -41,8 +44,11 @@
     </div>
 </div>
 <div class="row">
-    <div class="col">
-        <h2>Дата экзамена:</h2> <input type="date" name="exam_date" id="exam_date" value="{{ today }}" class="form-control" style="width:300px;">
+    <div class="col-2">
+        <h2>Дата экзамена:</h2>
+    </div>
+    <div class="col-9">
+        <input type="date" name="exam_date" id="exam_date" value="{{ today }}" class="form-control" style="width:300px;">
     </div>
 </div>
         <div class="row">
@@ -73,27 +79,34 @@
 {% block scripts %}
 $(document).ready(function(){
     function get_error_msg(status, type, max_exam_points=0){
-        if(status == 404){
-            if (type == 1) msg = 'Баллы не проставлены!'
+        if(status === 404){
+            if (type === 1) msg = 'Баллы не проставлены!'
             else msg = 'Экзамен не найден!';
-        }else if(status == 403 || status == 200){
-            if (type == 1) msg = 'Вы не можете устанавливать баллы за экзамен!';
+        }else if(status === 403 || status == 200){
+            if (type === 1) msg = 'Вы не можете устанавливать баллы за экзамен!';
             else msg = 'Вы не можете закрыть закрыть экзамен!';
-        }else if(status == 500){
+        }else if(status === 500){
             msg = 'Ошибка при сохранении баллов, обратитесь к администратору!'
-        } else if(status == 400){
+        } else if(status === 400){
             msg = 'Сумма баллов не может превышать "100"!';
-        } else if (status == 406){
-            msg = 'Количество баллов за экзамен не может превышать "' + max_exam_points + '"!'
-        }else if(status == 405){
+        } else if (status === 406){
+            console.log(type);
+            if(type === 1) msg = 'Дата экзамена не может превышать текущую дату!';
+            else msg = 'Количество баллов за экзамен не может превышать "' + max_exam_points + '"!';
+        }else if(status === 405){
             msg = 'Экзамен уже завершен!';
         }
         return msg;
     }
 
     function show_error(message){
-        let error_obj = $('<div class="alert alert-danger" role="alert" id="error">' + msg + '</div>').appendTo('#error_container');
+        let error_obj = $('<div class="alert alert-danger" role="alert" id="error">' + message + '</div>').appendTo('#error_container');
         $(error_obj).delay(2000).slideUp(500, function() {$(this).alert('close');});
+    }
+
+    function show_success(message){
+        let success_obj = $('<div class="alert alert-success" role="alert" id="success">' + message + '</div>').appendTo('#success_container');
+        $(success_obj).delay(2000).slideUp(500, function() {$(this).alert('close');});
     }
 
     $('[name="save"]').on('click', function(event){
@@ -102,6 +115,28 @@ $(document).ready(function(){
         {% else %}
             close_exam(event);
         {% endif %}
+    });
+
+    $('#exam_date').on('change', function(event){
+        $('#exam_date').readOnly = true;
+        $.ajax({
+            url: "{% url 'disciplines:api:set_exam_date' %}",
+            method: "POST",
+            data: { "date": $('#exam_date').val(), "exam_id": {{ exam.id }}},
+            dataType: "json"
+        }).done(function(data){
+            if(data['result'] == true){
+                $('#exam_date').readOnly = false;
+                show_success('Дата экзамена успешно установлена!');
+                console.log('success');
+            }else{
+                $('#exam_date').val(data['date']);
+                show_error(get_error_msg(data['result']['status'], 1));
+            }
+        }).fail(function(jqXHR, textStatus){
+            $('#exam_date').val(jqXHR.responseJSON['date']);
+            show_error(get_error_msg(jqXHR.status, 1));
+        });
     });
 
     function close_exam(event){
@@ -141,6 +176,7 @@ $(document).ready(function(){
         var $backgrid = $("#scores_list");
         $backgrid.append(grid.render().el);
         $('th.rotate-width-100>a').addClass('rotate');
+        $('th.rotate>a').addClass('rotate');
     }
 
     function getCSRF(){
@@ -179,6 +215,22 @@ $(document).ready(function(){
           }
         })
     });
+    var BooleanCell = Backgrid.BooleanCell.extend({
+        events:{
+            'change':function(event) {
+                var model = this.model;
+                var columnName = this.column.get("name");
+                var val = this.formatter.fromRaw(model.get(columnName), model);
+                if (columnName === "absence" && model.get("individual")){
+                    model.set("individual", val);
+                } else if(columnName === "individual" && model.get("absence")){
+                    model.set("absence", val);
+                }
+                console.log(columnName, val);
+                model.set(columnName, !val);
+            }
+        }
+    });
     var originalInitialize = Backgrid.HeaderCell.prototype.initialize;
     Backgrid.HeaderCell.prototype.initialize = function (options) {
         originalInitialize.apply(this, arguments);
@@ -192,6 +244,9 @@ $(document).ready(function(){
     var data=[
                 {% for student_mark in object_list %}
                 {
+                        "absence": false,
+                        "individual": false,
+                        "Num": "{{ forloop.counter }}",
                         "student_id":"{{ student_mark.student.id }}",
                         "exam_id":"{{ exam.id }}",
                         "fullname":"{{ student_mark.student.FIO }}",
@@ -222,7 +277,7 @@ $(document).ready(function(){
                     max_exam_points = response.responseJSON['max_exam_points']
                     console.log(max_exam_points);
                     console.log(response);
-                    show_error(get_error_msg(response.status, 1, max_exam_points));
+                    show_error(get_error_msg(response.status, 2, max_exam_points));
                 }, success: function(model, response, options){
                     var response_data;
                     console.log(response);
@@ -230,7 +285,7 @@ $(document).ready(function(){
                         response_data = response['new']
                     }else{
                         response_data = response['old']
-                        show_error(get_error_msg(response.status, 1, response['max_exam_points']));
+                        show_error(get_error_msg(response.status, 2, response['max_exam_points']));
                     }
                     model.set("additional_points", response_data["additional_points"]);
                     model.set("exam_points", response_data["exam_points"]);
@@ -255,6 +310,25 @@ $(document).ready(function(){
     var apps = new Applications(data);
 
     var columns=[
+        {
+            name: "absence",
+            cell: BooleanCell,
+            label: "Не явился",
+            additional_class: 'rotate',
+        },
+        {
+            name: "individual",
+            cell: BooleanCell,
+            label: "Индивидуальный план",
+            additional_class: 'rotate',
+        },
+        {
+            editable: false,
+            name: "Num",
+            label: "№",
+            cell: "string",
+            additional_class: 'width-60'
+        },
         {
             editable: false,
             name: "fullname",
