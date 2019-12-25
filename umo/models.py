@@ -81,7 +81,7 @@ class EduProgram(Model):
         verbose_name_plural = 'образовательные программы'
 
     def __str__(self):
-        return self.specialization.name
+        return '%s (%d)' % (self.specialization.name, self.year.year)
 
 
 class Group(Model):

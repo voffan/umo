@@ -105,3 +105,4 @@ venv_e
 umo_project/production.py
 db.sqlite3
 migrations/
+upload/
