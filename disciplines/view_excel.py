@@ -121,10 +121,8 @@ def discipline_scores_to_excel(course_id):
 
     # объект
     wb = Workbook()
-
     # активный лист
     ws = wb.active
-
     # название страницы
     # ws = wb.create_sheet('первая страница', 0)
     ws.title = 'первая страница'
@@ -402,6 +400,9 @@ def exam_scores(exam_id):
     ws.cell(row=zp + 10, column=2).value = 'Директор ИМИ СВФУ____________________'
     ws.cell(row=zp + 10, column=4).value = 'В.И.Афанасьева'
 
+    #формат даты
+    ws['C9'].number_format = 'DD.MM.YYY'
+
     # объединение ячеек
     ws.merge_cells('A1:I1')
     ws.merge_cells('A2:I2')
@@ -531,6 +532,10 @@ def exam_scores(exam_id):
             # print(cell.coordinate, cell.value)
             ws[cell.coordinate].alignment = align_left
 
+    for cellObj in ws['B12:B' + str(zk)]:
+        for cell in cellObj:
+            ws[cell.coordinate].alignment = align_left
+
     # перетягивание ячеек
     dims = {}
     for cellObj in ws['G11:G' + str(zk)]:
@@ -568,5 +573,13 @@ def exam_scores(exam_id):
         # value * коэфициент
         ws.column_dimensions[col].width = value * 0.25
 
+    ws.print_area = 'A1:I' + str(zk + 14)
+    ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
+    ws.page_setup.paperSize = 9
+    ws.page_setup.fitToHeight = False
+    ws.page_setup.fitToWidth = True
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    #ws.set_printer_settings(paper_size=9, orientation='landscape')
     # сохранение файла в выбранную директорию
     return wb

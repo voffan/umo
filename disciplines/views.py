@@ -10,6 +10,8 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required, login_required
+from transliterate import translit
+
 from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semester, Teacher, Person, BRSpoints, Course, \
     GroupList, CheckPoint
 from umo.objgens import get_check_points, add_brs, add_exam, add_exam_marks
@@ -531,10 +533,12 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
 @login_required
 @permission_required('umo.can_view_scores', login_url='login')
 def exam_report(request):
+    exam = Exam.objects.select_related('course').get(id=request.GET['exam_id'])
+    group = exam.course.group
     wb = excel_forms.exam_scores(int(request.GET['exam_id']))
     if wb is not None:
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename=vedomost.xlsx'
+        response['Content-Disposition'] = 'attachment; filename=' + translit(group.Name, 'ru', reversed=True) + '.xlsx'
         wb.save(response)
     else:
         response = HttpResponse()
