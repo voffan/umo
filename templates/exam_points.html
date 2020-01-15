@@ -267,7 +267,7 @@ $(document).ready(function(){
                         "absence": {% if student_mark.mark == 0 %}true{% else %}false{% endif %},
                         "individual": {% if student_mark.mark == 1 %}true{% else %}false{% endif %},
                         "Num": "{{ forloop.counter }}",
-                        "student_id":"{{ student_mark.student.id }}",
+                        "student_id":"{{ student_mark.student.student_id }}",
                         "exam_id":"{{ exam.id }}",
                         "fullname":"{{ student_mark.student.FIO }}",
                         "in_points": "{{ student_mark.inPoints }}",
@@ -345,7 +345,7 @@ $(document).ready(function(){
         },
         {
             editable: false,
-            name: "student_code",
+            name: "student_id",
             label: "Номер зачетной книжки",
             cell: "string",
             additional_class: 'rotate-width-100'

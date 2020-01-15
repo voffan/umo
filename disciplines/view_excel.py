@@ -334,7 +334,7 @@ def exam_scores(exam_id):
     for mark in exam_points:
         ws.cell(row=_row, column=1).value = str(k)
         ws.cell(row=_row, column=2).value = mark.student.FIO
-        ws.cell(row=_row, column=3).value = ''#Номер зачетной книжки
+        ws.cell(row=_row, column=3).value = mark.student.student_id
         ws.cell(row=_row, column=_column).value = str(mark.inPoints + mark.additional_points).replace('.', ',')
         ws.cell(row=_row, column=_column + 1).value = str(mark.examPoints).replace('.', ',')
         ws.cell(row=_row, column=_column + 2).value = str(mark.total_points).replace('.', ',')
