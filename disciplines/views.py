@@ -46,7 +46,7 @@ class DisciplineList(PermissionRequiredMixin, ListView):
 @login_required
 def list_disc(request, pk):
     teacher = Teacher.objects.get(id=pk)
-    disciplines = teacher.course_set.select_related('discipline_detail').filter(is_finished=False)
+    disciplines = teacher.course_set.select_related('discipline_detail').all()#filter(is_finished=False)
     form = AddSubjectToteacherForm()
     return render(request, 'disc_list.html', {'discipline_list': disciplines, 'form': form, 'teacher': teacher})
 
