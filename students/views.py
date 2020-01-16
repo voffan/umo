@@ -96,7 +96,6 @@ class StudentListView(StudentsList):
                             st = Student()
                             st.id = sp.id_people.id_people
                         st.FIO = sp.id_people.fio
-                        st.student_id = str(sp.id_people.id_people)
                         st.save()
                         gl.student = st
                         gl.group = g
