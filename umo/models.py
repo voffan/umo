@@ -504,7 +504,7 @@ class ExamMarks(Model):
             symbol = ExamMarks.SYMBOL_MARK[2][0]
         elif points >= 85 and points < 95:
             symbol = ExamMarks.SYMBOL_MARK[1][0]
-        elif points >= 95 and points < 100:
+        elif points >= 95 and points <= 100:
             symbol = ExamMarks.SYMBOL_MARK[0][0]
         return symbol
 
