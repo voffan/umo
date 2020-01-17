@@ -264,6 +264,7 @@ $(document).ready(function(){
     var data=[
                 {% for student_mark in object_list %}
                 {
+                        "student_pk": "{{ student_mark.student.id }}",
                         "absence": {% if student_mark.mark == 0 %}true{% else %}false{% endif %},
                         "individual": {% if student_mark.mark == 1 %}true{% else %}false{% endif %},
                         "Num": "{{ forloop.counter }}",
@@ -285,6 +286,7 @@ $(document).ready(function(){
             this.on("change", function(model, response, options){
                 if (options && options.save === false) return;
                 model.url = "{% url 'disciplines:api:exam_scores' %}";
+                console.log(model);
                 model.save(null, { type: "POST", error: function (model, response, options){
                     max_exam_points = 0;
                     if ('old' in response.responseJSON ){
@@ -297,7 +299,7 @@ $(document).ready(function(){
                     max_exam_points = response.responseJSON['max_exam_points']
                     console.log(max_exam_points);
                     console.log(response);
-                    show_error(get_error_msg(response.status, 2, max_exam_points));
+                    show_error(get_error_msg(response.status, 1, max_exam_points));
                 }, success: function(model, response, options){
                     var response_data;
                     console.log(response);
@@ -305,7 +307,7 @@ $(document).ready(function(){
                         response_data = response['new']
                     }else{
                         response_data = response['old']
-                        show_error(get_error_msg(response.status, 2, response['max_exam_points']));
+                        show_error(get_error_msg(response.status, 1, response['max_exam_points']));
                     }
                     model.set("additional_points", response_data["additional_points"]);
                     model.set("exam_points", response_data["exam_points"]);

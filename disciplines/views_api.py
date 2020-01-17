@@ -146,7 +146,7 @@ def exam_scores(request):
     serialized_data = request.body.decode("utf-8")
     serialized_data = json.loads(serialized_data)
     score = ExamMarks.objects.filter(exam__pk=serialized_data['exam_id'],
-                                     student__id=serialized_data['student_id']).first()
+                                     student__id=serialized_data['student_pk']).first()
     result['old'] = {'additional_points': score.additional_points, 'exam_points': score.examPoints,
                      'mark': score.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points }
     final = CheckPoint.objects.get(name__icontains='Рубеж')
