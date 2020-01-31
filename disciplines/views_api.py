@@ -27,9 +27,12 @@ def brs_scores(request):
     serialized_data = request.body.decode("utf-8")
     serialized_data = json.loads(serialized_data)
     course = Course.objects.filter(id=serialized_data['course_id']).first()
-    scores = BRSpoints.objects.select_related('student', 'course').filter(course__id=course.id, student__id=serialized_data['student_id'])
+    max_points = dict(course.coursemaxpoints_set.all().values_list('checkpoint__id','max_point'))
+    scores = BRSpoints.objects.select_related('student', 'course').filter(course__id=course.id, student__id=serialized_data['student_id']).order_by('checkpoint__id')
     if not scores:
         status = 404
+    elif not max_points:
+        status = 406
     elif request.user.id != scores[0].course.lecturer.user.id and (not request.user.groups.filter(name='UMO').exists()):
         status = 403
     elif course.is_finished:
@@ -40,14 +43,32 @@ def brs_scores(request):
             "course_id": str(scores[0].course.id),
             "fullname": str(scores[0].student.FIO)
         }
-        try:
-            with transaction.atomic():
-                for score in scores:
-                    score.points = serialized_data['checkpoint_' + str(score.checkpoint.id)]
-                    result['checkpoint_' + str(score.checkpoint.id)] = serialized_data['checkpoint_' + str(score.checkpoint.id)]
-                    score.save()
-        except:
-            status = 500
+        previous = float(serialized_data['checkpoint_' + str(scores.first().checkpoint.id)])
+        is_ascending = True
+        exceed = previous > max_points[scores.first().checkpoint.id]
+        last = max([i for i, val in enumerate(scores) if serialized_data['checkpoint_' + str(val.checkpoint.id)] != 0])
+        for i in range(1, last + 1):
+            points = float(serialized_data['checkpoint_' + str(scores[i].checkpoint.id)])
+            if points < previous:
+                is_ascending = False
+                break
+            if exceed or points > max_points[scores[i].checkpoint.id]:
+                exceed = True
+                break
+            previous = points
+        if is_ascending and not exceed:
+            try:
+                with transaction.atomic():
+                    for score in scores:
+                        score.points = serialized_data['checkpoint_' + str(score.checkpoint.id)]
+                        result['checkpoint_' + str(score.checkpoint.id)] = serialized_data['checkpoint_' + str(score.checkpoint.id)]
+                        score.save()
+            except:
+                status = 500
+        elif not is_ascending:
+            status = 409
+        elif exceed:
+            status = 411
     return HttpResponse(
         json.dumps(result),
         content_type='application/json',
