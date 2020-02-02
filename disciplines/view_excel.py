@@ -7,6 +7,8 @@ from django.shortcuts import get_object_or_404
 from openpyxl import Workbook, load_workbook
 from openpyxl.descriptors import Bool
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side, NamedStyle
+from openpyxl.worksheet.page import PrintPageSetup
+from openpyxl.worksheet.properties import WorksheetProperties
 
 from umo.models import Exam, Group, Student, EduPeriod, Course, Course, ExamMarks, GroupList, Control
 
@@ -350,6 +352,9 @@ def exam_scores(exam_id):
     ws['A9'] = ws['L9'] = 'Дата проведения зачета/экзамена: {:%d.%m.%Y}'.format(exam.examDate)
 
     # Таблица с баллами
+    summary = {ExamMarks.MARKS[0][0]: 0, ExamMarks.MARKS[1][0]: 0, ExamMarks.MARKS[2][0]: 0, ExamMarks.MARKS[3][0]: 0,
+               ExamMarks.MARKS[4][0]: 0, ExamMarks.MARKS[5][0]: 0, ExamMarks.MARKS[6][0]: 0, ExamMarks.MARKS[7][0]: 0,
+               ExamMarks.MARKS[8][0]: 0, ExamMarks.MARKS[9][0]: 0}
     k = 0
     for points in exam_points:
         k += 1
@@ -364,6 +369,7 @@ def exam_scores(exam_id):
         ws['F' + row] = ws['Q' + row] = points.total_points
         ws['G' + row] = ws['R' + row] = points.get_mark_display()
         ws['H' + row] = ws['S' + row] = points.mark_symbol
+        summary[points.mark]+=1
 
     # Стиль для ячеек таблицы
     solid_line = Side(style='thin', color='000000')
@@ -380,6 +386,14 @@ def exam_scores(exam_id):
         for j in range(1, 10):
             ws.cell(row=i, column=j).style = ws.cell(row=i, column=j+11).style = cell_style
 
+    ws['C' + str(k + 14)] = ws['N' + str(k + 14)] = summary[6]
+    ws['C' + str(k + 15)] = ws['N' + str(k + 15)] = summary[7]
+    ws['C' + str(k + 16)] = ws['N' + str(k + 16)] = summary[8]
+    ws['C' + str(k + 17)] = ws['N' + str(k + 17)] = summary[5]
+    ws['C' + str(k + 18)] = ws['N' + str(k + 18)] = summary[4]
+    ws['C' + str(k + 19)] = ws['N' + str(k + 19)] = summary[3]
+    ws['C' + str(k + 20)] = ws['N' + str(k + 20)] = summary[2]
+    ws['C' + str(k + 21)] = ws['N' + str(k + 21)] = summary[0]
     # Суммы баллов и буквенные эквиваленты оценки
     for i in range(8):
         row = str(14 + k + i)
@@ -396,5 +410,14 @@ def exam_scores(exam_id):
     row = str(24 + k)
     ws.merge_cells('A' + row + ':I' + row)
     ws.merge_cells('L' + row + ':T' + row)
+
+    ws.print_area = 'A1:T' + str(row)
+    ws.page_setup = PrintPageSetup(worksheet=ws)
+    ws.page_setup.paperSize = '9'
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.fitToHeight = True
+    ws.page_setup.fitToWidth = False
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
 
     return workbook
