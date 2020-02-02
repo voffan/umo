@@ -29,6 +29,10 @@ def brs_scores(request):
     course = Course.objects.filter(id=serialized_data['course_id']).first()
     max_points = dict(course.coursemaxpoints_set.all().values_list('checkpoint__id','max_point'))
     scores = BRSpoints.objects.select_related('student', 'course').filter(course__id=course.id, student__id=serialized_data['student_id']).order_by('checkpoint__id')
+    result['old'] = dict(scores.values_list('checkpoint__id', 'points'))
+    result["student_id"] = str(scores[0].student.id)
+    result["course_id"] = str(scores[0].course.id)
+    result["fullname"] = str(scores[0].student.FIO)
     if not scores:
         status = 404
     elif not max_points:
@@ -38,11 +42,6 @@ def brs_scores(request):
     elif course.is_finished:
         status = 405
     else:
-        result = {
-            "student_id": str(scores[0].student.id),
-            "course_id": str(scores[0].course.id),
-            "fullname": str(scores[0].student.FIO)
-        }
         previous = float(serialized_data['checkpoint_' + str(scores.first().checkpoint.id)])
         is_ascending = True
         exceed = previous > max_points[scores.first().checkpoint.id]
@@ -61,8 +60,8 @@ def brs_scores(request):
                 with transaction.atomic():
                     for score in scores:
                         score.points = serialized_data['checkpoint_' + str(score.checkpoint.id)]
-                        result['checkpoint_' + str(score.checkpoint.id)] = serialized_data['checkpoint_' + str(score.checkpoint.id)]
                         score.save()
+                result['result'] = True
             except:
                 status = 500
         elif not is_ascending:
