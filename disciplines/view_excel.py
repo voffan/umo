@@ -416,7 +416,7 @@ def exam_scores(exam_id):
     ws.page_setup.paperSize = '9'
     ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
     ws.page_setup.fitToHeight = True
-    ws.page_setup.fitToWidth = False
+    ws.page_setup.fitToWidth = True
     ws.page_setup.fitToPage = True
     ws.sheet_properties.pageSetUpPr.fitToPage = True
 
