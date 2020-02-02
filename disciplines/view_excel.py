@@ -1,10 +1,12 @@
 import datetime
+import os
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
+from openpyxl import Workbook, load_workbook
+from openpyxl.descriptors import Bool
+from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side, NamedStyle
 
 from umo.models import Exam, Group, Student, EduPeriod, Course, Course, ExamMarks, GroupList, Control
 
@@ -307,279 +309,92 @@ def discipline_scores_to_excel(course_id):
 
 
 def exam_scores(exam_id):
-    font_main, font_bold, font_bold_s, font_calibri, font_arial, fill, border, align_center, align_center2, align_left, align_right, header_font = get_styles()
-    number_format = 'General'
-
-    # данные для строк
+    # Читаем данные из базы данных
     exam = Exam.objects.select_related('course').get(id=exam_id)
     group = exam.course.group
-    #group_list = GroupList.objects.filter(student__id__in=exam.exammarks_set.all().order_by('student__FIO').values_list('student__id', flat=True))
     exam_points = exam.exammarks_set.all().order_by('student__FIO')
     semester = exam.course.discipline_detail.semester.name
-    additional = int(semester)//2 if int(semester) % 2 == 1 else (int(semester) - 1)//2
+    if int(semester) % 2 == 1:
+        additional = int(semester) // 2 
+    else:
+        additional = (int(semester) - 1) // 2
     edu_period = EduPeriod.objects.get(begin_year__year=group.begin_year.year + additional)
 
-    wb = Workbook()
-    # активный лист
-    ws = wb.active
-    ws.title = 'Экзамен'
-    _row = 12
-    _column = 4
-    k = 1
-    z = 0
+    # Открываем шаблон
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    template = os.path.join(app_dir, 'exam_scores.xlsx')
+    workbook = load_workbook(template)
+    ws = workbook.active
 
-    marks_total = [0] * 10
+    # Семестр
+    ws['A5'] = ws['L5'] = 'Семестр: {}, {} – {} уч.г.'.format(
+        semester, 
+        edu_period.begin_year.year,
+        edu_period.end_year.year,
+    )
+    
+    # Форма контроля
+    ws['A6'] = ws['L6'] = 'Форма контроля: {}, курс: {}, группа: {}'.format(
+        exam.get_controlType_display(),
+        group.year,
+        group.Name,
+    )
 
-    i = 0
-    for mark in exam_points:
-        ws.cell(row=_row, column=1).value = str(k)
-        ws.cell(row=_row, column=2).value = mark.student.FIO
-        ws.cell(row=_row, column=3).value = mark.student.student_id
-        ws.cell(row=_row, column=_column).value = str(mark.inPoints + mark.additional_points).replace('.', ',')
-        ws.cell(row=_row, column=_column + 1).value = str(mark.examPoints).replace('.', ',')
-        ws.cell(row=_row, column=_column + 2).value = str(mark.total_points).replace('.', ',')
-        ws.cell(row=_row, column=_column + 3).value = ExamMarks.MARKS[mark.mark][1]
-        ws.cell(row=_row, column=_column + 4).value = mark.mark_symbol
-        marks_total[mark.mark] += 1
-        _row += 1
-        z += 1
+    # Дисциплина
+    ws['A7'] = ws['L7'] = 'Дисциплина: ' + exam.course.discipline_detail.discipline.Name
+
+    # ФИО преподавателя
+    ws['A8'] = ws['L8'] = 'Фамилия, имя, отчество преподавателя: ' + exam.course.lecturer.FIO
+
+    # Дата
+    ws['A9'] = ws['L9'] = 'Дата проведения зачета/экзамена: {:%d.%m.%Y}'.format(exam.examDate)
+
+    # Таблица с баллами
+    k = 0
+    for points in exam_points:
         k += 1
+        ws.insert_rows(11 + k)
+        ws.row_dimensions[11 + k].height = 30
+        row = str(11 + k)
+        ws['A' + row] = ws['L' + row] = str(k)
+        ws['B' + row] = ws['M' + row] = points.student.FIO
+        ws['C' + row] = ws['N' + row] = points.student.student_id
+        ws['D' + row] = ws['O' + row] = points.inPoints + points.additional_points
+        ws['E' + row] = ws['P' + row] = points.examPoints
+        ws['F' + row] = ws['Q' + row] = points.total_points
+        ws['G' + row] = ws['R' + row] = points.get_mark_display()
+        ws['H' + row] = ws['S' + row] = points.mark_symbol
 
-    zk = z + 11
-    zp = z + 14
-    zp2 = zp + 7
+    # Стиль для ячеек таблицы
+    solid_line = Side(style='thin', color='000000')
+    cell_style = NamedStyle(name='cell_style')
+    cell_style.alignment.horizontal = 'center'
+    cell_style.alignment.vertical = 'center'
+    cell_style.alignment.wrapText = Bool(True)
+    cell_style.border = Border(left=solid_line, right=solid_line, top=solid_line, bottom=solid_line)
+    cell_style.font = Font(name='Arial', size=9)
+    cell_style.number_format = '#.0'
 
-    ws.cell(row=1, column=1).value = 'ФГАОУ ВО «Северо-Восточный федеральный университет им.М.К.Аммосова'
-    ws.cell(row=2, column=1).value = 'Институт математики и информатики'
-    ws.cell(row=3, column=1).value = 'Ведомость текущей и промежуточной аттестации'
-    ws.cell(row=5, column=1).value = 'Семестр: ' + semester + ', ' + str(edu_period.begin_year.year) + '-' + str(edu_period.end_year.year) + ' уч.г.'
-    ws.cell(row=6, column=1).value = 'Форма контроля:'
-    ws.cell(row=6, column=3).value = Control.CONTROL_FORM[exam.controlType][1]
-    ws.cell(row=6, column=5).value = 'курс ' + str(group.year)
-    ws.cell(row=6, column=6).value = 'группа:'
-    ws.cell(row=6, column=7).value = group.Name
-    ws.cell(row=7, column=1).value = 'Дисциплина:'
-    ws.cell(row=7, column=3).value = exam.course.discipline_detail.discipline.Name
-    ws.cell(row=8, column=1).value = 'Фамилия, имя, отчество преподавателя:'
-    ws.cell(row=8, column=4).value = exam.course.lecturer.FIO
-    ws.cell(row=9, column=1).value = 'Дата проведения зачета/экзамена:'
-    ws.cell(row=9, column=3).value = exam.examDate
-    ws.cell(row=11, column=1).value = '№'
-    ws.cell(row=11, column=2).value = 'Фамилия, имя, отчество'
-    ws.cell(row=11, column=3).value = '№ зачетной книжки'
-    ws.cell(row=11, column=4).value = 'Сумма баллов за текущую работу-рубеж.срез'
-    ws.cell(row=11, column=5).value = 'Баллы ' + Control.CONTROL_FORM[exam.controlType][1] + ' (бонусные баллы)'
-    ws.cell(row=11, column=6).value = 'Всего баллов'
-    ws.cell(row=11, column=7).value = 'Оценка прописью'
-    ws.cell(row=11, column=8).value = 'Буквенный эквивалент'
-    ws.cell(row=11, column=9).value = 'Подпись преподавателя'
-    ws.cell(row=zp, column=2).value = 'зачтено'
-    ws.cell(row=zp + 1, column=2).value = 'не зачтено'
-    ws.cell(row=zp + 2, column=2).value = 'не аттест'
-    ws.cell(row=zp + 3, column=2).value = '5(отлично)'
-    ws.cell(row=zp + 4, column=2).value = '4(хорошо)'
-    ws.cell(row=zp + 5, column=2).value = '3(удовл)'
-    ws.cell(row=zp + 6, column=2).value = '2(неудовл)'
-    ws.cell(row=zp2, column=2).value = 'неявка'
-    ws.cell(row=zp, column=5).value = 'Сумма баллов'
-    ws.cell(row=zp + 1, column=5).value = '95-100'
-    ws.cell(row=zp + 2, column=5).value = '85-94,9'
-    ws.cell(row=zp + 3, column=5).value = '75-84,9'
-    ws.cell(row=zp + 4, column=5).value = '65-74,9'
-    ws.cell(row=zp + 5, column=5).value = '55-64,9'
-    ws.cell(row=zp + 6, column=5).value = '25-54,9'
-    ws.cell(row=zp2, column=5).value = '0-24,9'
-    ws.cell(row=zp, column=7).value = 'Буквенный эквивалент оценки'
-    ws.cell(row=zp + 1, column=7).value = 'A'
-    ws.cell(row=zp + 2, column=7).value = 'B'
-    ws.cell(row=zp + 3, column=7).value = 'C'
-    ws.cell(row=zp + 4, column=7).value = 'D'
-    ws.cell(row=zp + 5, column=7).value = 'E'
-    ws.cell(row=zp + 6, column=7).value = 'FX'
-    ws.cell(row=zp2, column=7).value = 'F'
-    ws.cell(row=zp + 10, column=2).value = 'Директор ИМИ СВФУ____________________'
-    ws.cell(row=zp + 10, column=4).value = 'В.И.Афанасьева'
+    # Применяем стили к таблице
+    for i in range(12, k + 12):
+        for j in range(1, 10):
+            ws.cell(row=i, column=j).style = ws.cell(row=i, column=j+11).style = cell_style
 
-    #формат даты
-    ws['C9'].number_format = 'DD.MM.YYY'
+    # Суммы баллов и буквенные эквиваленты оценки
+    for i in range(8):
+        row = str(14 + k + i)
+        ws.merge_cells('E' + row + ':F' + row)
+        ws.merge_cells('P' + row + ':Q' + row)
+        ws.merge_cells('G' + row + ':I' + row)
+        ws.merge_cells('R' + row + ':T' + row)
+        ws['E' + row].style = ws['F' + row].style = ws['G' + row].style = \
+        ws['H' + row].style = ws['I' + row].style = ws['P' + row].style = \
+        ws['Q' + row].style = ws['R' + row].style = ws['S' + row].style = \
+        ws['T' + row].style = cell_style
 
-    # объединение ячеек
-    ws.merge_cells('A1:I1')
-    ws.merge_cells('A2:I2')
-    ws.merge_cells('A3:I3')
-    ws.merge_cells('A5:B5')
-    ws.merge_cells('A6:B6')
-    ws.merge_cells('C6:D6')
-    ws.merge_cells('A7:B7')
-    ws.merge_cells('C7:G7')
-    ws.merge_cells('A8:C8')
-    ws.merge_cells('D8:G8')
-    ws.merge_cells('A9:B9')
-    ws.merge_cells('C9:D9')
-    ws.merge_cells('E' + str(zp) + ':F' + str(zp))
-    ws.merge_cells('E' + str(zp + 1) + ':F' + str(zp + 1))
-    ws.merge_cells('E' + str(zp + 2) + ':F' + str(zp + 2))
-    ws.merge_cells('E' + str(zp + 3) + ':F' + str(zp + 3))
-    ws.merge_cells('E' + str(zp + 4) + ':F' + str(zp + 4))
-    ws.merge_cells('E' + str(zp + 5) + ':F' + str(zp + 5))
-    ws.merge_cells('E' + str(zp + 6) + ':F' + str(zp + 6))
-    ws.merge_cells('E' + str(zp + 7) + ':F' + str(zp + 7))
-    ws.merge_cells('G' + str(zp) + ':H' + str(zp))
-    ws.merge_cells('G' + str(zp + 1) + ':H' + str(zp + 1))
-    ws.merge_cells('G' + str(zp + 2) + ':H' + str(zp + 2))
-    ws.merge_cells('G' + str(zp + 3) + ':H' + str(zp + 3))
-    ws.merge_cells('G' + str(zp + 4) + ':H' + str(zp + 4))
-    ws.merge_cells('G' + str(zp + 5) + ':H' + str(zp + 5))
-    ws.merge_cells('G' + str(zp + 6) + ':H' + str(zp + 6))
-    ws.merge_cells('G' + str(zp + 7) + ':H' + str(zp + 7))
-    ws.merge_cells('B' + str(zp + 10) + ':C' + str(zp + 10))
-    ws.merge_cells('D' + str(zp + 10) + ':E' + str(zp + 10))
+    # Подпись директора
+    row = str(24 + k)
+    ws.merge_cells('A' + row + ':I' + row)
+    ws.merge_cells('L' + row + ':T' + row)
 
-    ws.cell(row=zp, column=3).value = str(marks_total[6])
-    ws.cell(row=zp + 1, column=3).value = str(marks_total[7])
-    ws.cell(row=zp + 2, column=3).value = str(marks_total[8])
-    ws.cell(row=zp + 3, column=3).value = str(marks_total[5])
-    ws.cell(row=zp + 4, column=3).value = str(marks_total[4])
-    ws.cell(row=zp + 5, column=3).value = str(marks_total[3])
-    ws.cell(row=zp + 6, column=3).value = str(marks_total[2])
-    ws.cell(row=zp2, column=3).value = str(marks_total[0])
-
-    # шрифты
-    for cellObj in ws['A1:I' + str(zk)]:
-        for cell in cellObj:
-            ws[cell.coordinate].font = font_main
-
-    for cellObj in ws['G12:G' + str(zk)]:
-        for cell in cellObj:
-            ws[cell.coordinate].font = font_bold_s
-
-    for cellObj in ws['B12:B' + str(zk)]:
-        for cell in cellObj:
-            ws[cell.coordinate].font = font_calibri
-
-    for cellObj in ws['H12:H' + str(zk)]:
-        for cell in cellObj:
-            ws[cell.coordinate].font = font_calibri
-
-    for cellObj in ws['E12:E' + str(zk)]:
-        for cell in cellObj:
-            ws[cell.coordinate].font = font_bold
-
-    for cellObj in ws['E11:I11']:
-        for cell in cellObj:
-            ws[cell.coordinate].font = font_main
-
-    ws['A3'].font = font_bold
-    ws['C7'].font = font_bold
-    ws['D8'].font = font_bold
-    ws['F6'].font = font_bold
-    ws['C7'].font = font_arial
-    ws['D8'].font = font_arial
-    ws['G6'].font = font_arial
-    ws['C9'].font = font_arial
-    ws['A11'].font = header_font
-    ws['B11'].font = header_font
-    ws['C11'].font = header_font
-    ws['D11'].font = header_font
-    ws['E11'].font = header_font
-    ws['F11'].font = header_font
-    ws['G11'].font = header_font
-    ws['H11'].font = header_font
-    ws['I11'].font = header_font
-    ws['C6'].font = font_arial
-
-    # увеличиваем все строки по высоте
-    max_row = ws.max_row
-    i = 1
-    while i <= max_row:
-        rd = ws.row_dimensions[i]
-        rd.height = 16
-        i += 1
-
-    # вручную устанавливаем высоту первой строки
-    rd = ws.row_dimensions[11]
-    rd.height = 48
-
-    # сетка
-    for cellObj in ws['A11:I' + str(zk)]:
-        for cell in cellObj:
-            # print(cell.coordinate, cell.value)
-            ws[cell.coordinate].border = border
-
-    for cellObj in ws['B' + str(zp) + ':C' + str(zp2)]:
-        for cell in cellObj:
-            # print(cell.coordinate, cell.value)
-            ws[cell.coordinate].border = border
-
-    for cellObj in ws['E' + str(zp) + ':H' + str(zp2)]:
-        for cell in cellObj:
-            # print(cell.coordinate, cell.value)
-            ws[cell.coordinate].border = border
-
-    # выравнивание
-    for cellObj in ws['A1:I3' + str(zk)]:
-        for cell in cellObj:
-            # print(cell.coordinate, cell.value)
-            ws[cell.coordinate].alignment = align_center
-
-    for cellObj in ws['A11:I11']:
-        for cell in cellObj:
-            # print(cell.coordinate, cell.value)
-            ws[cell.coordinate].alignment = align_center2
-
-    for cellObj in ws['A5:I9']:
-        for cell in cellObj:
-            # print(cell.coordinate, cell.value)
-            ws[cell.coordinate].alignment = align_left
-
-    for cellObj in ws['B12:B' + str(zk)]:
-        for cell in cellObj:
-            ws[cell.coordinate].alignment = align_left
-
-    # перетягивание ячеек
-    dims = {}
-    for cellObj in ws['G11:G' + str(zk)]:
-        for cell in cellObj:
-            if cell.value:
-                dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
-    for col, value in dims.items():
-        # value * коэфициент
-        ws.column_dimensions[col].width = value * 1.5
-
-    dims = {}
-    for cellObj in ws['A11:A' + str(zk)]:
-        for cell in cellObj:
-            if cell.value:
-                dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
-    for col, value in dims.items():
-        # value * коэфициент
-        ws.column_dimensions[col].width = value * 3
-
-    dims = {}
-    for cellObj in ws['B11:B' + str(zk)]:
-        for cell in cellObj:
-            if cell.value:
-                dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
-    for col, value in dims.items():
-        # value * коэфициент
-        ws.column_dimensions[col].width = value * 1.5
-
-    dims = {}
-    for cellObj in ws['D11:D' + str(zk)]:
-        for cell in cellObj:
-            if cell.value:
-                dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
-    for col, value in dims.items():
-        # value * коэфициент
-        ws.column_dimensions[col].width = value * 0.25
-
-    ws.print_area = 'A1:I' + str(zk + 14)
-    ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
-    ws.page_setup.paperSize = 9
-    ws.page_setup.fitToHeight = False
-    ws.page_setup.fitToWidth = True
-    ws.page_setup.fitToPage = True
-    ws.sheet_properties.pageSetUpPr.fitToPage = True
-    #ws.set_printer_settings(paper_size=9, orientation='landscape')
-    # сохранение файла в выбранную директорию
-    return wb
+    return workbook
