@@ -111,7 +111,7 @@ $(document).ready(function(){
             msg = 'Сумма баллов не может превышать "100"!';
         } else if (status === 406){
             console.log(type);
-            if(type === 1) msg = 'Дата экзамена не может превышать текущую дату!';
+            if(type === 3) msg = 'Дата экзамена не может превышать текущую дату!';
             else msg = 'Количество баллов за экзамен не может превышать "' + max_exam_points + '"!';
         }else if(status === 405){
             msg = 'Экзамен уже завершен!';
@@ -151,11 +151,11 @@ $(document).ready(function(){
                 console.log('success');
             }else{
                 $('#exam_date').val(data['date']);
-                show_error(get_error_msg(data['result']['status'], 1));
+                show_error(get_error_msg(data['result']['status'], 3));
             }
         }).fail(function(jqXHR, textStatus){
             $('#exam_date').val(jqXHR.responseJSON['date']);
-            show_error(get_error_msg(jqXHR.status, 1));
+            show_error(get_error_msg(jqXHR.status, 3));
         });
     });
 
@@ -280,11 +280,13 @@ $(document).ready(function(){
                 },
                 {% endfor %}
             ];
-
+    var models_changed = [];
     var Application = Backbone.Model.extend({
         initialize: function(){
             this.on("change", function(model, response, options){
                 if (options && options.save === false) return;
+                if (models_changed.includes(model.get("student_id"))) return;
+                models_changed.push(model.get("student_id"));
                 model.url = "{% url 'disciplines:api:exam_scores' %}";
                 console.log(model);
                 model.save(null, { type: "POST", error: function (model, response, options){
@@ -296,6 +298,7 @@ $(document).ready(function(){
                         model.set("exam_points", response.responseJSON["old"]["exam_points"]);
                         model.set("total_points", response.responseJSON["old"]["total"]);
                     }
+                    models_changed.splice(models_changed.indexOf(model.get("student_id")));
                     max_exam_points = response.responseJSON['max_exam_points']
                     console.log(max_exam_points);
                     console.log(response);
@@ -314,6 +317,7 @@ $(document).ready(function(){
                     model.set("exam_mark", response_data["mark"]);
                     model.set("mark_symbol", response_data["symbol"]);
                     model.set("total_points", response_data["total"]);
+                    models_changed.splice(models_changed.indexOf(model.get("student_id")));
                     //InitTable(columns, apps);
                 }
                 });
