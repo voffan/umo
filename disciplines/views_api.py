@@ -46,7 +46,7 @@ def brs_scores(request):
         previous = float(serialized_data['checkpoint_' + str(scores.first().checkpoint.id)])
         is_ascending = True
         exceed = previous > max_points[scores.first().checkpoint.id]
-        last = max([i for i, val in enumerate(scores) if serialized_data['checkpoint_' + str(val.checkpoint.id)] != 0])
+        last = max([i for i, val in enumerate(scores) if float(serialized_data['checkpoint_' + str(val.checkpoint.id)]) != 0])
         for i in range(1, last + 1):
             points = float(serialized_data['checkpoint_' + str(scores[i].checkpoint.id)])
             if points < previous:
