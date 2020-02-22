@@ -110,7 +110,6 @@ $(document).ready(function(){
         } else if(status === 400){
             msg = 'Сумма баллов не может превышать "100"!';
         } else if (status === 406){
-            console.log(type);
             if(type === 3) msg = 'Дата экзамена не может превышать текущую дату!';
             else msg = 'Количество баллов за экзамен не может превышать "' + max_exam_points + '"!';
         }else if(status === 405){

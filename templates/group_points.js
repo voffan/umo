@@ -36,9 +36,7 @@ var columns=[
     editable: false,
     name: "{{ course.0 }}",
     label: "{{ course.1 }}",
-    cell: Backgrid.NumberCell.extend({
-        decimals:1
-    }),
+    cell: {% if is_exam %} "string" {% else %} Backgrid.NumberCell.extend({ decimals:1 }) {% endif %},
     width: 'rotate'
 },
 {% endfor %}
@@ -49,7 +47,7 @@ var data=[
 {
     "fullname": "{{ item.fullname }}",
     {%for disc in item.scores %}
-    "{{ disc.0 }}": {{ disc.1|stringformat:".1f" }},
+    "{{ disc.0 }}": {% if is_exam %} "{{disc.1}}" {% else %} {{disc.1|stringformat:".1f"}} {% endif %},
     {% endfor %}
 },
 {% endfor %}

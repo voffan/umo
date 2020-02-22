@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 from openpyxl.utils.cell import get_column_interval
+from openpyxl.worksheet.page import PrintPageSetup
 
 from umo.models import EduPeriod, CourseMaxPoints, CheckPoint, Course, BRSpoints, GroupList
 
@@ -119,4 +120,110 @@ def export_group_points(group, semester):
     row += 1
     print_document_body(ws, group, semester, courses, row)
 
+    return wb
+
+
+def print_exam_headers(work_sheet, data, start):
+    period = EduPeriod.objects.get(active=True)
+    work_sheet.cell(row=start, column=1).value = 'ФГАОУ ВО СЕВЕРО-ВОСТОЧНЫЙ ФЕДЕРАЛЬНЫЙ УНИВЕРСИТЕТ им. М.К. АММОСОВА'
+    work_sheet.cell(row=start + 1, column=1).value = 'ИНСТИТУТ МАТЕМАТИКИ И ИНФОРМАТИКИ'
+    work_sheet.cell(row=start + 2, column=1).value = 'ЖУРНАЛ ПРОМЕЖУТОЧНОЙ АТТЕСТАЦИИ за ' + str(period) + ' уч. год'
+    work_sheet.cell(row=start + 4, column=1).value = 'Семестр'
+    work_sheet.cell(row=start + 4, column=3).value = data['semester']
+    work_sheet.cell(row=start + 5, column=1).value = 'Курс'
+    work_sheet.cell(row=start + 6, column=1).value = 'Направление подготовки'
+    work_sheet.cell(row=start + 5, column=3).value = data['group'].year
+    work_sheet.cell(row=start + 6, column=3).value = data['group'].program.specialization.code + ' ' + data['group'].program.specialization.name
+    work_sheet.cell(row=start + 5, column=4).value = 'группа'
+    work_sheet.cell(row=start + 5, column=5).value = data['group'].Name
+
+    start_column = 1
+    end_column = len(data['courses'].keys()) + 3
+    work_sheet.merge_cells(start_row=1, start_column=start_column, end_row=1, end_column=end_column)
+    work_sheet.merge_cells(start_row=2, start_column=start_column, end_row=2, end_column=end_column)
+    work_sheet.merge_cells(start_row=3, start_column=start_column, end_row=3, end_column=end_column)
+
+    work_sheet.cell(row=start, column=1).alignment = Alignment(horizontal='center', vertical='center')
+    work_sheet.cell(row=start + 1, column=1).alignment = Alignment(horizontal='center', vertical='center')
+    work_sheet.cell(row=start + 2, column=1).alignment = Alignment(horizontal='center', vertical='center')
+    work_sheet.cell(row=start + 4, column=3).alignment = Alignment(horizontal='center', vertical='center')
+    work_sheet.cell(row=start + 5, column=3).alignment = Alignment(horizontal='center', vertical='center')
+    return start + 7
+
+
+def print_exam_table_headers(work_sheet, courses, start):
+    work_sheet.cell(row=start, column=1).value = '№'
+    work_sheet.cell(row=start, column=2).value = 'Фамилия, имя, отчество'
+    work_sheet.cell(row=start, column=3).value = '№ зачетной книжки'
+    work_sheet.cell(row=start, column=1).alignment = Alignment(wrap_text=True, vertical='center', horizontal='center')
+    work_sheet.cell(row=start, column=2).alignment = Alignment(wrap_text=True, vertical='center', horizontal='center')
+    work_sheet.cell(row=start, column=3).alignment = Alignment(wrap_text=True, vertical='center', horizontal='center')
+    col = 4
+    for course_id in courses.keys():
+        work_sheet.cell(row=start, column=col).value = courses[course_id]
+        work_sheet.cell(row=start, column=col).alignment = Alignment(wrap_text=True, vertical='center', horizontal='center', text_rotation=90)
+        col += 1
+    work_sheet.column_dimensions['A'].width = 5
+    work_sheet.column_dimensions['B'].width = 45
+    work_sheet.column_dimensions['C'].width = 10
+    max_column = len(courses) + 3
+    for column in get_column_interval(start=4, end=max_column):
+        work_sheet.column_dimensions[column].width = 10
+    work_sheet.row_dimensions[start].height = 90
+
+
+def print_exam_table_row(work_sheet, start, number, row, courses):
+    work_sheet.cell(row=start, column=1).value = number
+    work_sheet.cell(row=start, column=2).value = row['fullname']
+    col = 4
+    courses_keys = list(courses.keys())
+    scores = dict(row['scores'])
+    for i in range(len(courses_keys)):
+        if courses_keys[i] in scores:
+            work_sheet.cell(row=start, column=col).value = scores[courses_keys[i]]
+        col += 1
+
+
+def print_exam_table_body(work_sheet, data, start):
+    i = 1
+    top = start
+    for row in data['group_points']:
+        print_exam_table_row(work_sheet, start, i, row, data['courses'])
+        start += 1
+        i += 1
+    return start
+
+
+def print_exam_document_body(work_sheet, data, start):
+    top = start
+    print_exam_table_headers(work_sheet, data['courses'], start)
+    start = print_exam_table_body(work_sheet, data, start + 1)
+    for row in work_sheet.iter_rows(min_row=top, min_col=1, max_row=start-1, max_col=len(data['courses']) + 3):
+        for cell in row:
+            work_sheet[cell.coordinate].border = Border(left=Side(border_style='thin',color='FF000000'),
+                                                        right=Side(border_style='thin', color='FF000000'),
+                                                        top=Side(border_style='thin', color='FF000000'),
+                                                        bottom=Side(border_style='thin', color='FF000000'))
+    return start
+
+
+def export_exam_points(data):
+    # объект
+    wb = Workbook()
+    ws = wb.active
+    data['courses'] = dict(data['courses'])
+    ws.title = data['group'].Name
+    row = 1
+    row = print_exam_headers(ws, data, row)
+    row += 1
+    row = print_exam_document_body(ws, data, row)
+
+    ws.print_area = 'A1:' + ws.cell(row=row-1, column=len(data['courses'])+3).coordinate
+    ws.page_setup = PrintPageSetup(worksheet=ws)
+    ws.page_setup.paperSize = '9'
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.fitToHeight = True
+    ws.page_setup.fitToWidth = True
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
     return wb

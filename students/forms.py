@@ -23,6 +23,7 @@ class GetGroupPointsForm(Form):
     semester = ModelChoiceField(widget=Select2Widget, queryset=Semester.objects.all().order_by('name'), required=True, label='Семестр')
     checkpoint = ModelChoiceField(widget=Select2Widget, queryset=CheckPoint.objects.all(), required=True, label='Срез')
     excel = BooleanField(required=False, label='Экспортировать в эксель')
+    exam = BooleanField(required=False, label='Эзаменационные оценки')
 
 
 

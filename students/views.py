@@ -13,7 +13,7 @@ import synch.models as sync_models
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
                         DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam, Course, Semester)
 from students.forms import GetGroupPointsForm
-from students.views_excel import export_group_points
+from students.views_excel import export_group_points, export_exam_points
 
 from transliterate import translit
 
@@ -166,7 +166,7 @@ class StudentUpdateView(PermissionRequiredMixin, UpdateView):
 
 
 def group_brs_points(group, semester, check_point):
-    group_data = {'group': group, 'group_points': []}
+    group_data = {'group': group, 'group_points': [], 'semester': semester.name}
     students = set(BRSpoints.objects.filter(student__grouplist__group__id=group.id,
                                             course__discipline_detail__semester__id=semester.id
                                             ).values_list('student__id', flat=True))
@@ -179,6 +179,27 @@ def group_brs_points(group, semester, check_point):
         group_data['group_points'].append(student_points)
     group_data['courses'] = list(Course.objects.filter(group__id=group.id,
                                                        discipline_detail__semester__id=semester.id).values_list('id', 'discipline_detail__discipline__Name'))
+    return group_data
+
+
+def group_exam_results(group, semester):
+    MARKS = ["Неявка", "Инд.п.", "Неуд.", "Удовл.", "Хор.", "Отл.", "Зач.", "Не зач.", "Не атт."]
+    group_data = {'group': group, 'group_points': [], 'semester': semester.name}
+    students = set(ExamMarks.objects.filter(student__grouplist__group__id=group.id,
+                                            exam__course__discipline_detail__semester__id=semester.id
+                                            ).values_list('student__id', flat=True))
+    group_data['courses'] = list(Course.objects.filter(group__id=group.id,
+                                                       discipline_detail__semester__id=semester.id).
+                                 values_list('id', 'discipline_detail__discipline__Name'))
+    for sl in group.grouplist_set.filter(student__id__in=students).order_by('student__FIO'):
+        student_points = dict()
+        student_points['scores'] = list(ExamMarks.objects.filter(student__id=sl.student.id,
+                                                                 exam__course__discipline_detail__semester__id=semester.id).
+                                        values_list('exam__course__id', 'mark'))
+        for i in range(len(student_points['scores'])):
+            student_points['scores'][i] = (student_points['scores'][i][0], MARKS[student_points['scores'][i][1]])
+        student_points['fullname'] = sl.student.FIO
+        group_data['group_points'].append(student_points)
     return group_data
 
 
@@ -196,13 +217,14 @@ def group_points(request):
         return HttpResponse('Программа обучения группы не установлена')
     check_point = CheckPoint.objects.get(pk=request.GET['checkpoint']) if 'checkpoint' in request.GET else CheckPoint.objects.first()
     semester = Semester.objects.get(pk=request.GET['semester']) if 'semester' in request.GET else Semester.objects.get(name=group.current_semester)
+    is_exam = 'exam' in request.GET
+    group_points_data = group_exam_results(group, semester) if is_exam else group_brs_points(group, semester, check_point)
     if 'excel' in request.GET:
-        wb = export_group_points(group, semester)
+        wb = export_exam_points(group_points_data) if is_exam else export_group_points(group, semester)
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename=' + translit(group.Name, 'ru', reversed=True) + '_sem_' + semester.name + '.xlsx'
         wb.save(response)
         return response
     else:
-        group_points_data = group_brs_points(group, semester, check_point)
-        form = GetGroupPointsForm(initial={'group':group.id, 'semester': semester.id, 'checkpoint': check_point.id})
-        return render(request,'group_points.html', {'data':group_points_data, 'form': form})
+        form = GetGroupPointsForm(initial={'group':group.id, 'semester': semester.id, 'checkpoint': check_point.id, 'exam': is_exam})
+        return render(request,'group_points.html', {'data':group_points_data, 'form': form, 'is_exam': is_exam})
