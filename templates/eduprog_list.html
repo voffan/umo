@@ -61,6 +61,33 @@ function ShowError(msg, type){
 	error.show();
 	error.delay(3000).slideUp(500, function() {$(this).hide();});
 }
+$(document).on('click', '[name="add_groups"]', function(e, object){
+    console.log('123');
+    e.preventDefault();
+    $.ajax({
+        url: "{% url 'nomenclatures:api:get_groups_by_eduprog' %}",
+        method: "GET",
+        data: {"program": $(this).attr('id')},
+        dataType: "json"
+    }).done(function(data){
+        if(data.length > 0){
+            keys = ['Name', 'id'];
+            $('#id_edu_program').attr('value', data[0]['program']);
+            $('#id_groups').val(null).trigger('change');
+            $('#id_groups').find('option').remove();
+            $.each(data, function(index, value){
+                if (keys.every(key => Object.keys(value).includes(key)))
+                    $('#id_groups').append(new Option(value['Name'], value['id'], true, true)).trigger('change');
+            });
+            $('#AddGroups').modal('show');
+        }else{
+            //show error
+            ShowError("Ошибка получения информации о группах!!", 1);
+        }
+    }).fail(function(jqXHR, textStatus){
+        ShowError("Ошибка связи с сервером!!", 1);
+    });
+});
 $(document).ready(function(){
     $('#error').hide();
     $('#error').css('visibility','visible');
@@ -88,30 +115,6 @@ $(document).ready(function(){
         } );
     } ).draw();
     $('[name="add_groups"]').on('click', function(e, object){
-        e.preventDefault();
-        $.ajax({
-            url: "{% url 'nomenclatures:api:get_groups_by_eduprog' %}",
-            method: "GET",
-            data: {"program": $(this).attr('id')},
-            dataType: "json"
-        }).done(function(data){
-            if(data.length > 0){
-                keys = ['Name', 'id'];
-                $('#id_edu_program').attr('value', data[0]['program']);
-                $('#id_groups').val(null).trigger('change');
-                $('#id_groups').find('option').remove();
-                $.each(data, function(index, value){
-                    if (keys.every(key => Object.keys(value).includes(key)))
-                        $('#id_groups').append(new Option(value['Name'], value['id'], true, true)).trigger('change');
-                });
-                $('#AddGroups').modal('show');
-            }else{
-                //show error
-                ShowError("Ошибка получения информации о группах!!", 1);
-            }
-        }).fail(function(jqXHR, textStatus){
-            ShowError("Ошибка связи с сервером!!", 1);
-        });
     });
 
     $('#SetGroups').on('click', function(e){
