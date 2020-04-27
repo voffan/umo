@@ -1,20 +1,20 @@
-from django.db import transaction
-from django.shortcuts import render, redirect
-import os
 import json
+import os
 
+from django.conf import settings
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.http import HttpResponseRedirect, HttpResponse
+from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.conf import settings
 from django.views.generic import ListView
 
-from umo.models import Discipline, DisciplineDetails, Semester, Teacher, Specialization, Profile, Control, EduProgram, Course, Group
+from students.forms import SetProgramToGroupsForm
+from umo.models import Discipline, DisciplineDetails, Semester, Teacher, Specialization, Profile, Control, EduProgram, \
+    Course, Group
 from .form import UploadFileForm
 from .parseRUP import parseRUP
-from students.forms import SetProgramToGroupsForm
 
 
 #from somewhere import handle_uploaded_file

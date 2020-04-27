@@ -2,8 +2,8 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db import models, transaction
-from django.db.models import CharField, ForeignKey, IntegerField, BooleanField, DecimalField, FloatField, DateTimeField
-from django.db.models import Model, CASCADE, SET_NULL
+from django.db.models import (Model, CASCADE, SET_NULL, CharField, ForeignKey, IntegerField, BooleanField, DecimalField,
+                              FloatField, DateTimeField)
 
 
 class Person(Model):
@@ -111,15 +111,15 @@ class Group(Model):
         edu_period = EduPeriod.objects.get(active=True)
         addition = 1
         current_month = datetime.today().month
-        if current_month >= 2 and current_month <= 7:
+        if 2 <= current_month <= 7:
             addition = 2
         return str((edu_period.begin_year.year - self.begin_year.year) * 2 + addition)
 
-
     def get_semesters(self, edu_period):
         try:
-            autumn_semester = Semester.objects.get(name=str((edu_period.begin_year.year - self.begin_year.year) * 2 + 1))
-            spring_semester = Semester.objects.get(name=str((edu_period.begin_year.year - self.begin_year.year) * 2 + 2))
+            base = (edu_period.begin_year.year - self.begin_year.year) * 2
+            autumn_semester = Semester.objects.get(name=str(base + 1))
+            spring_semester = Semester.objects.get(name=str(base + 2))
         except Exception:
             raise Exception('Система не настроена!! Нет соответствущих учебному году семестров!!')
         return autumn_semester.id, spring_semester.id
@@ -209,7 +209,7 @@ class Discipline(Model):
         verbose_name_plural = 'дисциплины'
 
     def __str__(self):
-            return self.Name
+        return self.Name
 
 
 class DisciplineDetails(Model):
@@ -228,7 +228,7 @@ class DisciplineDetails(Model):
         unique_together = (('discipline', 'semester'),)
 
     def __str__(self):
-            return self.discipline.Name + ' - ' + self.semester.name + ' семестр'
+        return self.discipline.Name + ' - ' + self.semester.name + ' семестр'
 
     @property
     def total_hours(self):
@@ -241,7 +241,9 @@ class DisciplineDetails(Model):
 
     @property
     def controls(self):
-        return ', '.join(map(lambda x: Control.CONTROL_FORM[x][1], list(self.control_set.all().values_list('control_type', flat=True))))
+        res1 = list(self.control_set.all().values_list('control_type', flat=True))
+        res2 = map(lambda x: Control.CONTROL_FORM[x][1], res1)
+        return ', '.join(res2)
 
     @property
     def controls_list(self):
@@ -291,8 +293,9 @@ class Control(Model):
         unique_together = (('discipline_detail', 'control_type'),)
 
     def __str__(self):
-        return self.get_control_type_display() + ' - ' + self.discipline_detail.discipline.Name + ' - ' \
-               + self.discipline_detail.semester.name + ' семестр'
+        control_type = self.get_control_type_display()
+        disc_detail = self.discipline_detail
+        return control_type + ' - ' + disc_detail.discipline.Name + ' - ' + disc_detail.semester.name + ' семестр'
 
 
 class Year(Model):
@@ -303,7 +306,7 @@ class Year(Model):
         verbose_name_plural = 'год'
 
     def __str__(self):
-            return str(self.year)
+        return str(self.year)
 
 
 class Position(Model):
@@ -327,7 +330,7 @@ class Profile(Model):
         unique_together = ['spec', 'name']
 
     def __str__(self):
-            return self.spec.name + self.name
+        return self.spec.name + self.name
 
 
 class Semester(Model):
@@ -338,7 +341,7 @@ class Semester(Model):
         verbose_name_plural = 'семестры'
 
     def __str__(self):
-            return self.name
+        return self.name
 
 
 class CheckPoint(Model):
@@ -364,7 +367,7 @@ class EduPeriod(Model):
         verbose_name_plural = 'периоды обучения'
 
     def __str__(self):
-            return str(self.begin_year.year) + '-' + str(self.end_year.year)
+        return str(self.begin_year.year) + '-' + str(self.end_year.year)
 
 
 class Student(Person):
@@ -494,17 +497,17 @@ class ExamMarks(Model):
     def get_mark_symbol(self):
         points = self.total_points
         symbol = ExamMarks.SYMBOL_MARK[6][0]
-        if points >= 25 and points < 55:
+        if 25 <= points < 55:
             symbol = ExamMarks.SYMBOL_MARK[5][0]
-        elif points >= 55 and points < 65:
+        elif 55 <= points < 65:
             symbol = ExamMarks.SYMBOL_MARK[4][0]
-        elif points >= 65 and points < 75:
+        elif 65 <= points < 75:
             symbol = ExamMarks.SYMBOL_MARK[3][0]
-        elif points >= 75 and points < 85:
+        elif 75 <= points < 85:
             symbol = ExamMarks.SYMBOL_MARK[2][0]
-        elif points >= 85 and points < 95:
+        elif 85 <= points < 95:
             symbol = ExamMarks.SYMBOL_MARK[1][0]
-        elif points >= 95 and points <= 100:
+        elif 95 <= points <= 100:
             symbol = ExamMarks.SYMBOL_MARK[0][0]
         return symbol
 
@@ -530,7 +533,7 @@ class ExamMarks(Model):
 
     def save(self, *args, **kwargs):
         if self.mark > 1 and self.mark != 8:
-            if self.exam.controlType == 2:
+            if self.exam.controlType == Control.CREDIT:
                 self.examPoints = 0
             self.mark = self.get_control_mark()
             self.mark_symbol = self.get_mark_symbol()

@@ -1,13 +1,9 @@
-import datetime
-
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
+from openpyxl.styles import Border, Alignment, Side
 from openpyxl.utils.cell import get_column_interval
 from openpyxl.worksheet.page import PrintPageSetup
 
-from umo.models import EduPeriod, CourseMaxPoints, CheckPoint, Course, BRSpoints, GroupList
+from umo.models import EduPeriod, CourseMaxPoints, CheckPoint, Course, BRSpoints
 
 
 def print_headers(work_sheet, group, semester, courses, start):
@@ -114,7 +110,8 @@ def export_group_points(group, semester):
     # ws = wb.create_sheet('первая страница', 0)
     ws.title = group.Name
     courses = dict(Course.objects.filter(group__id=group.id,
-                                         discipline_detail__semester__id=semester.id).values_list('id', 'discipline_detail__discipline__Name'))
+                                         discipline_detail__semester__id=semester.id)
+                   .values_list('id', 'discipline_detail__discipline__Name'))
     row = 1
     row = print_headers(ws, group, semester, courses, row)
     row += 1

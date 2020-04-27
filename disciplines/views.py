@@ -1,37 +1,27 @@
-from datetime import *
+from datetime import datetime
 
-from django.urls import reverse_lazy, reverse
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db import transaction
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
+from django.urls import reverse
+from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Font, Side
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.decorators import permission_required, login_required
 from transliterate import translit
 
-from umo.models import Discipline, DisciplineDetails, ExamMarks, Group, Semester, Teacher, Person, BRSpoints, Course, \
-    GroupList, CheckPoint
-from umo.objgens import get_check_points, add_brs, add_exam, add_exam_marks
+import disciplines.view_excel as excel_forms
 from disciplines.view_excel import discipline_scores_to_excel
 from nomenclature.form import AddSubjectToteacherForm
-from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
+from umo.models import Semester, Person, Course
+from umo.models import (Teacher, Group, GroupList, Discipline, Control,
                         DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam)
-from datetime import datetime
-
-from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.models import Group as auth_groups
-from django.db import transaction
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
-import disciplines.view_excel as excel_forms
+from umo.objgens import get_check_points, add_brs, add_exam, add_exam_marks
 
 
 class DisciplineList(PermissionRequiredMixin, ListView):
