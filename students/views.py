@@ -77,7 +77,7 @@ class StudentListView(StudentsList):
                         if edu_program is not None:
                             g.cathedra = edu_program.cathedra
                     g.begin_year = Year.objects.get_or_create(year=eduprogyear.year)[0]
-                    g.Name = sg.name
+                    g.name = sg.name
                     g.save()
 
                     synch_people = sync_models.PeoplePln.objects.filter(id_group=sg.id_group)
@@ -222,7 +222,7 @@ def group_points(request):
     if 'excel' in request.GET:
         wb = export_exam_points(group_points_data) if is_exam else export_group_points(group, semester)
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename=' + translit(group.Name, 'ru', reversed=True) + '_sem_' + semester.name + '.xlsx'
+        response['Content-Disposition'] = 'attachment; filename=' + translit(group.name, 'ru', reversed=True) + '_sem_' + semester.name + '.xlsx'
         wb.save(response)
         return response
     else:

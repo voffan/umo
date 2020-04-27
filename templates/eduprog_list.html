@@ -71,13 +71,13 @@ $(document).on('click', '[name="add_groups"]', function(e, object){
         dataType: "json"
     }).done(function(data){
         if(data.length > 0){
-            keys = ['Name', 'id'];
+            keys = ['name', 'id'];
             $('#id_edu_program').attr('value', data[0]['program']);
             $('#id_groups').val(null).trigger('change');
             $('#id_groups').find('option').remove();
             $.each(data, function(index, value){
                 if (keys.every(key => Object.keys(value).includes(key)))
-                    $('#id_groups').append(new Option(value['Name'], value['id'], true, true)).trigger('change');
+                    $('#id_groups').append(new Option(value['name'], value['id'], true, true)).trigger('change');
             });
             $('#AddGroups').modal('show');
         }else{

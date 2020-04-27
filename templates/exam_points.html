@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% load extra_tags %}
-{% block title %}Ведомость{{ discipline.group.Name }}{% endblock %}
+{% block title %}Ведомость{{ discipline.group.name }}{% endblock %}
 {% block content %}
     {% csrf_token %}
 <div class="row">
@@ -50,7 +50,7 @@
     </div>
 
     <div class="col">
-        <h2>Группа: <u>{{ discipline.group.Name }}</u></h2>
+        <h2>Группа: <u>{{ discipline.group.name }}</u></h2>
     </div>
 </div>
 <div class="row">

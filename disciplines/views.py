@@ -280,7 +280,7 @@ def export_to_excel(request):
     i = 1
     z = 0
     x = 0
-    ws.cell(row=1, column=2).value = group.Name + ' cеместр ' + semester
+    ws.cell(row=1, column=2).value = group.name + ' cеместр ' + semester
     ws.cell(row=2, column=2).value = 'Всего часов/ЗЕТ'
     for s in subjects:
         ws.cell(row=1, column=_column).value = s.Name
@@ -419,7 +419,7 @@ def export_to_excel(request):
 
 @permission_required('umo.add_discipline', login_url='login')
 def excel(request):
-    groupname = Group.objects.all().order_by('Name')
+    groupname = Group.objects.all().order_by('name')
     semester_name = Semester.objects.all().order_by('-name')
     subjects = Discipline.objects.all().order_by('Name')
 
@@ -528,7 +528,7 @@ def exam_report(request):
     wb = excel_forms.exam_scores(int(request.GET['exam_id']))
     if wb is not None:
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename=' + translit(group.Name, 'ru', reversed=True) + '.xlsx'
+        response['Content-Disposition'] = 'attachment; filename=' + translit(group.name, 'ru', reversed=True) + '.xlsx'
         wb.save(response)
     else:
         response = HttpResponse()

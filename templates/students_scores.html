@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% load extra_tags %}
-{% block title %}Баллы БРС для группы {{ discipline.group.Name }}{% endblock %}
+{% block title %}Баллы БРС для группы {{ discipline.group.name }}{% endblock %}
 {% block content %}
     {% csrf_token %}
 <div class="modal" id="SetMaxPointsModal" tabindex="-1" role="dialog">
@@ -56,7 +56,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col"><h2>{{ discipline.group.Name }}</h2></div>
+            <div class="col"><h2>{{ discipline.group.name }}</h2></div>
             <div class="col"><h2>Семестр: {{ discipline.discipline_detail.semester }}</h2></div>
         </div>
         <div class="row">

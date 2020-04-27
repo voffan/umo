@@ -85,7 +85,7 @@ class EduProgram(Model):
 
 
 class Group(Model):
-    Name = CharField(verbose_name="название группы", max_length=200, db_index=True)
+    name = CharField(verbose_name="название группы", max_length=200, db_index=True)
     begin_year = ForeignKey('Year', verbose_name="год начала обучения", db_index=True, blank=True, null=True,
                             on_delete=SET_NULL)
     cathedra = ForeignKey('Kafedra', verbose_name="кафедра", db_index=True, blank=True, null=True, on_delete=SET_NULL)
@@ -95,10 +95,10 @@ class Group(Model):
     class Meta:
         verbose_name = 'студенческая группа'
         verbose_name_plural = 'студенческие группы'
-        ordering = ['Name']
+        ordering = ['name']
 
     def __str__(self):
-        return self.Name
+        return self.name
 
     @property
     def year(self):
@@ -388,7 +388,7 @@ class GroupList(Model):
         verbose_name_plural = 'зачисления студентов в группы'
 
     def __str__(self):
-            return self.student.FIO + ' - ' + self.group.Name
+        return self.student.FIO + ' - ' + self.group.name
 
 
 class Course(Model):
@@ -403,7 +403,7 @@ class Course(Model):
         verbose_name_plural = 'курсы обучения дисциплинам'
 
     def __str__(self):
-        return self.group.Name + ':Семестр ' + self.discipline_detail.semester.name + ':' + self.discipline_detail.discipline.Name
+        return self.group.name + ':Семестр ' + self.discipline_detail.semester.name + ':' + self.discipline_detail.discipline.Name
 
 
 class CourseMaxPoints(Model):

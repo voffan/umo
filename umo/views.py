@@ -458,7 +458,7 @@ class BRSPointsListView(ListView):
             group_name = str(request.POST.get('selected_group'))
             disc_id = self.kwargs['pk']
             studid = request.POST.getlist('studid')
-            group = Group.objects.get(Name=group_name)
+            group = Group.objects.get(name=group_name)
             inpoints = request.POST.getlist('points4')
             exampoints = request.POST.getlist('points6')
             semester = request.POST.getlist('semester')

@@ -109,7 +109,7 @@ class EduProgListView(PermissionRequiredMixin, ListView):
         for group in Group.objects.filter(program__isnull=False):
             if group.program.id not in context['groups']:
                 context['groups'][group.program.id] = []
-            context['groups'][group.program.id].append(group.Name)
+            context['groups'][group.program.id].append(group.name)
         return context
 
     def get_queryset(self):
@@ -120,7 +120,7 @@ class EduProgListView(PermissionRequiredMixin, ListView):
 def get_groups(request):
     result = {}
     if 'program' in request.GET:
-        result = list(Group.objects.filter(program__id=request.GET['program']).values('id','Name', 'program'))
+        result = list(Group.objects.filter(program__id=request.GET['program']).values('id', 'name', 'program'))
         if len(result) < 1:
             result = [{'program': request.GET['program']}]
     return HttpResponse(json.dumps(result), content_type='application/json')
@@ -155,7 +155,7 @@ def set_rup_to_groups(request):
                         group.fill_group_disciplines()
             result['result'] = True
             result['program'] = program.id
-            result['group_list'] = ', '.join(list(form.cleaned_data['groups'].values_list('Name', flat=True))) if 'groups' in form.cleaned_data else ''
+            result['group_list'] = ', '.join(list(form.cleaned_data['groups'].values_list('name', flat=True))) if 'groups' in form.cleaned_data else ''
         except Exception as e:
             result['error']='Ошибка при сохранении группы!'
     return HttpResponse(json.dumps(result), content_type='application/json')

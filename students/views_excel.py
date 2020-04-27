@@ -18,7 +18,7 @@ def print_headers(work_sheet, group, semester, courses, start):
     work_sheet.cell(row=start + 5, column=3).value = group.year
     work_sheet.cell(row=start + 6, column=3).value = group.program.specialization.code + ' ' + group.program.specialization.name
     work_sheet.cell(row=start + 5, column=4).value = 'группа'
-    work_sheet.cell(row=start + 5, column=7).value = group.Name
+    work_sheet.cell(row=start + 5, column=7).value = group.name
 
     start_column = 1
     end_column = (len(courses.keys()) + 2) * 3
@@ -108,7 +108,7 @@ def export_group_points(group, semester):
 
     # название страницы
     # ws = wb.create_sheet('первая страница', 0)
-    ws.title = group.Name
+    ws.title = group.name
     courses = dict(Course.objects.filter(group__id=group.id,
                                          discipline_detail__semester__id=semester.id)
                    .values_list('id', 'discipline_detail__discipline__Name'))
@@ -132,7 +132,7 @@ def print_exam_headers(work_sheet, data, start):
     work_sheet.cell(row=start + 5, column=3).value = data['group'].year
     work_sheet.cell(row=start + 6, column=3).value = data['group'].program.specialization.code + ' ' + data['group'].program.specialization.name
     work_sheet.cell(row=start + 5, column=4).value = 'группа'
-    work_sheet.cell(row=start + 5, column=5).value = data['group'].Name
+    work_sheet.cell(row=start + 5, column=5).value = data['group'].name
 
     start_column = 1
     end_column = len(data['courses'].keys()) + 3
@@ -209,7 +209,7 @@ def export_exam_points(data):
     wb = Workbook()
     ws = wb.active
     data['courses'] = dict(data['courses'])
-    ws.title = data['group'].Name
+    ws.title = data['group'].name
     row = 1
     row = print_exam_headers(ws, data, row)
     row += 1

@@ -45,7 +45,7 @@
                 <td> {{ discipline.discipline_detail.discipline.code }} </td>
                 <td> <a href="{% url 'disciplines:brs_scores' discipline.id %}">{{ discipline.discipline_detail.discipline.Name }}</a> </td>
                 <td> {{ discipline.discipline_detail.semester }} </td>
-                <td> {{ discipline.group.Name }} </td>
+                <td> {{ discipline.group.name }} </td>
                 <td> {{ discipline.lecturer.FIO }} </td>
                 <td> {% if discipline.is_finished %}Окончен{% else %}Не окончен{% endif %} </td>
                 <td>

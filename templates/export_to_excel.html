@@ -10,7 +10,7 @@
             <label for="dropdown1" >Группа:</label>
             <select name="dropdown1" id="dropdown1" class="form-control">
                 {% for groupname in groupname %}
-                    <option value="{{ groupname.id }}">{{ groupname.Name}}</option>
+                    <option value="{{ groupname.id }}">{{ groupname.name}}</option>
                 {% endfor %}
             </select>
             </div>

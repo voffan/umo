@@ -35,8 +35,8 @@ admin.site.register(models.ExamMarks)
 
 @admin.register(models.Group)
 class AdminGroup(admin.ModelAdmin):
-    list_display = ['Name', 'cathedra', 'program']
-    search_fields = ['Name']
+    list_display = ['name', 'cathedra', 'program']
+    search_fields = ['name']
     list_filter = ['program']
 
 @admin.register(models.GroupList)

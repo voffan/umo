@@ -8,7 +8,7 @@ for student in students:
     fio = student[1] + ' ' + student[2]
     if len(student[3]) > 0:
         fio = fio + ' ' + student[3]
-    sl = GroupList.objects.filter(group__Name='ИМИ-'+student[0], student__FIO=fio).first()
+    sl = GroupList.objects.filter(group__name='ИМИ-'+student[0], student__FIO=fio).first()
     if sl is not None:
         st = sl.student
         st.student_id = student[4]

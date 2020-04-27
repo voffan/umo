@@ -6,12 +6,12 @@ from umo.models import Group, CheckPoint, Semester
 
 class GroupsWidget(ModelSelect2MultipleWidget):
     model = Group
-    search_fields = ['Name__icontains',]
+    search_fields = ['name__icontains',]
 
 
 class GroupWidget(ModelSelect2Widget):
     model = Group
-    search_fields = ['Name__icontains',]
+    search_fields = ['name__icontains',]
 
 
 class SetProgramToGroupsForm(Form):

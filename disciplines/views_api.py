@@ -129,7 +129,7 @@ def add_course_to_teacher(request):
                     table_rows += '<tr><td>' + course.discipline_detail.discipline.code + '</td>' + \
                                   '<td><a href="' + reverse('disciplines:detail', args=[course.id]) + '">' + course.discipline_detail.discipline.Name + '</a></td>' + \
                                   '<td>' + str(course.discipline_detail.semester) +'</td>' + \
-                                  '<td>' + course.group.Name + '</td>' + \
+                                  '<td>' + course.group.name + '</td>' + \
                                   '<td>' + teacher.FIO + '</td>' + \
                                   '<td><div class="dropdown">' + \
                                       '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Действия</button>' + \

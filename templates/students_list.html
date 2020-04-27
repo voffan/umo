@@ -17,7 +17,7 @@
             <tr>
                 <td> </td>
                 <td> <a href="{% url 'students:student_edit' i.id %}"> {{ i.student.FIO }} </a> </td>
-                <td> {{ i.group.Name }} </td>
+                <td> {{ i.group.name }} </td>
                 <td>
                     <form action="{% url 'students:student_delete' %}" method="post">
                         {% csrf_token %}
