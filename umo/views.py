@@ -519,7 +519,7 @@ class BRSPointsListView(ListView):
             ws.cell(row=6, column=6).value = 'группа:'
             ws.cell(row=6, column=7).value = group_name
             ws.cell(row=7, column=1).value = 'Дисциплина:'
-            ws.cell(row=7, column=3).value = exam.discipline.Name
+            ws.cell(row=7, column=3).value = exam.discipline.name
             ws.cell(row=8, column=1).value = 'Фамилия, имя, отчество преподавателя:'
             ws.cell(row=8, column=4).value = fio
             ws.cell(row=9, column=1).value = 'Дата проведения зачета/экзамена:'

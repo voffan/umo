@@ -183,7 +183,7 @@ def discipline_scores_to_excel(course_id):
     ws.cell(row=7, column=5).value = 'Группа'
     ws.cell(row=7, column=6).value = group.name
     ws.cell(row=8, column=2).value = 'Дисциплина:'
-    ws.cell(row=8, column=3).value = course.discipline_detail.discipline.Name
+    ws.cell(row=8, column=3).value = course.discipline_detail.discipline.name
     ws.cell(row=9, column=2).value = 'Преподаватель:'
     ws.cell(row=9, column=3).value = fio
     ws.cell(row=11, column=1).value = '№'
@@ -343,7 +343,7 @@ def exam_scores(exam_id):
     )
 
     # Дисциплина
-    ws['A7'] = ws['L7'] = 'Дисциплина: ' + exam.course.discipline_detail.discipline.Name
+    ws['A7'] = ws['L7'] = 'Дисциплина: ' + exam.course.discipline_detail.discipline.name
 
     # ФИО преподавателя
     ws['A8'] = ws['L8'] = 'Фамилия, имя, отчество преподавателя: ' + exam.course.lecturer.FIO

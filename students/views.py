@@ -178,7 +178,7 @@ def group_brs_points(group, semester, check_point):
         student_points['fullname'] = sl.student.FIO
         group_data['group_points'].append(student_points)
     group_data['courses'] = list(Course.objects.filter(group__id=group.id,
-                                                       discipline_detail__semester__id=semester.id).values_list('id', 'discipline_detail__discipline__Name'))
+                                                       discipline_detail__semester__id=semester.id).values_list('id', 'discipline_detail__discipline__name'))
     return group_data
 
 
@@ -190,7 +190,7 @@ def group_exam_results(group, semester):
                                             ).values_list('student__id', flat=True))
     group_data['courses'] = list(Course.objects.filter(group__id=group.id,
                                                        discipline_detail__semester__id=semester.id).
-                                 values_list('id', 'discipline_detail__discipline__Name'))
+                                 values_list('id', 'discipline_detail__discipline__name'))
     for sl in group.grouplist_set.filter(student__id__in=students).order_by('student__FIO'):
         student_points = dict()
         student_points['scores'] = list(ExamMarks.objects.filter(student__id=sl.student.id,

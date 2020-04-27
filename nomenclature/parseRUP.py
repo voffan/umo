@@ -85,7 +85,7 @@ def parseRUP_fgos3plusplus(filename, kaf):
         d_code = d.get('ДисциплинаКод', '')
         obj_code = d.get('Код', '')
         d_name = d.get('Дисциплина','')
-        dis, created = Discipline.objects.update_or_create(code=d_code, program=edu_prog, defaults={'Name': d_name})
+        dis, created = Discipline.objects.update_or_create(code=d_code, program=edu_prog, defaults={'name': d_name})
         ids.append(dis.id)
         data = {}
         hours = root.findall(ns + 'ПланыНовыеЧасы[@КодОбъекта="' + obj_code + '"][@КодТипаЧасов="1"]')
@@ -193,13 +193,13 @@ def parseRUP_fgos3(filename, kaf):
         if dis_kaf is None or len(dis_kaf) < 1:
             continue
 
-        dis = Discipline.objects.filter(code=code_dis, program=edu_prog, Name=disname).first()
+        dis = Discipline.objects.filter(code=code_dis, program=edu_prog, name=disname).first()
         if dis is None:
-            dis = Discipline.objects.filter(code=new_code, program=edu_prog, Name=disname).first()
+            dis = Discipline.objects.filter(code=new_code, program=edu_prog, name=disname).first()
         if dis is None:
-            dis = Discipline.objects.create(Name=disname, code=new_code, program=edu_prog)
+            dis = Discipline.objects.create(name=disname, code=new_code, program=edu_prog)
         else:
-            dis.Name = disname
+            dis.name = disname
             dis.code = new_code
             dis.save()
         ids.append(dis.id)

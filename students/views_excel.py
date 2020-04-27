@@ -111,7 +111,7 @@ def export_group_points(group, semester):
     ws.title = group.name
     courses = dict(Course.objects.filter(group__id=group.id,
                                          discipline_detail__semester__id=semester.id)
-                   .values_list('id', 'discipline_detail__discipline__Name'))
+                   .values_list('id', 'discipline_detail__discipline__name'))
     row = 1
     row = print_headers(ws, group, semester, courses, row)
     row += 1

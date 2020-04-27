@@ -127,7 +127,7 @@ def add_course_to_teacher(request):
                     course.lecturer = teacher
                     course.save()
                     table_rows += '<tr><td>' + course.discipline_detail.discipline.code + '</td>' + \
-                                  '<td><a href="' + reverse('disciplines:detail', args=[course.id]) + '">' + course.discipline_detail.discipline.Name + '</a></td>' + \
+                                  '<td><a href="' + reverse('disciplines:detail', args=[course.id]) + '">' + course.discipline_detail.discipline.name + '</a></td>' + \
                                   '<td>' + str(course.discipline_detail.semester) +'</td>' + \
                                   '<td>' + course.group.name + '</td>' + \
                                   '<td>' + teacher.FIO + '</td>' + \

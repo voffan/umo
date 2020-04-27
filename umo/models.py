@@ -200,7 +200,7 @@ class Specialization(Model):
 
 
 class Discipline(Model):
-    Name = CharField(verbose_name="название дисциплины", max_length=200, db_index=True)
+    name = CharField(verbose_name="название дисциплины", max_length=200, db_index=True)
     code = CharField(verbose_name="код дисциплины", max_length=200, db_index=True)
     program = ForeignKey('EduProgram', verbose_name="программа образования", db_index=True, on_delete=CASCADE)
 
@@ -209,7 +209,7 @@ class Discipline(Model):
         verbose_name_plural = 'дисциплины'
 
     def __str__(self):
-        return self.Name
+        return self.name
 
 
 class DisciplineDetails(Model):
@@ -228,7 +228,7 @@ class DisciplineDetails(Model):
         unique_together = (('discipline', 'semester'),)
 
     def __str__(self):
-        return self.discipline.Name + ' - ' + self.semester.name + ' семестр'
+        return self.discipline.name + ' - ' + self.semester.name + ' семестр'
 
     @property
     def total_hours(self):
@@ -295,7 +295,7 @@ class Control(Model):
     def __str__(self):
         control_type = self.get_control_type_display()
         disc_detail = self.discipline_detail
-        return control_type + ' - ' + disc_detail.discipline.Name + ' - ' + disc_detail.semester.name + ' семестр'
+        return control_type + ' - ' + disc_detail.discipline.name + ' - ' + disc_detail.semester.name + ' семестр'
 
 
 class Year(Model):
@@ -403,7 +403,7 @@ class Course(Model):
         verbose_name_plural = 'курсы обучения дисциплинам'
 
     def __str__(self):
-        return self.group.name + ':Семестр ' + self.discipline_detail.semester.name + ':' + self.discipline_detail.discipline.Name
+        return self.group.name + ':Семестр ' + self.discipline_detail.semester.name + ':' + self.discipline_detail.discipline.name
 
 
 class CourseMaxPoints(Model):

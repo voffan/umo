@@ -13,18 +13,18 @@ class SelectTeacher(ModelForm):
     class Meta:
         model = Discipline
         fields = {
-            'Name',
+            'name',
             #'lecturer'
         }
         labels = {
-            'Name': ('Дисциплина'),
+            'name': ('Дисциплина'),
             #'lecturer': ('Преподаватель')
         }
 
     def save(self):
         if self.clean():
             discipline = Discipline()
-            discipline.Name = self.cleaned_data['Name']
+            discipline.name = self.cleaned_data['name']
             #discipline.lecturer = self.cleaned_data['lecturer']
             discipline.save()
             return discipline
@@ -33,7 +33,7 @@ class SelectTeacher(ModelForm):
 class CourseWidget(ModelSelect2MultipleWidget):
     model = Course
     queryset = Course.objects.filter(lecturer__isnull=True, is_finished=False)
-    search_fields = ['discipline_detail__discipline__Name__icontains', 'group__name__icontains']
+    search_fields = ['discipline_detail__discipline__name__icontains', 'group__name__icontains']
 
 
 class AddSubjectToteacherForm(Form):

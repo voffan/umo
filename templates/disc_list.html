@@ -43,7 +43,7 @@
             {% for discipline in discipline_list %}
             <tr>
                 <td> {{ discipline.discipline_detail.discipline.code }} </td>
-                <td> <a href="{% url 'disciplines:brs_scores' discipline.id %}">{{ discipline.discipline_detail.discipline.Name }}</a> </td>
+                <td> <a href="{% url 'disciplines:brs_scores' discipline.id %}">{{ discipline.discipline_detail.discipline.name }}</a> </td>
                 <td> {{ discipline.discipline_detail.semester }} </td>
                 <td> {{ discipline.group.name }} </td>
                 <td> {{ discipline.lecturer.FIO }} </td>

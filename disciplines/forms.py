@@ -6,14 +6,14 @@ class AddDisciplineForm(ModelForm):
     class Meta:
         model = Discipline
         fields = [
-            'Name',
+            'name',
             'code',
             'program',
             'lecturer',
             'control',
         ]
         labels = {
-            'Name': 'Предмет',
+            'name': 'Предмет',
             'code': 'Код предмета',
             'program': 'Специализация',
             'lecturer': 'Преподаватель',
@@ -23,7 +23,7 @@ class AddDisciplineForm(ModelForm):
     def save(self):
         if self.clean():
             discipline = Discipline()
-            discipline.Name = self.cleaned_data['Name']
+            discipline.name = self.cleaned_data['name']
             discipline.code = self.cleaned_data['code']
             discipline.program = self.cleaned_data['program']
             discipline.lecturer = self.cleaned_data['lecturer']

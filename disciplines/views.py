@@ -56,7 +56,7 @@ class DisciplineCreate(PermissionRequiredMixin, CreateView):
     success_url = reverse_lazy('disciplines:details_add')
     model = Discipline
     fields = [
-        'Name',
+        'name',
         'code',
         'program',
         'lecturer',
@@ -69,7 +69,7 @@ class DisciplineUpdate(PermissionRequiredMixin, UpdateView):
     success_url = reverse_lazy('disciplines:disciplines_list')
     model = Discipline
     fields = [
-        'Name',
+        'name',
         'code',
         'program',
         'lecturer',
@@ -90,7 +90,7 @@ def discipline_detail(request, pk):
     if request.method == 'POST':
         pass
     subject = Course.objects.get(id=pk).discipline_detail.discipline  # Discipline.objects.get(id=pk)
-    name = subject.Name
+    name = subject.name
     details = DisciplineDetails.objects.filter(discipline__id=subject.id)
     return render(request, 'disciplines_detail.html', {'form': details, 'name': name})
 
@@ -168,7 +168,7 @@ def subjects(request):
         subjects = group.program.discipline_set.filter(disciplinedetails__semester__name=semester)
 
         for s in subjects:
-            result['data'].append(s.Name)
+            result['data'].append(s.name)
     return JsonResponse(result)
 
 
@@ -283,7 +283,7 @@ def export_to_excel(request):
     ws.cell(row=1, column=2).value = group.name + ' cеместр ' + semester
     ws.cell(row=2, column=2).value = 'Всего часов/ЗЕТ'
     for s in subjects:
-        ws.cell(row=1, column=_column).value = s.Name
+        ws.cell(row=1, column=_column).value = s.name
         details = s.disciplinedetails_set.filter(semester__name=semester)
         for k in details:
             ws.cell(row=2, column=_column).value = str(k.total_hours)
@@ -421,7 +421,7 @@ def export_to_excel(request):
 def excel(request):
     groupname = Group.objects.all().order_by('name')
     semester_name = Semester.objects.all().order_by('-name')
-    subjects = Discipline.objects.all().order_by('Name')
+    subjects = Discipline.objects.all().order_by('name')
 
     return render(request, 'export_to_excel.html', {'groupname': groupname, 'semester_name': semester_name,
                                                     'subjects': subjects})
