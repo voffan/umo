@@ -187,13 +187,14 @@ class Specialization(Model):
     name = CharField(verbose_name="название специализации", max_length=200, db_index=True)
     brief_name = CharField(verbose_name="короткое имя специализации", max_length=50, db_index=True, blank=True,
                            null=True)
-    code = CharField(verbose_name="код специализации", max_length=100, db_index=True, unique=True)
+    code = CharField(verbose_name="код специализации", max_length=100, db_index=True)
     qual = IntegerField("квалификация", choices=QUALIFICATION, blank=True, default=0)
     level = IntegerField("уровень образования", choices=EDUCATION_LEVEL, blank=True, default=0)
 
     class Meta:
         verbose_name = 'специализация'
         verbose_name_plural = 'специализации'
+        unique_together = ('code', 'qual')
 
     def __str__(self):
         return self.name

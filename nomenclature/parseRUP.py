@@ -1,9 +1,12 @@
+import datetime
+
 from django.db import transaction
 from umo.models import EduOrg, Kafedra, EduProgram, Specialization, Discipline, \
     DisciplineDetails, Profile, Year, Semester, Teacher, Control, Position, BRSpoints
 from umo.objgens import check_edu_org
 import xml.etree.ElementTree as ET
-import re
+from django.conf import settings
+import os
 
 
 def exclude_disciplines_from_program(education_program, including_disciplines=[], except_discipline=[]):
@@ -43,6 +46,7 @@ def get_qualification(name, program_code=''):
 @transaction.atomic
 def parseRUP_fgos3plusplus(filename, kaf):
     #name_file_xml = os.path.join('upload', filename)
+    lines = []
     ns = '{http://tempuri.org/dsMMISDB.xsd}'
     tree = ET.parse(filename)
     root = tree.getroot()
@@ -67,16 +71,19 @@ def parseRUP_fgos3plusplus(filename, kaf):
     yearp = root.find(ns + 'Планы').get('ГодНачалаПодготовки')
 
     year, created = Year.objects.get_or_create(year=yearp)
+    lines.append('Год ' + yearp + ' ' + (' создан' if created else 'используется существующий'))
 
-    sp, created = Specialization.objects.get_or_create(code=code, defaults={
+    sp, created = Specialization.objects.get_or_create(code=code, qual=get_qualification(qual_name, program_code), defaults={
         'name': spec_name,
         'brief_name': '',
-        'qual': get_qualification(qual_name, program_code),
         'level': level
     })
+    lines.append('Специализация ' + code + ' ' + spec_name + ' ' + (' создан' if created else 'используется существующий'))
     profile, created = Profile.objects.get_or_create(name=profile_name, spec=sp)
+    lines.append('Профиль ' + profile_name + ' ' + (' создан' if created else 'используется существующий'))
 
     edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
+    lines.append('Программа ' + name + ' ' + (' создан' if created else 'используется существующий'))
 
     disciplines = root.findall(ns + 'ПланыСтроки')
     controls = {"1": 1, "2": 2, "3": 3, "4": 5, "5": 4, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "11": 11, "49": 49}
@@ -86,6 +93,7 @@ def parseRUP_fgos3plusplus(filename, kaf):
         obj_code = d.get('Код', '')
         d_name = d.get('Дисциплина','')
         dis, created = Discipline.objects.update_or_create(code=d_code, program=edu_prog, defaults={'Name': d_name})
+        lines.append('Дисциплина ' + d_code + ' ' + d_name + ' ' + (' создан' if created else 'используется существующий'))
         ids.append(dis.id)
         data = {}
         hours = root.findall(ns + 'ПланыНовыеЧасы[@КодОбъекта="' + obj_code + '"][@КодТипаЧасов="1"]')
@@ -110,6 +118,7 @@ def parseRUP_fgos3plusplus(filename, kaf):
                 data[semester]['zed'] = int(item.get('Количество','0'))
         for key in data.keys():
             semester, created = Semester.objects.get_or_create(name=key)
+            lines.append('Семестр ' + key + ' ' + (' создан' if created else 'используется существующий'))
             defaults = {'Credit': data[key]['zed'],
                         'Lecture': data[key]['hours']['101'],
                         'Practice': data[key]['hours']['103'],
@@ -119,11 +128,16 @@ def parseRUP_fgos3plusplus(filename, kaf):
             dd, created = DisciplineDetails.objects.update_or_create(discipline=dis,
                                                                      semester=semester,
                                                                      defaults=defaults)
+            lines.append('Детали ' + ('созданы' if created else 'используется существующий'))
             dd.control_set.all().delete()
             for control_type in data[key]['control'].keys():
                 c, created = Control.objects.update_or_create(discipline_detail=dd, control_type=control_type,
                                                               defaults={'control_hours': data[key]['control'][control_type]})
+                lines.append('Контроль ' + str(control_type) + (' создан' if created else 'используется существующий'))
     exclude_disciplines_from_program(edu_prog, except_discipline=ids)
+    lines.append('РУП '+name+' загружен успешно!')
+    with open(os.path.join(settings.BASE_DIR, 'logs',    name + '_' + datetime.datetime.today().strftime('%d_%m_%Y_%H_%M_%S')+'.txt'), 'w') as f:
+        f.write('\n'.join(lines))
 
 
 def get_qualification_fgos3(name):
@@ -153,6 +167,7 @@ def get_education_level_fgos3(name):
 @transaction.atomic
 def parseRUP_fgos3(filename, kaf):
     #name_file_xml = os.path.join('upload', filename)
+    lines = []
     tree = ET.parse(filename)
     root = tree.getroot()
     title = root[0][0]
@@ -167,24 +182,81 @@ def parseRUP_fgos3(filename, kaf):
         profile_name = ' '.join(specs[1].get('Название').split()[1:])
     else:
         profile_name = 'Общий'
-    #qual = root[0][0][7][0] #тэг Квалификация получения квалиф
-    qual_name = title.find('Квалификации')[0].get('Название')
     #code = root[0][0] #тэг План получения КодКафедры и ПоследнийШифр
     code = title.get('ПоследнийШифр')
     yearp = title.get('ГодНачалаПодготовки')
+    #qual = root[0][0][7][0] #тэг Квалификация получения квалиф
+    qual_name = title.find('Квалификации')[0].get('Название')
+    #для правильной обработки прикладного бакалвриата МТС
 
     year, created = Year.objects.get_or_create(year=yearp)
+    lines.append('Год ' + yearp + ' ' + (' создан' if created else 'используется существующий'))
 
-    sp, created = Specialization.objects.get_or_create(code=code, defaults={
-        'name': spec_name,
-        'brief_name': '',
-        'qual': get_qualification_fgos3(qual_name),
-        'level': get_education_level_fgos3(level)
-    })
+    operation = 'используется существующая'
+    if kaf.number == 148 and code == '09.03.01':
+        qual_name = 'прикладной ' + qual_name
+        sp = Specialization.objects.filter(code=code, qual=get_qualification_fgos3(qual_name)).first()
+        if sp is None:
+            sp = Specialization.objects.create(code=code, qual=get_qualification_fgos3(qual_name), defaults={
+                'name': spec_name,
+                'brief_name': '',
+                'level': get_education_level_fgos3(level)
+            })
+            operation = 'создана'
+    else:
+        sp = Specialization.objects.filter(code=code, qual=get_qualification_fgos3('академический ' + qual_name)).first()
+        if sp is None:
+            sp = Specialization.objects.filter(code=code, qual=get_qualification_fgos3(qual_name)).first()
+            if sp is None:
+                sp = Specialization.objects.create(code=code, qual=get_qualification_fgos3('академический ' + qual_name), defaults={
+                    'name': spec_name,
+                    'brief_name': '',
+                    'level': get_education_level_fgos3(level)
+                })
+                operation = 'создана'
+    lines.append('Специализация ' + code + ' ' + spec_name + ' ' + operation)
     profile, created = Profile.objects.get_or_create(name=profile_name, spec=sp)
-
-    edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
+    lines.append('Профиль ' + profile_name + ' ' + (' создан' if created else 'используется существующий'))
+    edu_prog = EduProgram.objects.filter(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name).first()
+    operation = 'используется существующая'
+    if edu_prog is None:
+        edu_prog = EduProgram.objects.filter(specialization=sp, profile=profile, cathedra=kaf, year=year).first()
+        if edu_prog is None:
+            edu_prog = EduProgram.objects.create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
+            operation = 'создана'
+    lines.append('Программа ' + name + ' ' + operation)
     ids = []
+    practices=[root[0][6].find('НИР'), root[0][6].find('УчебПрактики'), root[0][6].find('ПрочиеПрактики')]
+    cycle_name = ''
+    for cycle in root[0][0][0].findall('Цикл'):
+        if 'Практики' in cycle.get('Название',''):
+            cycle_name = cycle.get('Аббревиатура')
+            break
+    for elem in practices:
+        if elem is None:
+            continue
+        for idx, practice in enumerate(elem):
+            disname = practice.get('Наименование')
+            code_dis = cycle_name + '.' + elem.tag[0] + '.' + str(idx+1)
+            #new_code = practice.get('НовИдДисциплины', code_dis)
+            dis_kaf = practice.get('Кафедра', None)
+            if dis_kaf is None or len(dis_kaf) < 1:
+                continue
+            dis, created = Discipline.objects.get_or_create(code=code_dis, Name=disname, program=edu_prog)
+            lines.append('Практика ' + code_dis + ' ' + disname + ' ' + (' создана' if created else 'используется существующая'))
+            ids.append(dis.id)
+            for sem in practice.findall('Семестр'):
+                semester = Semester.objects.filter(name=sem.get('Ном')).first()
+                defaults = {'Credit': sem.get('ПланЗЕТ'), 'Lecture': 0, 'Practice': 0, 'Lab': 0, 'KSR': 0, 'SRS': sem.get('ПланЧасовСРС')}
+                d, created = DisciplineDetails.objects.update_or_create(discipline=dis,
+                                                                        semester=semester,
+                                                                        defaults=defaults)
+                lines.append('Детали ' + ('созданы' if created else 'используются существующие'))
+                d.control_set.all().delete()
+                c, created = Control.objects.get_or_create(discipline_detail=d, control_type=3,
+                                                           defaults={'control_hours': 0})
+                lines.append('Контроль' + (' создан' if created else 'используется существующий'))
+
     for elem in root[0][1]:
         disname = elem.get('Дис')
         code_dis = elem.get('ИдетификаторДисциплины')
@@ -193,15 +265,19 @@ def parseRUP_fgos3(filename, kaf):
         if dis_kaf is None or len(dis_kaf) < 1:
             continue
 
+        operation = 'используется существующая'
         dis = Discipline.objects.filter(code=code_dis, program=edu_prog, Name=disname).first()
         if dis is None:
             dis = Discipline.objects.filter(code=new_code, program=edu_prog, Name=disname).first()
         if dis is None:
             dis = Discipline.objects.create(Name=disname, code=new_code, program=edu_prog)
+            operation = 'создана'
         else:
             dis.Name = disname
             dis.code = new_code
             dis.save()
+        lines.append(
+            'Дисциплина ' + code_dis + ' ' + disname + ' ' + operation)
         ids.append(dis.id)
         for details in elem.findall('Сем'):
             #if details is ('Ном' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Пр') or ('Ном' and 'СРС'):
@@ -223,6 +299,7 @@ def parseRUP_fgos3(filename, kaf):
             CW = details.get('КР', None)
 
             semester, created = Semester.objects.get_or_create(name=semester_nom)
+            lines.append('Семестр ' + semester_nom + ' ' + (' создан' if created else 'используется существующий'))
             defaults={'Credit': int(zet),
                       'Lecture': data['101'],
                       'Practice': data['103'],
@@ -232,20 +309,28 @@ def parseRUP_fgos3(filename, kaf):
             d, created = DisciplineDetails.objects.update_or_create(discipline=dis,
                                                                     semester=semester,
                                                                     defaults=defaults)
+            lines.append('Детали ' + ('созданы' if created else 'используются существующие'))
             d.control_set.all().delete()
             if z is not None:
                 c, created = Control.objects.get_or_create(discipline_detail=d, control_type=2,
                                                            defaults={'control_hours': data['108']})
+                lines.append('Контроль зачет ' + ('создан' if created else 'используется существующий'))
             if exam is not None:
                 c, created = Control.objects.get_or_create(discipline_detail=d, control_type=1,
                                                            defaults={'control_hours': data['108']})
+                lines.append('Контроль экзамен ' + ('создан' if created else 'используется существующий'))
             if zO is not None:
                 c, created = Control.objects.get_or_create(discipline_detail=d, control_type=3,
                                                            defaults={'control_hours': data['108']})
+                lines.append('Контроль зачет с оценкой ' + ('создан' if created else 'используется существующий'))
             if CW is not None:
                 c, created = Control.objects.get_or_create(discipline_detail=d, control_type=4,
                                                            defaults={'control_hours': 0})
+                lines.append('Контроль курсовая работа ' + ('создан' if created else 'используется существующий'))
     exclude_disciplines_from_program(edu_prog, except_discipline=ids)
+    lines.append('РУП ' + name + ' загружен успешно!')
+    with open(os.path.join(settings.BASE_DIR, 'logs',  name + '_' + datetime.datetime.today().strftime('%d_%m_%Y_%H_%M_%S')+'.txt'), 'w') as f:
+        f.write('\n'.join(lines))
 
 
 def parseRUP(filename, cathedra):
