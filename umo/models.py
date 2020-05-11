@@ -131,7 +131,7 @@ class Group(Model):
         course.lecturer = None
         course.save()
 
-    def fill_group_disciplines(self, edu_period=None):
+    def fill_group_disciplines(self, edu_period=None, semester=None):
         if self.program is None:
             raise Exception('Для группы не определена программа обучения!! Исправьте!!')
         if edu_period is None:
@@ -139,9 +139,15 @@ class Group(Model):
                 edu_period = EduPeriod.objects.get(active=True)
             except Exception:
                 raise Exception('Система не настроена! Вы не определили активный учебный год или их несколько!!!')
-        semesters = self.get_semesters(edu_period)
+        if semester is None:
+            semesters = self.get_semesters(edu_period)
+        else:
+            semesters = [Semester.objects.filter(name=semester).first().id]
+        ids = list(
+            Course.objects.filter(group__id=self.id, discipline_detail__semester__id__in=semesters).
+                values_list('discipline_detail__id', flat=True))
         disciplines_details = DisciplineDetails.objects.filter(discipline__program__id=self.program.id,
-                                                               semester__id__in=semesters)
+                                                               semester__id__in=semesters).exclude(id__in=ids)
         with transaction.atomic():
             for discipline_detail in disciplines_details:
                 self.add_discipline(discipline_detail)

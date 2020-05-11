@@ -135,6 +135,9 @@ def parseRUP_fgos3plusplus(filename, kaf):
                                                               defaults={'control_hours': data[key]['control'][control_type]})
                 lines.append('Контроль ' + str(control_type) + (' создан' if created else 'используется существующий'))
     exclude_disciplines_from_program(edu_prog, except_discipline=ids)
+    for group in edu_prog.group_set.all():
+        group.fill_group_disciplines(semester=group.current_semester)
+        lines.append('Недостающие курсы для группы ' + group.Name + ' добавлены')
     lines.append('РУП '+name+' загружен успешно!')
     with open(os.path.join(settings.BASE_DIR, 'logs',    name + '_' + datetime.datetime.today().strftime('%d_%m_%Y_%H_%M_%S')+'.txt'), 'w') as f:
         f.write('\n'.join(lines))
@@ -328,6 +331,9 @@ def parseRUP_fgos3(filename, kaf):
                                                            defaults={'control_hours': 0})
                 lines.append('Контроль курсовая работа ' + ('создан' if created else 'используется существующий'))
     exclude_disciplines_from_program(edu_prog, except_discipline=ids)
+    for group in edu_prog.group_set.all():
+        group.fill_group_disciplines(semester=group.current_semester)
+        lines.append('Недостающие курсы для группы ' + group.Name + ' добавлены')
     lines.append('РУП ' + name + ' загружен успешно!')
     with open(os.path.join(settings.BASE_DIR, 'logs',  name + '_' + datetime.datetime.today().strftime('%d_%m_%Y_%H_%M_%S')+'.txt'), 'w') as f:
         f.write('\n'.join(lines))
