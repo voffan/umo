@@ -280,7 +280,7 @@ def parseRUP_fgos3(filename, kaf):
             dis.code = new_code
             dis.save()
         lines.append(
-            'Дисциплина ' + code_dis + ' ' + disname + ' ' + operation)
+            'Дисциплина ' + (code_dis if code_dis is not None else '') + ' ' + disname + ' ' + operation)
         ids.append(dis.id)
         for details in elem.findall('Сем'):
             #if details is ('Ном' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Пр' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Лек' and 'Лаб' and 'Пр' and 'КСР' and 'СРС' and 'ЗЕТ') or ('Ном' and 'Пр') or ('Ном' and 'СРС'):
@@ -344,3 +344,19 @@ def parseRUP(filename, cathedra):
         parseRUP_fgos3plusplus(filename, cathedra)
     else:
         parseRUP_fgos3(filename, cathedra)
+
+
+def parse_folder(path):
+    rups = {'010301_20-1М.plx': 43, '010301_20-2М.plx': 3, '010301_20-3М.plm.xml': 43, '010301_20-4М.plm.xml': 3, '01030201_20-1ПМ_ММ.plx': 82, '01030201_20-2ПМ_ММ.plx': 82, '01030201_20-3ПМ_ММ.plm.xml': 82, '01030201_20-4ПМ_ММ.plm.xml': 82, '02030201_20-12ФИИТ.plx': 38, '020302_20-3ФИИТ.plm.xml': 38, '020302_20-4ФИИТ.plm.xml': 38, '09030101_20-12ИВТ.plx': 38, '09030101_20-34ИВТ.plx': 38, '09030101П_20-3ИВТПО.plm.xml': 148, '09030101П_20-4ИВТПО.plm.xml': 148, '09030301_20-12ПИГМУ.plx': 44, '09030301_20-3ПИГМУ.plm.xml': 44, '09030301_20-4ПИГМУ.plm.xml': 44, '09030303_20-12ПИЭ.plx': 44, '09030303_20-3ПИЭ.plm.xml': 44, '09030303_20-4ПИЭ.plm.xml': 44, '11030201_20-12ИТСС.plx': 148, '11030201_20-3ИТСС.plm.xml': 148, '11030201_20-4ИТСС.plm.xml': 148, '44030106_20-12МПО.plx': 53, '44030106_20-3МПО.plm.xml': 53, '44030106_20-4МПО.plm.xml': 53, '44030107_20-4ИНФ.plm.xml': 107, '44030519_20-4МПИ.plm.xml': 53, '44030521_20-12ИМ.plx': 107, '44030521_20-3ИМ.plm.xml': 107, 'G01040101_20-1МДУ.plx': 28, 'G01040101_20-2МДУ.plx': 28, 'G01040201_20-1ВТ.plx': 160, 'G01040201_20-2ВТ.plx': 160, 'G01040202_20-1НДМО.plx': 3, 'G01040202_20-2НДМО.plx': 3, 'G02040201_20-12ФИИТ.plx': 38, 'G09040101_20-12ИВТ.plx': 38, 'G09040301_20-1ПИЭУ.plx': 44, 'G09040301_20-2ПИЭУ.plx': 44, 'G09040303_20-1ПИЮ.plx': 44, 'G09040303_20-2ПИЮ.plx': 44, 'G44040115_20-1ИПТОМ.plx': 44, 'G44040115_20-2ИПТОМ.plx': 44, 'GV44040117_20-1УИвМО.plx': 3, 'GV44040117_20-2УИвМО.plx': 3}
+    result = ''
+    for file in rups.keys():
+        try:
+            kaf = Kafedra.objects.get(number=rups[file])
+            with transaction.atomic():
+                parseRUP(os.path.join(path, file), kaf)
+            result += file + ' обработан успешно!' + '\n'
+        except Exception as e:
+            result += file + ' не обработан, ошибка: ' + str(e) + '\n'
+    if len(result) > 0:
+        with open(os.path.join(settings.BASE_DIR, 'logs', 'results.txt'), 'w') as f:
+            f.write(result)
