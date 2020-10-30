@@ -110,7 +110,8 @@ $('[name="delete_course"]').on('click', function(e){
             if(data['result']==true){
                 $('#my_table2').DataTable().destroy();
                 $('[id=' + data['course'] + ']').closest('tr').remove();
-                $('#my_table2').DataTable( {"language": {"url": "/static/Russian.json"}} );
+                $('#course_state_filter > select').remove();
+                $('#my_table2').DataTable( {"language": {"url": "/static/Russian.json"}, initComplete: init_function} );
             }else{
                 ShowError('Ошибка снятия привязки предмета!',1);
             }
@@ -132,7 +133,8 @@ $('#SetDisc').on('click', function(e){
             //add row
             $('#my_table2').DataTable().destroy();
             $('#my_table2 tr:last').after(data['rows']);
-            $('#my_table2').DataTable( {"language": {"url": "/static/Russian.json"}} );
+            $('#course_state_filter > select').remove();
+            $('#my_table2').DataTable( {"language": {"url": "/static/Russian.json"}, initComplete: init_function} );
             $('#AddDisc').modal('hide');
         }
         else

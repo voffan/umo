@@ -36,4 +36,4 @@ class CourseWidget(ModelSelect2MultipleWidget):
 
 class AddSubjectToteacherForm(Form):
     teacher = IntegerField(widget=HiddenInput(), required=True)
-    courses = ModelMultipleChoiceField(widget=CourseWidget, queryset=Course.objects.all(), required=False, label='Выберете дисциплины')
+    courses = ModelMultipleChoiceField(widget=CourseWidget, queryset=Course.objects.filter(is_finished=False), required=False, label='Выберете дисциплины')

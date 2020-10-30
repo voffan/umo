@@ -131,6 +131,7 @@ def add_course_to_teacher(request):
                                   '<td>' + str(course.discipline_detail.semester) +'</td>' + \
                                   '<td>' + course.group.Name + '</td>' + \
                                   '<td>' + teacher.FIO + '</td>' + \
+                                  '<td>Не окончен</td>' + \
                                   '<td><div class="dropdown">' + \
                                       '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Действия</button>' + \
                                       '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">' + \

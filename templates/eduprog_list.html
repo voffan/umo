@@ -32,10 +32,10 @@
                 {% for prog in object_list %}
                 <tr>
                     <td> </td>
-                    <td>{{ prog.specialization.name }}</td>
+                    <td>{{ prog.specialization.code }} {{ prog.specialization.name }}</td>
                     <td>{{ prog.profile.name }}</td>
                     <td>{{ prog.year }}</td>
-                    <td></td>
+                    <td>{{ prog.name }}</td>
                     <td id="groups_{{ prog.id }}">{{ groups|get_list:prog }}</td>
                     <td><button class="btn btn-primary" name="add_groups" id="{{ prog.id }}">Добавить группу</button></td>
                 </tr>

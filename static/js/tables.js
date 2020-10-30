@@ -5,24 +5,25 @@ $(document).ready( function () {
         "paging": false
     });
 } );
+var init_function = function () {
+   var column = this.api().column(5);
+   var select = $('<select class="filter" style="width:150px"></select>')
+       .appendTo('#course_state_filter')
+       .on('change', function () {
+          var val = $(this).val();
+          column.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
+       });
+   column.search('Не окончен', true, false).draw();
+   column.data().unique().sort().each(function (d, j) {
+       select.append('<option value="' + d + '">' + d + '</option>');
+   });
+}
 $(document).ready( function () {
     $('#my_table2').DataTable( {
         "language": {
             "url": "/static/Russian.json"
         },
-        initComplete: function () {
-           var column = this.api().column(5);
-           var select = $('<select class="filter" style="width:150px"></select>')
-               .appendTo('#course_state_filter')
-               .on('change', function () {
-                  var val = $(this).val();
-                  column.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
-               });
-           column.search('Не окончен', true, false).draw();
-           column.data().unique().sort().each(function (d, j) {
-               select.append('<option value="' + d + '">' + d + '</option>');
-           });
-        }
+        initComplete: init_function
     } );
 } );
 $(document).ready( function () {

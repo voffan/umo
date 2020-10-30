@@ -1,5 +1,6 @@
 import datetime
 
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import transaction
 from umo.models import EduOrg, Kafedra, EduProgram, Specialization, Discipline, \
     DisciplineDetails, Profile, Year, Semester, Teacher, Control, Position, BRSpoints
@@ -25,17 +26,13 @@ def get_qualification(name, program_code=''):
     if name == '1':
         return 1
     elif name == '2':
-        if program_code == '3':
-            return 4
-        elif program_code == '4':
+        if program_code == '4':
             return 5
-        return 2
+        return 4
     elif name == '3':
-        if program_code == '3':
-            return 6
-        elif program_code == '4':
+        if program_code == '4':
             return 7
-        return 3
+        return 6
     elif name == '7':
         return 8
     elif name == '10':
@@ -61,9 +58,9 @@ def parseRUP_fgos3plusplus(filename, kaf):
     spec_name = oop.get('Название')
     #тэг Специальность ном2 получения названия профиль
     profile_name = 'Общий'
-    profile_oop = oop.find(ns + 'ООП')
-    if profile_oop is not None:
-        profile_name = profile_oop.get('Название',)
+    profile_oop = oop.findall(ns + 'ООП')
+    if len(profile_oop) > 0:
+        profile_name = profile_oop[-1].get('Название',)
     qual_name = oop.get('Квалификация', '')
     program_code = root.find(ns + 'Планы').get('КодПрограммы','')
 
@@ -82,8 +79,20 @@ def parseRUP_fgos3plusplus(filename, kaf):
     profile, created = Profile.objects.get_or_create(name=profile_name, spec=sp)
     lines.append('Профиль ' + profile_name + ' ' + (' создан' if created else 'используется существующий'))
 
-    edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
-    lines.append('Программа ' + name + ' ' + (' создан' if created else 'используется существующий'))
+    try:
+        edu_prog = EduProgram.objects.get(specialization=sp, profile=profile, cathedra=kaf, year=year)
+        edu_prog.name = name
+        edu_prog.save()
+        lines.append('Программа ' + name + ' используется существующая')
+    except MultipleObjectsReturned:
+        edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
+        if not created:
+            edu_prog.name = name
+            edu_prog.save()
+        lines.append('Программа ' + name + ' ' + (' создана' if created else 'используется существующая'))
+    except ObjectDoesNotExist:
+        edu_prog = EduProgram.objects.create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
+        lines.append('Программа ' + name + ' создана')
 
     disciplines = root.findall(ns + 'ПланыСтроки')
     controls = {"1": 1, "2": 2, "3": 3, "4": 5, "5": 4, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "11": 11, "49": 49}
@@ -148,13 +157,13 @@ def get_qualification_fgos3(name):
     if 'специали' in name:
         return 1
     elif 'бакалавр' in name:
-        if 'академ' in name:
-            return 4
-        elif 'приклад' in name:
+        if 'приклад' in name:
             return 5
-        return 2
+        return 4
     elif 'магистр' in name:
-        return 3
+        if 'приклад' in name:
+            return 7
+        return 6
     return 0
 
 
@@ -220,14 +229,28 @@ def parseRUP_fgos3(filename, kaf):
     lines.append('Специализация ' + code + ' ' + spec_name + ' ' + operation)
     profile, created = Profile.objects.get_or_create(name=profile_name, spec=sp)
     lines.append('Профиль ' + profile_name + ' ' + (' создан' if created else 'используется существующий'))
-    edu_prog = EduProgram.objects.filter(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name).first()
+    '''edu_prog = EduProgram.objects.filter(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name).first()
     operation = 'используется существующая'
     if edu_prog is None:
         edu_prog = EduProgram.objects.filter(specialization=sp, profile=profile, cathedra=kaf, year=year).first()
         if edu_prog is None:
             edu_prog = EduProgram.objects.create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
             operation = 'создана'
-    lines.append('Программа ' + name + ' ' + operation)
+    lines.append('Программа ' + name + ' ' + operation)'''
+    try:
+        edu_prog = EduProgram.objects.get(specialization=sp, profile=profile, cathedra=kaf, year=year)
+        edu_prog.name = name
+        edu_prog.save()
+        lines.append('Программа ' + name + ' используется существующая')
+    except MultipleObjectsReturned:
+        edu_prog, created = EduProgram.objects.get_or_create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
+        if not created:
+            edu_prog.name = name
+            edu_prog.save()
+        lines.append('Программа ' + name + ' ' + (' создана' if created else 'используется существующая'))
+    except ObjectDoesNotExist:
+        edu_prog = EduProgram.objects.create(specialization=sp, profile=profile, cathedra=kaf, year=year, name=name)
+        lines.append('Программа ' + name + ' создана')
     ids = []
     practices=[root[0][6].find('НИР'), root[0][6].find('УчебПрактики'), root[0][6].find('ПрочиеПрактики')]
     cycle_name = ''

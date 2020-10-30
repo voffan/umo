@@ -113,7 +113,7 @@ class EduProgListView(PermissionRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Teacher.objects.get(user=self.request.user).cathedra.eduprogram_set.all()
+        return Teacher.objects.get(user=self.request.user).cathedra.eduprogram_set.all() if not self.request.user.username=='eon' else EduProgram.objects.all()
 
 
 @login_required
