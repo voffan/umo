@@ -497,7 +497,11 @@ def exam_scores_one_page(exam_id):
     # Применяем стили к таблице
     for i in range(12, k + 12):
         for j in range(1, 10):
-            ws.cell(row=i, column=j).style = cell_style
+            c = ws.cell(row=i, column=j)
+            c.style = cell_style
+            if j == 2:
+                c.alignment = Alignment(horizontal='left', vertical='center', wrapText=Bool(True))
+                print('justify')
 
     ws['C' + str(k + 14)] = summary[6]
     ws['C' + str(k + 15)] = summary[7]
