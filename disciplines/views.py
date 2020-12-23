@@ -535,7 +535,7 @@ class ExamPointsListView(PermissionRequiredMixin, ListView):
 def exam_report(request):
     exam = Exam.objects.select_related('course').get(id=request.GET['exam_id'])
     group = exam.course.group
-    wb = excel_forms.exam_scores(int(request.GET['exam_id']))
+    wb = excel_forms.exam_scores_one_page(int(request.GET['exam_id']))
     if wb is not None:
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename=' + translit(group.Name, 'ru', reversed=True) + '.xlsx'

@@ -421,3 +421,111 @@ def exam_scores(exam_id):
     ws.sheet_properties.pageSetUpPr.fitToPage = True
 
     return workbook
+
+
+def exam_scores_one_page(exam_id):
+    # Читаем данные из базы данных
+    exam = Exam.objects.select_related('course').get(id=exam_id)
+    group = exam.course.group
+    exam_points = exam.exammarks_set.all().order_by('student__FIO')
+    semester = exam.course.discipline_detail.semester.name
+    if int(semester) % 2 == 1:
+        additional = int(semester) // 2
+    else:
+        additional = (int(semester) - 1) // 2
+    edu_period = EduPeriod.objects.get(begin_year__year=group.begin_year.year + additional)
+
+    # Открываем шаблон
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    template = os.path.join(app_dir, 'exam_scores_new.xlsx')
+    workbook = load_workbook(template)
+    ws = workbook.active
+
+    # Семестр
+    ws['A5'] = 'Семестр: {}, {} – {} уч.г.'.format(
+        semester,
+        edu_period.begin_year.year,
+        edu_period.end_year.year,
+    )
+
+    # Форма контроля
+    ws['A6'] = 'Форма контроля: {}, курс: {}, группа: {}'.format(
+        exam.get_controlType_display(),
+        group.year,
+        group.Name,
+    )
+
+    # Дисциплина
+    ws['A7'] = 'Дисциплина: ' + exam.course.discipline_detail.discipline.Name
+
+    # ФИО преподавателя
+    ws['A8'] = 'Фамилия, имя, отчество преподавателя: ' + exam.course.lecturer.FIO
+
+    # Дата
+    ws['A9'] = 'Дата проведения зачета/экзамена: {:%d.%m.%Y}'.format(exam.examDate)
+
+    # Таблица с баллами
+    summary = {ExamMarks.MARKS[0][0]: 0, ExamMarks.MARKS[1][0]: 0, ExamMarks.MARKS[2][0]: 0, ExamMarks.MARKS[3][0]: 0,
+               ExamMarks.MARKS[4][0]: 0, ExamMarks.MARKS[5][0]: 0, ExamMarks.MARKS[6][0]: 0, ExamMarks.MARKS[7][0]: 0,
+               ExamMarks.MARKS[8][0]: 0, ExamMarks.MARKS[9][0]: 0}
+    k = 0
+    for points in exam_points:
+        k += 1
+        ws.insert_rows(11 + k)
+        ws.row_dimensions[11 + k].height = 30
+        row = str(11 + k)
+        ws['A' + row] = str(k)
+        ws['B' + row] = points.student.FIO
+        ws['C' + row] = points.student.student_id
+        ws['D' + row] = points.inPoints + points.additional_points
+        ws['E' + row] = points.examPoints
+        ws['F' + row] = points.total_points
+        ws['G' + row] = points.get_mark_display()
+        ws['H' + row] = points.mark_symbol
+        summary[points.mark] += 1
+
+    # Стиль для ячеек таблицы
+    solid_line = Side(style='thin', color='000000')
+    cell_style = NamedStyle(name='cell_style')
+    cell_style.alignment.horizontal = 'center'
+    cell_style.alignment.vertical = 'center'
+    cell_style.alignment.wrapText = Bool(True)
+    cell_style.border = Border(left=solid_line, right=solid_line, top=solid_line, bottom=solid_line)
+    cell_style.font = Font(name='Arial', size=11)
+    cell_style.number_format = '#.0'
+
+    # Применяем стили к таблице
+    for i in range(12, k + 12):
+        for j in range(1, 10):
+            ws.cell(row=i, column=j).style = cell_style
+
+    ws['C' + str(k + 14)] = summary[6]
+    ws['C' + str(k + 15)] = summary[7]
+    ws['C' + str(k + 16)] = summary[8]
+    ws['C' + str(k + 17)] = summary[5]
+    ws['C' + str(k + 18)] = summary[4]
+    ws['C' + str(k + 19)] = summary[3]
+    ws['C' + str(k + 20)] = summary[2]
+    ws['C' + str(k + 21)] = summary[0]
+    # Суммы баллов и буквенные эквиваленты оценки
+    for i in range(8):
+        row = str(14 + k + i)
+        ws.merge_cells('E' + row + ':F' + row)
+        ws.merge_cells('G' + row + ':I' + row)
+        ws['E' + row].style = ws['F' + row].style = ws['G' + row].style = \
+            ws['H' + row].style = ws['I' + row].style = cell_style
+
+    # Подпись директора
+    row = str(24 + k)
+    ws.merge_cells('A' + row + ':I' + row)
+
+    ws.print_area = 'A1:I' + str(row)
+    ws.page_setup = PrintPageSetup(worksheet=ws)
+    ws.page_setup.paperSize = '9'
+    #ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.fitToHeight = True
+    ws.page_setup.fitToWidth = True
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+
+    return workbook
