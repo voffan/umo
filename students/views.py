@@ -56,6 +56,7 @@ class StudentListView(StudentsList):
                 synch.date = datetime.now()
                 synch.save()
                 #synch = Synch.objects.last()
+                #ИТИ - 1129
                 synch_groups = sync_models.PlnGroupStud.objects.filter(id_pln__id_dop__id_institute=1118, id_pln__dateend__gte=synch.date.strftime('%Y-%m-%d'))
                 n = synch_groups.count()
                 i = 1
