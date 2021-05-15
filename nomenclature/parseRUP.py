@@ -267,7 +267,7 @@ def parseRUP_fgos3(filename, kaf):
             #new_code = practice.get('НовИдДисциплины', code_dis)
             dis_kaf = practice.get('Кафедра', None)
             if dis_kaf is None or len(dis_kaf) < 1:
-                continue
+                dis_kaf = kaf.number
             dis, created = Discipline.objects.get_or_create(code=code_dis, Name=disname, program=edu_prog)
             lines.append('Практика ' + code_dis + ' ' + disname + ' ' + (' создана' if created else 'используется существующая'))
             ids.append(dis.id)
@@ -289,7 +289,7 @@ def parseRUP_fgos3(filename, kaf):
         new_code = elem.get('НовИдДисциплины', code_dis)
         dis_kaf = elem.get('Кафедра', None)
         if dis_kaf is None or len(dis_kaf) < 1:
-            continue
+            dis_kaf = kaf.number
 
         operation = 'используется существующая'
         dis = Discipline.objects.filter(code=code_dis, program=edu_prog, Name=disname).first()
