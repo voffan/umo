@@ -189,6 +189,8 @@ def exam_scores(request):
         status = 406
     else:
         try:
+            if score.exam.controlType == 5 or score.exam.controlType == 6:
+                score.inPoints = serialized_data['in_points']
             score.additional_points = serialized_data['additional_points']
             score.examPoints = serialized_data['exam_points']
             if serialized_data['absence']:
@@ -199,8 +201,8 @@ def exam_scores(request):
                 score.mark = 9
             score.save()
             result['new'] = {'additional_points': score.additional_points, 'exam_points': score.examPoints,
-                             'mark': score.mark_to_text, 'symbol': score.mark_symbol, 'total': score.total_points ,
-                             'absence': score.mark == 0, 'individual': score.mark == 1}
+                             'in_points':score.inPoints, 'mark': score.mark_to_text, 'symbol': score.mark_symbol,
+                             'total': score.total_points, 'absence': score.mark == 0, 'individual': score.mark == 1}
             result['result'] = True
             status = 200
         except Exception as e:
