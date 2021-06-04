@@ -154,6 +154,55 @@ $(document).ready( function () {
     } ).draw();
 } );
 $(document).ready( function () {
+    var table = $('#student_disc_list').DataTable({
+        "columnDefs": [
+            {
+                "targets": [ 0 ],
+                "searchable": false,
+                "orderable": false
+            }
+        ],
+        "language": {
+            "url": "/static/Russian.json"
+        },
+        "order": [[ 2, 'asc' ]],
+        "info": true,
+        "paging": true,
+        "pageLength": 10,
+        "lengthChange": true,
+        "bFilter": true,
+        initComplete: function () {
+           var column = this.api().column(2);
+           var column2 = this.api().column(8);
+           var select = $('<select class="filter"><option value=""></option></select>')
+               .appendTo('#semester_filter')
+               .on('change', function () {
+                  var val = $(this).val();
+                  column.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
+               });
+
+           var select2 = $('<select class="filter"><option value=""></option></select>')
+               .appendTo('#course_state_filter')
+               .on('change', function () {
+                  var val = $(this).val();
+                  column2.search(val ? '^' + $(this).val() + '$' : val, true, false).draw();
+               });
+
+           column.data().unique().sort().each(function (d, j) {
+               select.append('<option value="' + d + '">' + d + '</option>');
+           });
+           column2.data().unique().sort().each(function (d, j) {
+               select2.append('<option value="' + d + '">' + d + '</option>');
+           });
+        }
+    });
+    table.on( 'order.dt search.dt', function () {
+        table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+            cell.innerHTML = i+1;
+        } );
+    } ).draw();
+} );
+$(document).ready( function () {
     var table = $('#brs_list').DataTable({
         "columnDefs": [
             {
@@ -234,6 +283,31 @@ $(document).ready( function () {
                select.append('<option value="' + d + '">' + d + '</option>');
            });
         }
+    });
+    table.on( 'order.dt search.dt', function () {
+        table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+            cell.innerHTML = i+1;
+        } );
+    } ).draw();
+} );
+$(document).ready( function () {
+    var table = $('#group_list').DataTable({
+        "columnDefs": [
+            {
+                "targets": [ 0 ],
+                "searchable": false,
+                "orderable": false
+            }
+        ],
+        "language": {
+            "url": "/static/Russian.json"
+        },
+        "order": [[ 1, 'asc' ]],
+        "info": true,
+        "paging": true,
+        "pageLength": 10,
+        "lengthChange": true,
+        "bFilter": true,
     });
     table.on( 'order.dt search.dt', function () {
         table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {

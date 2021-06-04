@@ -56,6 +56,12 @@ class TeacherDelete(PermissionRequiredMixin, DeleteView):
     template_name = 'teacher_delete.html'
 
 
+class GroupsList(PermissionRequiredMixin, ListView):
+    permission_required = 'umo.add_group'
+    template_name = 'groups_list.html'
+    model = Group
+
+
 class TeacherProfileForm(ModelForm):
     #success_url = reverse_lazy('teachers:list_teachers')
     email = CharField(max_length=50, label='Email', required=True)

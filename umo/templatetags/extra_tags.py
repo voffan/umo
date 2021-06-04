@@ -21,3 +21,7 @@ def get_list(group_dict, edu_program):
 @register.simple_tag
 def get_brs_point(student_points, student_id, checkpoint_id):
     return str(student_points[student_id][checkpoint_id])
+
+@register.filter
+def get_dict_value(dictionary, key):
+    return dictionary[key] if key in dictionary.keys() else ''

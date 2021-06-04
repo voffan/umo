@@ -227,3 +227,57 @@ def export_exam_points(data):
     ws.page_setup.fitToPage = True
     ws.sheet_properties.pageSetUpPr.fitToPage = True
     return wb
+
+
+def group_access_data(dicts):
+    number_format = 'General'
+    protection = Protection(locked=True,
+                            hidden=False)
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'первая страница'
+
+    p = datetime.datetime.now()
+
+    ws.cell(row=1, column=1).value = '№'
+    ws.cell(row=1, column=2).value = 'Фамилия, имя, отчество'
+    ws.cell(row=1, column=3).value = 'Логин'
+    ws.cell(row=1, column=4).value = 'Пароль'
+
+    _row = 2
+    k = 1
+
+    for d in dicts:
+        ws.cell(row=_row, column=1).value = str(k)
+        ws.cell(row=_row, column=2).value = d['FIO']
+        ws.cell(row=_row, column=3).value = d['login']
+        ws.cell(row=_row, column=4).value = d['password']
+
+        _row += 1
+        k += 1
+
+    dims = {}
+    for cellObj in ws['B1:B' + str(k)]:
+        for cell in cellObj:
+            if cell.value:
+                dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
+    for col, value in dims.items():
+        ws.column_dimensions[col].width = value * 1.2
+
+    dims = {}
+    for cellObj in ws['C1:C' + str(k)]:
+        for cell in cellObj:
+            if cell.value:
+                dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
+    for col, value in dims.items():
+        ws.column_dimensions[col].width = value * 1.2
+
+    dims = {}
+    for cellObj in ws['D1:D' + str(k)]:
+        for cell in cellObj:
+            if cell.value:
+                dims[cell.column] = max((dims.get(cell.column, 0), len(cell.value)))
+    for col, value in dims.items():
+        ws.column_dimensions[col].width = value * 1.2
+
+    return wb

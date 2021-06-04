@@ -27,8 +27,11 @@
                           Меню
                         </a>
                         <div class="dropdown-menu" aria-labelledby="admin">
-                          <a class="dropdown-item" href="{% url 'teachers:teacher_profile' %}">Профиль пользователя</a>
+                          {% if user|has_group:"student" %}
+                          <a class="dropdown-item" href="{% url 'students:student_profile' %}">Профиль пользователя</a>
+                          {% endif %}
                           {% if user|has_group:"teacher" %}
+                          <a class="dropdown-item" href="{% url 'teachers:teacher_profile' %}">Профиль пользователя</a>
                           <a class="dropdown-item" href="{% url 'disciplines:mysubjects' %}">Мои дисциплины</a>
                           <a class="dropdown-item" href="{% url 'students:group_points' %}">Экран успеваемости</a>
                           {% endif %}
@@ -40,6 +43,7 @@
                           <a class="dropdown-item" href="{% url 'students:student_changelist' %}">Список студентов</a>
                           {% endif %}
                           <a class="dropdown-item" href="{% url 'disciplines:disciplines_list' %}">Список дисциплин</a>
+                          <a class="dropdown-item" href="{% url 'teachers:list_groups' %}">Список групп</a>
                           <a class="dropdown-item" href="{% url 'students:group_points' %}">Экран успеваемости</a>
                           <div class="dropdown-divider"></div>
                             {% if user|has_group:"zavkaf" %}

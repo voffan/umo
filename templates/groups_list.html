@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Список групп{% endblock %}
+{% block content %}
+    <h1>Список групп</h1>
+    <table id="group_list" class="table table-bordered">
+        <thead class="thead-light">
+        <tr>
+            <th>№</th>
+            <th>Группа</th>
+            <th>Кафедра</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for group in group_list %}
+            <tr>
+                <td></td>
+                <td> <a href="{% url 'students:group_list' group.id %}"> {{ group.Name }} </a> </td>
+                <td> {% if group.cathedra %} {{ group.cathedra }} {% endif %} </td>
+                <td>
+                    <a href="{% url 'students:group_access_excel' group.id %}">
+                        <input type="submit" value="Сгенерировать логины и пароли" class="btn btn-primary">
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+{% endblock %}

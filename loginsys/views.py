@@ -16,6 +16,8 @@ def login(request):
             auth.login(request, user)
             if auth_groups.objects.get(name='teacher') in request.user.groups.all():
                 return HttpResponseRedirect(reverse('disciplines:mysubjects'))
+            elif auth_groups.objects.get(name='student') in request.user.groups.all():
+                return HttpResponseRedirect(reverse('students:subjects'))
             else:
                 return HttpResponseRedirect(reverse('disciplines:disciplines_list'))
         else:

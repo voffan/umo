@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Список студентов{% endblock %}
+{% block content %}
+    <h1>Список студентов</h1>
+    <h2>Группа: {{ group.Name }}</h2>
+    <table id="group_list" class="table table-bordered">
+        <thead class="thead-light">
+        <tr>
+            <th>№</th>
+            <th>ФИО</th>
+            <th>Логин</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for s in student_list %}
+            <tr>
+                <td></td>
+                <td> {{ s.student.FIO }} </td>
+                <td> {{ s.student.user.username }} </td>
+                <td>
+                    <a href="{% url 'students:give_access_student' s.student.id %}">
+                        <input type="submit" value="Дать логин и пароль" class="btn btn-primary">
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+{% endblock %}
