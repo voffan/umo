@@ -356,6 +356,7 @@ def give_access_student(request, pk):
     return render(request, 'student_access_data.html', {'student': student, 'form': form, 'group': group})
 
 
+@transaction.atomic
 def save_access_data(student, s_login, s_password):
     if student.user:
         u = student.user
