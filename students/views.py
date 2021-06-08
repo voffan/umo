@@ -188,7 +188,7 @@ def group_brs_points(group, semester, check_point):
 
 
 def group_exam_results(group, semester):
-    MARKS = ["Неявка", "Инд.п.", "Неуд.", "Удовл.", "Хор.", "Отл.", "Зач.", "Не зач.", "Не атт."]
+    MARKS = ["Неявка", "Инд.п.", "Неуд.", "Удовл.", "Хор.", "Отл.", "Зач.", "Не зач.", "Не атт.", ""]
     group_data = {'group': group, 'group_points': [], 'semester': semester.name}
     students = Student.objects.filter(grouplist__group__id=group.id, grouplist__active=True).order_by('FIO')
     group_data['courses'] = list(Course.objects.filter(group__id=group.id,
