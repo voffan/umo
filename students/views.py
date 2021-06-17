@@ -381,7 +381,7 @@ def give_access_group(group_id):
         try:
             unique_login = translit(s.first_name[0].lower(), "ru", reversed=True) + \
                            translit(s.second_name[0].lower(), "ru", reversed=True) + '.' + \
-                           translit(s.last_name.lower(), "ru", reversed=True)
+                           translit(s.last_name.lower().replace('ь',''), "ru", reversed=True)
         except Exception as e:
             str = s.FIO
             lst = str.split()
