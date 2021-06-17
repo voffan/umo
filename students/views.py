@@ -374,7 +374,7 @@ def save_access_data(student, s_login, s_password):
 
 def give_access_group(group_id):
     group = Group.objects.get(id=group_id)
-    group_list = group.grouplist_set.select_related('student').all()
+    group_list = group.grouplist_set.select_related('student').filter(active=True)
     dicts = []
     for g in group_list:
         s = g.student
