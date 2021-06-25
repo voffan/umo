@@ -174,6 +174,7 @@ def exam_scores(request):
     max_in_points = CourseMaxPoints.objects.get(course__id=score.exam.course.id, checkpoint__id=final.id).max_point
     serialized_data['additional_points'] = to_number(serialized_data['additional_points'])
     serialized_data['exam_points'] = to_number(serialized_data['exam_points'])
+    serialized_data['in_points'] = to_number(serialized_data['in_points'])
     result['max_exam_points'] = 0
 
     if score is None:
@@ -200,9 +201,9 @@ def exam_scores(request):
             else:
                 score.mark = 9
             score.save()
-            result['new'] = {'additional_points': score.additional_points, 'exam_points': score.examPoints,
-                             'in_points':score.inPoints, 'mark': score.mark_to_text, 'symbol': score.mark_symbol,
-                             'total': score.total_points, 'absence': score.mark == 0, 'individual': score.mark == 1}
+            result['new'] = {'additional_points': '%.1f' % score.additional_points, 'exam_points': '%.1f' % score.examPoints,
+                             'in_points': '%.1f' % score.inPoints, 'mark': score.mark_to_text, 'symbol': score.mark_symbol,
+                             'total': '%.1f' % score.total_points, 'absence': score.mark == 0, 'individual': score.mark == 1}
             result['result'] = True
             status = 200
         except Exception as e:

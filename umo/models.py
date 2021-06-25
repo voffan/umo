@@ -462,8 +462,8 @@ class ExamMarks(Model):
         ('C', 'C'),
         ('D', 'D'),
         ('E', 'E'),
-        ('F', 'F'),
         ('FX', 'FX'),
+        ('F', 'F'),
     )
 
     MARKS = (
