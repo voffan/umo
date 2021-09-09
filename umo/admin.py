@@ -11,10 +11,14 @@ class AdminBRSpoints(admin.ModelAdmin):
     list_filter = ['course']
 
 admin.site.register(models.CheckPoint)
-admin.site.register(models.Control)
 admin.site.register(models.DisciplineDetails)
 admin.site.register(models.EduOrg)
 admin.site.register(models.EduPeriod)
+
+
+@admin.register(models.Control)
+class AdminControl(admin.ModelAdmin):
+    list_filter = ['discipline_detail__discipline__program']
 
 
 @admin.register(models.Discipline)
