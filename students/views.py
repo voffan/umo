@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.forms import ModelForm, CharField, ValidationError, PasswordInput, HiddenInput
+from django.forms import ModelForm, CharField, ValidationError, PasswordInput, HiddenInput, IntegerField, TextInput
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import validate_email
 from django.contrib.auth import login, update_session_auth_hash
@@ -263,6 +263,7 @@ def subjects(request):
 
 
 class StudentProfileForm(ModelForm):
+    student_id = IntegerField(label='Номер зачетной книжки', required=False, widget=TextInput)
     email = CharField(max_length=50, label='Email', required=True)
     current_password = CharField(max_length=100, label='Текущий пароль', required=False, widget=PasswordInput)
     password = CharField(max_length=100, label='Пароль', required=False, widget=PasswordInput)
@@ -274,7 +275,7 @@ class StudentProfileForm(ModelForm):
 
     class Meta:
         model = Student
-        fields = ['last_name', 'first_name', 'second_name', 'student_id']
+        fields = ['last_name', 'first_name', 'second_name']
         #widgets = {'id': HiddenInput()}
 
     def clean(self):
@@ -312,6 +313,9 @@ def student_profile(request):
     success_message = None
     if student is not None:
         if request.method == 'POST':
+            temp_post = request.POST.copy()
+            temp_post['student_id'] = student.student_id
+            request.POST = temp_post
             form = StudentProfileForm(request.POST, instance=student)
             if form.is_valid():
                 try:
@@ -321,7 +325,7 @@ def student_profile(request):
                 except:
                     form.add_error('first_name', 'Ошибка сохранения данных!')
         else:
-            form = StudentProfileForm(instance=student, initial={'email': request.user.email})
+            form = StudentProfileForm(instance=student, initial={'email': request.user.email, 'student_id': student.student_id})
         return render(request, 'student_edit.html', {'form': form, 'success_message': success_message, 'profile': 1})
     return HttpResponse('Ошибка!')
 
