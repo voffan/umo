@@ -78,10 +78,13 @@ def upload_file(request):
             #save_path = os.path.join(settings.MEDIA_ROOT, 'upload', request.FILES['filename'].name)
             #path = default_storage.save(save_path, request.FILES['file'])
             #return default_storage.path(path)
-            f=hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
+            f = hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
             cathedra = Teacher.objects.get(user__id=request.user.id).cathedra
-            parseRUP(f, cathedra)
-            return redirect(reverse('nomenclature:rup'))
+            try:
+                parseRUP(f, cathedra)
+                return redirect(reverse('nomenclature:rup'))
+            except Exception as e:
+                return render(request, 'rup_upload.html', {'form': form, 'err_msg':str(e)})
 
     form = UploadFileForm()
     return render(request, 'rup_upload.html', {'form': form})

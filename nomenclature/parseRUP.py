@@ -50,6 +50,7 @@ def parseRUP_fgos3plusplus(filename, kaf):
     #имя плана
     name = root.get('LastName')
     root = root[0][0]
+    plany = root.find(ns + 'Планы')
     #Уровень образования
     oop = root.find(ns+'ООП')
     level = 2 if oop.get('УровеньОбразования') == '3' else 1
@@ -62,11 +63,15 @@ def parseRUP_fgos3plusplus(filename, kaf):
     if len(profile_oop) > 0:
         profile_name = profile_oop[-1].get('Название',)
     qual_name = oop.get('Квалификация', '')
-    program_code = root.find(ns + 'Планы').get('КодПрограммы','')
-
+    program_code = plany.get('КодПрограммы', '')
+    kaf_code = plany.get('КодПрофКафедры', '')
     code = oop.get('Шифр','')
-    yearp = root.find(ns + 'Планы').get('ГодНачалаПодготовки')
+    yearp = plany.get('ГодНачалаПодготовки')
 
+    if len(kaf_code) > 0:
+        kaf = Kafedra.objects.get(number=kaf_code)
+    else:
+        raise Exception('Код выпускающей кафедры не указан!')
     year, created = Year.objects.get_or_create(year=yearp)
     lines.append('Год ' + yearp + ' ' + (' создан' if created else 'используется существующий'))
 
@@ -194,6 +199,11 @@ def parseRUP_fgos3(filename, kaf):
         profile_name = ' '.join(specs[1].get('Название').split()[1:])
     else:
         profile_name = 'Общий'
+    kaf_code = title.get('КодКафедры','')
+    if len(kaf_code) > 0:
+        kaf = Kafedra.objects.get(number=kaf_code)
+    else:
+        raise Exception('Код выпускающей кафедры не указан!')
     #code = root[0][0] #тэг План получения КодКафедры и ПоследнийШифр
     code = title.get('ПоследнийШифр')
     yearp = title.get('ГодНачалаПодготовки')
