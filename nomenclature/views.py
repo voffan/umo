@@ -11,7 +11,8 @@ from django.urls import reverse
 from django.conf import settings
 from django.views.generic import ListView
 
-from umo.models import Discipline, DisciplineDetails, Semester, Teacher, Specialization, Profile, Control, EduProgram, Course, Group
+from umo.models import Discipline, DisciplineDetails, Semester, Teacher, Specialization, Profile, Control, EduProgram, \
+    Course, Group, BRSpoints
 from .form import UploadFileForm
 from .parseRUP import parseRUP
 from students.forms import SetProgramToGroupsForm
@@ -129,6 +130,13 @@ def get_groups(request):
     return HttpResponse(json.dumps(result), content_type='application/json')
 
 
+def delete_courses(group, semesters):
+    #semesters_ids = Semester.objects.filter(name__in=semesters).values_list('id', flat=True)
+    cs = BRSpoints.objects.filter(course__group__id=group.id, course__discipline_detail__semester__name__in=semesters,
+                                  points__gt=0).distinct().values_list('course__id', flat=True)
+    group.course_set.filter(discipline_detail__semester__name__in=semesters).exclude(id__in=cs).delete()
+
+
 @login_required
 @permission_required('umo.change_group', login_url='login')
 def set_rup_to_groups(request):
@@ -144,13 +152,16 @@ def set_rup_to_groups(request):
                 with transaction.atomic():
                     group.program = None
                     group.save()
-                    group.course_set.all().delete()
+                    #delete only courses that have no points
+                    cur_sem = int(group.current_semester)
+                    delete_courses(group, [cur_sem - (cur_sem % 2 == 0), cur_sem + (cur_sem % 2 != 0)])
 
             for group in form.cleaned_data['groups']:
                 with transaction.atomic():
                     gen_subjects = group.program is None
                     if group.program is not None and group.program != program:
-                        group.course_set.all().delete()
+                        cur_sem = int(group.current_semester)
+                        delete_courses(group, [cur_sem - (cur_sem % 2 == 0), cur_sem + (cur_sem % 2 != 0)])
                         gen_subjects = True
                     group.program = program
                     group.save()

@@ -2,23 +2,39 @@ import datetime
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import transaction
+from django.db.models.functions import Cast
+from django.db.models import IntegerField
 from umo.models import EduOrg, Kafedra, EduProgram, Specialization, Discipline, \
-    DisciplineDetails, Profile, Year, Semester, Teacher, Control, Position, BRSpoints
+    DisciplineDetails, Profile, Year, Semester, Teacher, Control, Position, BRSpoints, Group
 from umo.objgens import check_edu_org
 import xml.etree.ElementTree as ET
 from django.conf import settings
 import os
 
 
-def exclude_disciplines_from_program(education_program, including_disciplines=[], except_discipline=[]):
+def get_previous_disciplines(edu_prog):
+    ids = []
+    groups = Group.objects.filter(program__id=edu_prog.id)
+    for group in groups:
+        semester_ids = list(Semester.objects.annotate(int_f=Cast('name', IntegerField())).
+                            filter(int_f__lt=int(group.current_semester)).values_list('id', flat=True))
+        ids.extend(list(group.course_set.filter(discipline_detail__semester__id__in=semester_ids).values_list('id', flat=True)))
+    return ids
+
+
+def exclude_disciplines_from_program(education_program, delete_disciplines=[], except_disciplines=[]):
+    lines = []
     disciplines = Discipline.objects.filter(program=education_program)
-    if len(including_disciplines) > 0:
-        disciplines = disciplines.filter(id__in=including_disciplines)
-    if len(except_discipline) > 0:
-        disciplines = disciplines.exclude(id__in=except_discipline)
+    if len(delete_disciplines) > 0:
+        disciplines = disciplines.filter(id__in=delete_disciplines)
+    if len(except_disciplines) > 0:
+        disciplines = disciplines.exclude(id__in=except_disciplines)
     for dis in disciplines:
         if not BRSpoints.objects.filter(course__discipline_detail__discipline__id=dis.id, points__gt=0).exists():
+            BRSpoints.objects.filter(course__discipline_detail__discipline__id=dis.id, points__lt=0.01).delete()
             dis.delete()
+            lines.append('Дисциплина ' + dis.Name + ' для направления подготовки ' + education_program.name + ' удален!')
+    return lines
 
 
 def get_qualification(name, program_code=''):
@@ -112,8 +128,8 @@ def parseRUP_fgos3plusplus(filename, kaf):
         data = {}
         hours = root.findall(ns + 'ПланыНовыеЧасы[@КодОбъекта="' + obj_code + '"][@КодТипаЧасов="1"]')
         for item in hours:
-            edu_year = int(item.get('Курс',0))
-            semester = int(item.get('Семестр',0))
+            edu_year = int(item.get('Курс', 1))
+            semester = int(item.get('Семестр', 1))
             semester = str(2*(edu_year - 1) + semester)
             if semester not in data.keys():
                 data[semester] = {
@@ -148,9 +164,10 @@ def parseRUP_fgos3plusplus(filename, kaf):
                 c, created = Control.objects.update_or_create(discipline_detail=dd, control_type=control_type,
                                                               defaults={'control_hours': data[key]['control'][control_type]})
                 lines.append('Контроль ' + str(control_type) + (' создан' if created else 'используется существующий'))
-    exclude_disciplines_from_program(edu_prog, except_discipline=ids)
+
+    lines.extend(exclude_disciplines_from_program(edu_prog, except_disciplines=(ids + get_previous_disciplines(edu_prog))))
     for group in edu_prog.group_set.all():
-        group.fill_group_disciplines(semester=group.current_semester)
+        group.fill_group_disciplines()
         lines.append('Недостающие курсы для группы ' + group.Name + ' добавлены')
     lines.append('РУП '+name+' загружен успешно!')
     with open(os.path.join(settings.BASE_DIR, 'logs',    name + '_' + datetime.datetime.today().strftime('%d_%m_%Y_%H_%M_%S')+'.txt'), 'w') as f:
@@ -363,7 +380,7 @@ def parseRUP_fgos3(filename, kaf):
                 c, created = Control.objects.get_or_create(discipline_detail=d, control_type=4,
                                                            defaults={'control_hours': 0})
                 lines.append('Контроль курсовая работа ' + ('создан' if created else 'используется существующий'))
-    exclude_disciplines_from_program(edu_prog, except_discipline=ids)
+    lines.extend(exclude_disciplines_from_program(edu_prog, except_disciplines=(ids + get_previous_disciplines(edu_prog))))
     for group in edu_prog.group_set.all():
         group.fill_group_disciplines(semester=group.current_semester)
         lines.append('Недостающие курсы для группы ' + group.Name + ' добавлены')
