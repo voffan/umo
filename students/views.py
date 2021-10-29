@@ -182,8 +182,7 @@ def group_brs_points(group, semester, check_point):
                                                                  course__discipline_detail__semester__id=semester.id).values_list('course__id', 'points'))
         student_points['fullname'] = sl.FIO
         group_data['group_points'].append(student_points)
-    group_data['courses'] = list(Course.objects.filter(group__id=group.id,
-                                                       discipline_detail__semester__id=semester.id).values_list('id', 'discipline_detail__discipline__Name'))
+    group_data['courses'] = [(item.id, item.discipline_detail.discipline.Name.strip()) for item in Course.objects.filter(group__id=group.id, discipline_detail__semester__id=semester.id)]
     return group_data
 
 
@@ -191,9 +190,7 @@ def group_exam_results(group, semester):
     MARKS = ["Неявка", "Инд.п.", "Неуд.", "Удовл.", "Хор.", "Отл.", "Зач.", "Не зач.", "Не атт.", ""]
     group_data = {'group': group, 'group_points': [], 'semester': semester.name}
     students = Student.objects.filter(grouplist__group__id=group.id, grouplist__active=True).order_by('FIO')
-    group_data['courses'] = list(Course.objects.filter(group__id=group.id,
-                                                       discipline_detail__semester__id=semester.id).
-                                 values_list('id', 'discipline_detail__discipline__Name'))
+    group_data['courses'] = [(item.id, item.discipline_detail.discipline.Name.strip()) for item in Course.objects.filter(group__id=group.id, discipline_detail__semester__id=semester.id)]
     for sl in students:
         student_points = dict()
         student_points['scores'] = list(ExamMarks.objects.filter(student__id=sl.id,
