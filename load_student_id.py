@@ -7,17 +7,18 @@ def load_students(csv_file):
     students = [student.split(';') for student in students]
 
     for student in students:
-        fio = student[1]
-        if len(student[2]) > 0:
-            sl = GroupList.objects.filter(group__Name=student[0], student__FIO=fio).first()
-            if sl is not None:
-                st = sl.student
-                st.student_id = student[2]
-                st.save()
+        if len(student) > 0:
+            fio = student[1]
+            if len(student[2]) > 0:
+                sl = GroupList.objects.filter(group__Name=student[0], student__FIO=fio).first()
+                if sl is not None:
+                    st = sl.student
+                    st.student_id = student[2]
+                    st.save()
+                else:
+                    print(student[0], student[1], 'student not found!')
             else:
-                print(student[0], student[1])
-        else:
-            print(student[0], student[1])
+                print(student[0], student[1], 'has no id!')
             '''
             if len(sl) == 1:
                 sl[0].student.student_id = student[4]
