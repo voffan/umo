@@ -521,7 +521,7 @@ class ExamMarks(Model):
         if self.exam.controlType != Control.NONE and self.exam.controlType != Control.CREDIT:
             if 0 <= points < 45 and self.exam.controlType == Control.EXAM:
                 mark = 8
-            elif 45 <= points < 55:
+            elif 0 <= points < 55:
                 mark = 2
             elif 55 <= points < 65:
                 mark = 3
