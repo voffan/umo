@@ -28,6 +28,11 @@ class Teacher(Person):
     ASSOCIATE = 1
     PROFESSOR = 2
 
+    #STAFF_TYPE_TITLE = (
+    #   (FULLTIME, 'штатные'),
+    #   (PARTTIME, 'совместители'),
+    #   (HOURLY, 'почасовики'),
+    # )
     SCIENTIFIC_TITLE = (
         (NONE, 'без ученого звания'),
         (ASSOCIATE, 'доцент'),
@@ -37,6 +42,8 @@ class Teacher(Person):
     position = ForeignKey('Position', verbose_name="должность", db_index=True, null=True, on_delete=SET_NULL)
     title = IntegerField('ученое звание', choices=SCIENTIFIC_TITLE, blank=True, default=0)
     cathedra = ForeignKey('Kafedra', verbose_name="кафедра", db_index=True, null=True, on_delete=SET_NULL)
+    #stavka = IntegerField(verbose_name='ставка', db_index=True, unique=True)
+    #stafftype = IntegerField('вид режима работы', choices=STAFF_TYPE_TITLE, blank=True, default=0)
 
     class Meta:
         verbose_name = 'преподаватель'
@@ -91,6 +98,7 @@ class Group(Model):
     cathedra = ForeignKey('Kafedra', verbose_name="кафедра", db_index=True, blank=True, null=True, on_delete=SET_NULL)
     program = ForeignKey('EduProgram', verbose_name="программа", db_index=True, blank=True, null=True,
                          on_delete=SET_NULL)
+    is_commercial = BooleanField(verbose_name="коммерческая", db_index=True, default=False)
 
     class Meta:
         verbose_name = 'студенческая группа'
@@ -315,7 +323,8 @@ class Year(Model):
 
 class Position(Model):
     name = CharField(verbose_name="позиция", db_index=True, max_length=255, unique=True)
-
+    rate = IntegerField(verbose_name="норма")
+    
     class Meta:
         verbose_name = 'должность'
         verbose_name_plural = 'должности'
