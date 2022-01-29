@@ -98,7 +98,6 @@ class Group(Model):
     cathedra = ForeignKey('Kafedra', verbose_name="кафедра", db_index=True, blank=True, null=True, on_delete=SET_NULL)
     program = ForeignKey('EduProgram', verbose_name="программа", db_index=True, blank=True, null=True,
                          on_delete=SET_NULL)
-    is_commercial = BooleanField(verbose_name="коммерческая", db_index=True, default=False)
 
     class Meta:
         verbose_name = 'студенческая группа'

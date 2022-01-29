@@ -3,7 +3,8 @@ from django.db import models
 from django.db import models, transaction
 from django.db.models import CharField, ForeignKey, IntegerField, BooleanField, DecimalField, FloatField, DateTimeField
 from django.db.models import Model, CASCADE, SET_NULL
-from umo.models import Teacher, Course
+from django.core.validators import MaxValueValidator, MinValueValidator
+from umo.models import Teacher, Course, Specialization, EduOrg, Group
 
 class ActualCourse(Course):
     f_credit = IntegerField(verbose_name="ЗЕТ", default=0)
@@ -31,11 +32,32 @@ class CathedraEmployee(Model):
     HOURLY = 2
 
     STAFF_TYPE = (
-        (FULLTIME, 'штатный'),
-        (PARTTIME, 'совместитель'),
-        (HOURLY, 'почасовик'),
+        (FULLTIME, 'Штатный'),
+        (PARTTIME, 'Совместитель'),
+        (HOURLY, 'Почасовик'),
     )
     teacher = ForeignKey(Teacher, verbose_name="преподаватель", db_index=True, null=True, on_delete=CASCADE)
     stavka = FloatField(verbose_name="ставка преподавателя", default=0)
     employee_type = IntegerField(verbose_name="тип", choices=STAFF_TYPE, blank=True, default=0)
     is_active = BooleanField(verbose_name="преподаватель активен")
+
+class GroupInfo(Model):
+    SUBGROUP = (
+        (1, 'Одна'),
+        (2, 'Две'),
+        (3, 'Три'),
+    )
+    PLANNED = 1
+    COMMERCIAL = 2
+    GROUP_TYPE = (
+        (PLANNED, 'Плановый'),
+        (COMMERCIAL, 'Коммерческий'),
+    )
+
+    group = ForeignKey(Group, verbose_name="группа", db_index=True, on_delete=CASCADE)
+    group_type = IntegerField('Тип группы', choices=GROUP_TYPE, default=1)
+    subgroup = IntegerField("Количество подгрупп", choices=SUBGROUP, default=1)
+    amount = IntegerField("Количество студентов", default=1, validators=[MaxValueValidator(30), MinValueValidator(1)])
+    
+
+
