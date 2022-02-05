@@ -4,7 +4,7 @@ from django.db import models, transaction
 from django.db.models import CharField, ForeignKey, IntegerField, BooleanField, DecimalField, FloatField, DateTimeField, OneToOneField
 from django.db.models import Model, CASCADE, SET_NULL
 from django.core.validators import MaxValueValidator, MinValueValidator
-from umo.models import Teacher, Course, Specialization, EduOrg, Group, DisciplineDetails, EduPeriod
+from umo.models import Teacher, Course, Specialization, EduOrg, Group, DisciplineDetails, EduPeriod, Kafedra
 
 
 class DisciplineSetting(DisciplineDetails):
@@ -50,6 +50,7 @@ class CourseHours(Model):
     edu_period = ForeignKey(EduPeriod, verbose_name="Учебный год", db_index=True, on_delete=CASCADE)
     teacher = ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True, on_delete=SET_NULL)
     group = ForeignKey(GroupInfo, verbose_name="группа", db_index=True, on_delete=CASCADE)
+    cathedra = ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True, on_delete=CASCADE)
     discipline_settings = ForeignKey(DisciplineSetting, verbose_name="дисциплина", db_index=True, on_delete=CASCADE)
     f_lecture = IntegerField(verbose_name="Лекции", default=0)
     f_practice = IntegerField(verbose_name="Практики", default=0)
@@ -64,6 +65,7 @@ class CourseHours(Model):
     class Meta:
         verbose_name = 'Часы дисциплины'
         verbose_name_plural = 'Часы дисциплин'
+        #unique_together = ['teacher', 'group', 'edu_period']
 
 
 class SupervisionHours(Model):
@@ -81,12 +83,13 @@ class SupervisionHours(Model):
         (MASTERPROG, "Программой магистрантов"),
     )
 
-    teacher = ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, on_delete=CASCADE)
+    teacher = ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True, on_delete=CASCADE)
     group = ForeignKey(GroupInfo, verbose_name="группа", db_index=True, on_delete=CASCADE)
     students = IntegerField(verbose_name="Количество студентов", default=0)
     supervision_type = IntegerField(verbose_name="Руководство", choices=SUPERVISION_TYPE, db_index=True, default=1)
     hours = IntegerField(verbose_name="Часы", default=0)
     edu_period = ForeignKey(EduPeriod, verbose_name="Учебный год", db_index=True, on_delete=CASCADE)
+    cathedra = ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True, on_delete=CASCADE)
     
     class Meta:
         verbose_name = 'Руководство'
@@ -107,11 +110,12 @@ class PracticeHours(Model):
         (TEACHING, "Магистрантами"),
     )
 
-    teacher = ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, on_delete=CASCADE)
+    teacher = ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True, on_delete=CASCADE)
     group = ForeignKey(GroupInfo, verbose_name="группа", db_index=True, on_delete=CASCADE)
     practice_type = IntegerField(verbose_name="Руководство практики", choices=PRACTICE_TYPE, db_index=True, default=1)
     hours = IntegerField(verbose_name="Часы", default=0)
     edu_period = ForeignKey(EduPeriod, verbose_name="Учебный год", db_index=True, on_delete=CASCADE)
+    cathedra = ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True, on_delete=CASCADE)
     
     class Meta:
         verbose_name = 'Руководство практики'
@@ -132,11 +136,12 @@ class OtherHours(Model):
         (REFREV, "Рецензия рефератов"),
     )
 
-    teacher = ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, on_delete=CASCADE)
+    teacher = ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True, on_delete=CASCADE)
     group = ForeignKey(GroupInfo, verbose_name="Группа", db_index=True, on_delete=CASCADE)
     other_type = IntegerField(verbose_name="Тип", choices=OTHER_TYPE, db_index=True, default=1)
     hours = IntegerField(verbose_name="Часы", default=0)
     edu_period = ForeignKey(EduPeriod, verbose_name="Учебный год", db_index=True, on_delete=CASCADE)
+    cathedra = ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True, on_delete=CASCADE)
 
     class Meta:
         verbose_name = 'Остальные часы'

@@ -1,3 +1,6 @@
 from django.contrib import admin
+from hours.models import (DisciplineSetting, GroupInfo, CourseHours, SupervisionHours, PracticeHours, OtherHours, CathedraEmployee)
 
-# Register your models here.
+admin.site.register(CourseHours)
+admin.site.register(GroupInfo)
+admin.site.register(DisciplineSetting)

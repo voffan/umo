@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Список курсов{% endblock %}
+{% block content %}
+    <h1>Список курсов</h1>
+    <p align="right" id="course_list_filter">
+        <label>
+            <b>Курсы</b>
+        </label>
+        <br>
+    </p>
+    <table id="course_list" class="table table-bordered">
+        <thead class="thead-light">
+        <tr>
+            <th>Учебный год</th>
+            <th>Преподаватель</th>
+            <th>Группа</th>
+            <th>Дисциплина</th>
+            <th>Лекции</th>
+            <th>Практики</th>
+            <th>Лабораторные работы</th>
+            <th>Консультации</th>
+            <th>Экзамены</th>
+            <th>Проверка РГР</th>
+            <th>Проверка остаточных знаний</th>
+            <th>Контроль СРС</th>
+            <th>Контроль БРС</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for course in course_list %}
+            <tr>
+                <td>{{ course.edu_period }}</td>
+                <td>{{ course.teacher }}</td>
+                <td>{{ course.group }}</td>
+                <td>{{ course.discipline_settings }}</td>
+                <td>{{ course.f_lecture }}</td>
+                <td>{{ course.f_practice }}</td>
+                <td>{{ course.f_lab }}</td>
+                <td>{{ course.f_consult_hours }}</td>
+                <td>{{ course.f_exam_hours }}</td>
+                <td>{{ course.f_control_hours }}</td>
+                <td>{{ course.f_control_SRS }}</td>
+                <td>{{ course.f_control_BRS }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="" class="btn btn-success">Загрузить курсы</a>
+{% endblock %}
