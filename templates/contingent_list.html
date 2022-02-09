@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Список контингента{% endblock %}
+{% block content %}
+    <h1>Список контингента студентов</h1>
+    <p align="right" id="contingent_list_filter">
+        <label>
+            <b>Группы</b>
+        </label>
+        <br>
+    </p>
+    <table id="contingent_list" class="table table-bordered">
+        <thead class="thead-light">
+        <tr>
+            <th>№</th>
+            <th>Группа</th>
+            <th>Тип группы</th>
+            <th>Количество подгрупп</th>
+            <th>Количество студентов</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for contingent in object_list %}
+            <tr>
+                <td></td>
+                <td><a href="{% url 'hours:edit_contingent' contingent.id %}">{{ contingent.group }}</a></td>
+                <td>{{ contingent.group_type }}</td>
+                <td>{{ contingent.subgroup }}</td>
+                <td>{{ contingent.amount }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{% url 'hours:contingent_upload' %}" class="btn btn-success">Загрузить контингент</a>
+{% endblock %}
