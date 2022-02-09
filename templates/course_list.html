@@ -11,6 +11,7 @@
     <table id="course_list" class="table table-bordered">
         <thead class="thead-light">
         <tr>
+            <th>№</th>
             <th>Учебный год</th>
             <th>Преподаватель</th>
             <th>Группа</th>
@@ -27,8 +28,9 @@
         </tr>
         </thead>
         <tbody>
-        {% for course in course_list %}
+        {% for course in object_list %}
             <tr>
+                <td></td>
                 <td>{{ course.edu_period }}</td>
                 <td>{{ course.teacher }}</td>
                 <td>{{ course.group }}</td>
@@ -38,6 +40,7 @@
                 <td>{{ course.f_lab }}</td>
                 <td>{{ course.f_consult_hours }}</td>
                 <td>{{ course.f_exam_hours }}</td>
+                <td>{{ course.f_check_hours }}</td>
                 <td>{{ course.f_control_hours }}</td>
                 <td>{{ course.f_control_SRS }}</td>
                 <td>{{ course.f_control_BRS }}</td>
@@ -46,5 +49,5 @@
         </tbody>
     </table>
     <br>
-    <a href="" class="btn btn-success">Загрузить курсы</a>
+    <a href="{% url 'hours:course_upload' %}" class="btn btn-success">Загрузить курсы</a>
 {% endblock %}

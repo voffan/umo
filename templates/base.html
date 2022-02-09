@@ -57,6 +57,10 @@
                             <a class="dropdown-item" href="{% url 'awards:list_awards' %}">Список наград</a>
                             <a class="dropdown-item" href="{% url 'awards:list_issuers' %}">Список организаций</a>
                             {% endif %}
+                          <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'hours:course_list' %}">Список курсов</a>
+                            <a class="dropdown-item" href="{% url 'hours:contingent_list' %}">Список контингента студентов</a>
+                            <a class="dropdown-item" href="{% url 'hours:employee_list' %}">Штатное расписание</a>
                         </div>
                     </li>
                 </ul>

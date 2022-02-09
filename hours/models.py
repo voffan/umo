@@ -45,6 +45,9 @@ class GroupInfo(Model):
         verbose_name = 'Информация о группе'
         verbose_name_plural = 'Информация о группах'
 
+    def __str__(self):
+        return self.group.Name
+
 
 class CourseHours(Model):
     edu_period = ForeignKey(EduPeriod, verbose_name="Учебный год", db_index=True, on_delete=CASCADE)
@@ -66,6 +69,9 @@ class CourseHours(Model):
         verbose_name = 'Часы дисциплины'
         verbose_name_plural = 'Часы дисциплин'
         #unique_together = ['teacher', 'group', 'edu_period']
+
+    def __str__(self):
+        return self.discipline_settings.discipline.Name
 
 
 class SupervisionHours(Model):
