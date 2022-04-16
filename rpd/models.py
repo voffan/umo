@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Model, ForeignKey, CASCADE, IntegerField, CharField
-from umo.models import Semester, Discipline
+from umo.models import Semester, Discipline, ExamMarks
 # Create your models here.
 #WorkType
 lecture = 1
@@ -11,9 +11,11 @@ practice = 5
 #Language
 russian = 1
 english = 2
-#CriteriaType
-admission = 1
-presentation = 2
+#RatingType
+exam_rating = 1
+credit_rating = 2
+course_work_rating = 3
+presentation_rating = 4
 #SRSType
 SRS = 1
 labs = 2
@@ -23,36 +25,20 @@ base = 2
 minimal = 3
 complete = 4
 not_complete = 5
-#Marks
-0 = 0
-1 = 1
-2 = 2
-3 = 3
-4 = 4
-5 = 5
-6 = 6
-7 = 7
-8 = 8
-9 = 9
 
 
 #Вспомогательные классы
-WorkType = (
-    (lecture, 'Лекция'),
-    (labs, 'Лабораторная'),
-    (SRS, 'Самостоятельная'),
-    (test, 'Контрольная'),
-    (practice, 'Практическая'),
-)
 
 Language = (
     (russian, 'Русский язык'),
     (english, 'Английский язык'),
 )
 
-CriteriaType = (
-    (admission, 'Допуск'),
-    (presentation, 'Недопуск'),
+RatingType = (
+    (exam_rating, 'Рейтинг дисциплины с экзаменом'),
+    (credit_rating, 'Рейтинг дисциплины с зачетом'),
+    (course_work_rating, 'Рейтинг курсовой работы'),
+    (presentation_rating, 'Рейтинг защиты курсовой'),
 )
 
 SRSType = (
@@ -77,10 +63,6 @@ Marks = (
 class Discipline(Model):
     discipline_name = CharField(verbose_name="Название дисциплины", db_index=True, default=1)
     discipline_code = IntegerField(verbose_name="Код дисциплины", db_index=True, default=1)
-
-
-class DisciplineDetail(Model):
-   pass
 
 
 class Competency(Model):
@@ -129,42 +111,38 @@ class SRS_Description(Model):
     SRS_type = IntegerField(verbose_name="Тип самостоятельной", choices=SRSType, db_index=True, default=1)
     class_type = #
     hours = IntegerField(verbose_name="Часы",  db_index=True, default=200)
-    control = CharField(verbose_name="Контроль", db_index=True, default=1)
+    control = CharField(verbose_name="Контроль", max_length=300, db_index=True, default=1)
 
+class WorkType(Model):
+    name = CharField('Наименование типа работы', max_length=250, db_index=True)
 
 class DisciplineRating(Model):
+    rating_type = IntegerField('Вид рейтинговой таблицы', choices=RatingType, db_index=True, default=exam_rating)
     semester = ForeignKey(Semester, verbose_name="Семестр", db_index=True, on_delete=CASCADE)
+    work_type = ForeignKey(WorkType, verbose_name='Вид работы', db_index=True, on_delete=CASCADE)
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
-    work_type = IntegerField(verbose_name="Тип занятия", choices=WorkType, db_index=True, default=1)
-    max_points = IntegerField(verbose_name="Макс.балл",  db_index=True, default=100)
-    min_points = IntegerField(verbose_name="Мин.балл",  db_index=True, default=1)
+    max_points = IntegerField(verbose_name="Макс.балл",  default=100)
+    min_points = IntegerField(verbose_name="Мин.балл",  default=1)
 
 
 class MarkScale(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
-    skill = #
+    skill = ForeignKey(DisciplineResult, verbose_name='Показатель оценивания', db_index=True, on_delete=CASCADE)
     level = IntegerField(verbose_name="Уровень освоения", choices=Level, db_index=True, default=1)
     criteria = CharField(verbose_name="Критерии", db_index=True, default=1)
-    mark = IntegerField(verbose_name="Оценка", choices=Marks, db_index=True, default=1)
+    mark = IntegerField(verbose_name="Оценка", choices=ExamMarks.MARKS, db_index=True, default=1)
 
 
 class FOS(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
-    skill = #
-    theme = CharField(verbose_name="Тема", db_index=True, default=1)
-    sample = CharField(verbose_name="Образец", db_index=True, default=1)
+    skill = ForeignKey(DisciplineResult, verbose_name='Показатель оценивания', db_index=True, on_delete=CASCADE)
+    theme = CharField(verbose_name="Тема", max_length=200, db_index=True, default=1)
+    sample = CharField(verbose_name="Образец", max_length=1000, db_index=True, default=1)
 
 
 class Bibliography(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
-    pass
 
-class CourseWorkRating(Model):
-    rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
-    criteria_type = IntegerField(verbose_name="Тип критерий", choices=CriteriaType, db_index=True, default=1)
-    criteria = CharField(verbose_name="Критерии", db_index=True, default=1)
-    max_points = IntegerField(verbose_name="Макс.балл", db_index=True, default=100)
-    min_points = IntegerField(verbose_name="Мин.балл", db_index=True, default=1)
 
 class ClassType(Model): #подкласс?
     SRS_type = IntegerField(verbose_name="Тип самостоятельной", choices=SRSType, db_index=True, default=1)
