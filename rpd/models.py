@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Model, ForeignKey, CASCADE, IntegerField, CharField, SET_NULL
+from django.db.models import Model, ForeignKey, CASCADE, IntegerField, CharField, SET_NULL, TextField, BooleanField
 from umo.models import Semester, Discipline, ExamMarks, EduProgram, Kafedra, Control
 
 # Create your models here.
@@ -60,18 +60,6 @@ Level = (
     (not_complete,'Неосвоено'),
 )
 
-Marks = (
-    (0,'0')
-    (1,'2')
-    (3,'3')
-    (4,'4')
-    (5,'5')
-    (6,'6')
-    (7,'7')
-    (8,'8')
-    (9,'9')
-)
-
 HourType = (
     (lecture, 'Лекция'),
     (online_lecture,'Онлайн лекция'),
@@ -86,48 +74,19 @@ HourType = (
 )
 
 #Классы UMO
-class Discipline(Model):
-    Name = CharField(verbose_name="Название дисциплины", max_length=200, db_index=True)
-    code = CharField(verbose_name="Код дисциплины", max_length=200, db_index=True)
-    program = ForeignKey('EduProgram', verbose_name="Программа образования", db_index=True, on_delete=CASCADE)
 
-class DisciplineDetails(Model):
-    discipline = ForeignKey(Discipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
-    Credit = IntegerField(verbose_name="ЗЕТ", db_index=True, blank=True, null=True)
-    Lecture = IntegerField(verbose_name="Количество лекции", db_index=True, blank=True, null=True)
-    Practice = IntegerField(verbose_name="Количество практики", db_index=True, blank=True, null=True)
-    Lab = IntegerField(verbose_name="Количество лабораторных работ", db_index=True, blank=True, null=True)
-    KSR = IntegerField(verbose_name="Количество контрольно-самостоятельных работ", db_index=True, blank=True, null=True)
-    SRS = IntegerField(verbose_name="Количество срс", db_index=True, blank=True, null=True)
-    semester = ForeignKey('Semester', verbose_name="Семестр", db_index=True, null=True, on_delete=models.CASCADE)
 
-class EduProgram(Model):
-    name = CharField(verbose_name="Имя плана подготовки", db_index=True, max_length=100)
-    specialization = ForeignKey('Specialization', verbose_name="Специализация", db_index=True, on_delete=CASCADE)
-    profile = ForeignKey('Profile', verbose_name="Профиль", db_index=True, on_delete=CASCADE)
-    year = ForeignKey('Year', verbose_name="Год", db_index=True, null=True, on_delete=SET_NULL)
-    cathedra = ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, on_delete=CASCADE)
+#class CompetencyType(Model):#подкласс
+#    name = CharField(verbose_name="Название", max_length=250, db_index=True, default=1)
 
-class CompetencyType(Model):#подкласс
-    name = CharField(verbose_name="Название", max_length=250, db_index=True, default=1)
+#class Competency(Model):
+#    edu_program = ForeignKey(EduProgram, verbose_name="Компетенция", db_index=True, on_delete=CASCADE)
+#    type = ForeignKey(CompetencyType, verbose_name="Вид компетенции", db_index=True, on_delete=CASCADE)
+#    name = CharField(verbose_name="Название", max_length=250, db_index=True, default=1)
 
-class Competency(Model):
-    edu_program = ForeignKey(EduProgram, verbose_name="Компетенция", db_index=True, on_delete=CASCADE)
-    type = ForeignKey(CompetencyType, verbose_name="Вид компетенции", db_index=True, on_delete=CASCADE)
-    name = CharField(verbose_name="Название", max_length=250, db_index=True, default=1)
-
-class CompetencyIndicator(Model):
-    competency = ForeignKey(Competency, verbose_name="Компетенция", db_index=True, on_delete=CASCADE)
-    indicator = CharField(verbose_name="Индикаторы",max_length=500, db_index=True, default=1)
-
-class Control(Model):
-    discipline_detail = ForeignKey('DisciplineDetails', verbose_name="Дисциплина", db_index=True, blank=True, null=True, on_delete=CASCADE)
-    control_type = IntegerField('Форма контроля', choices = Control.CONTROL_FORM, blank=True, default=0)
-    control_hours = IntegerField(verbose_name="Кол-во часов", default=0, db_index=True)
-
-class Semester(Model):
-    name = CharField(verbose_name="Семестр", db_index=True, max_length=255, unique=True)
-
+#class CompetencyIndicator(Model):
+#    competency = ForeignKey(Competency, verbose_name="Компетенция", db_index=True, on_delete=CASCADE)
+#    indicator = CharField(verbose_name="Индикаторы",max_length=500, db_index=True, default=1)
 
 
 #Классы вне UMO
@@ -168,7 +127,7 @@ class RPDDisciplineContentHours(Model):
 class ClassType(Model): #подкласс
     name = CharField(verbose_name="Название",max_length=250, db_index=True)
 
-class Practice_Description(Model):
+class PracticeDescription(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
     practice_type = IntegerField('Тип практикума', choices=PracticeType, db_index=True, default=1)
     theme = ForeignKey(RPDDisciplineContent, verbose_name='Тема', db_index=True, on_delete=CASCADE)
@@ -210,11 +169,7 @@ class ELibrary(Model): #подкласс
 
 class Bibliography(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
-    main = CharField(verbose_name="Основная литература",max_length=500, db_index=True, default=1)
-    addition = CharField(verbose_name="Дополнительная литература",max_length=500, db_index=True, default=1)
-    digital_library = ForeignKey(ELibrary, verbose_name='Электронная литература', db_index=True, on_delete=CASCADE)
+    reference = TextField(verbose_name="Библиографическая ссылка")
+    elibrary = ForeignKey(ELibrary, verbose_name='Электронная литература', null=True, blank=True, db_index=True, on_delete=SET_NULL)
     URL = CharField(verbose_name="Ссылка на веб-русурс",max_length=500, db_index=True, default=1)
-
-
-
-
+    is_main = BooleanField("Главная литература", default=False)
