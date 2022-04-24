@@ -94,13 +94,13 @@ class RPDDiscipline(Discipline):
     goal = CharField(verbose_name="Цель",max_length=500, db_index=True)
     language = IntegerField('Язык', choices=Language, db_index=True, default=1)
     # Далее обдумать
-    education_methodology = CharField(verbose_name="Методология обучения",max_length=500, db_index=True)
-    methodological_instructions = CharField(verbose_name="Методические указания для обучающихся ",max_length=500, db_index=True)
+    education_methodology = TextField(verbose_name="Формы и методы проведения занятий, применяемые учебные технологии")
+    methodological_instructions = TextField(verbose_name="Методические указания для обучающихся по освоению дисциплины")
     scaling_methodology = CharField(verbose_name="???",max_length=500, db_index=True)
-    material = CharField(verbose_name="Перечень материально-технической базы",max_length=1000, db_index=True)
-    it = CharField(verbose_name="Перечень информационных технологий",max_length=1000, db_index=True)
-    software = CharField(verbose_name="Перечень программного обеспечения",max_length=1000, db_index=True)
-    iss = CharField(verbose_name="Перечень информационных справочных систем",max_length=1000, db_index=True)
+    material = TextField(verbose_name="Перечень материально-технической базы")
+    it = TextField(verbose_name="Перечень информационных технологий")
+    software = TextField(verbose_name="Перечень программного обеспечения")
+    iss = TextField(verbose_name="Перечень информационных справочных систем")
 
 class Basement(Model):
     discipline = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
@@ -110,13 +110,13 @@ class Basement(Model):
 class DisciplineResult(Model):
     competency = ForeignKey(Competency, verbose_name="Компетенция", db_index=True, on_delete=CASCADE)
     indicator = ForeignKey(CompetencyIndicator, verbose_name="Индикатор компетенции", db_index=True, on_delete=CASCADE)
-    skill = CharField(verbose_name="Планируемые результаты",max_length=500, db_index=True)
-    fos = CharField(verbose_name="Оценочные средства",max_length=500, db_index=True)
+    skill = TextField(verbose_name="Планируемые результаты")
+    fos = TextField(verbose_name="Оценочные средства") #перечислениеfos
 
 class RPDDisciplineContent(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
     theme = CharField(verbose_name="Тема",max_length=500, db_index=True, default=1)
-    content = CharField(verbose_name="Содержимое",max_length=1000, db_index=True, default=1)
+    content = TextField(verbose_name="Содержимое")
 
 class RPDDisciplineContentHours(Model):
     content = ForeignKey(RPDDisciplineContent, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
@@ -151,15 +151,15 @@ class MarkScale(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
     skill = ForeignKey(DisciplineResult, verbose_name='Показатель оценивания', db_index=True, on_delete=CASCADE)
     level = IntegerField(verbose_name="Уровень освоения", choices=Level, db_index=True, default=1)
-    criteria = CharField(verbose_name="Критерии",max_length=1000, db_index=True, default=1)
+    criteria = TextField(verbose_name="Критерии")
     mark = IntegerField(verbose_name="Оценка", choices=ExamMarks.MARKS, db_index=True, default=1)
 
 
-class FOS(Model):
+class FOS(Model): #Общие показатели оценивания?
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
     skill = ForeignKey(DisciplineResult, verbose_name='Показатель оценивания', db_index=True, on_delete=CASCADE)
     theme = CharField(verbose_name="Тема", max_length=200, db_index=True, default=1)
-    sample = CharField(verbose_name="Образец", max_length=1000, db_index=True, default=1)
+    sample = TextField(verbose_name="Образец")
 
 
 
