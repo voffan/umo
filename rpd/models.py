@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Model, ForeignKey, CASCADE, IntegerField, CharField, SET_NULL, TextField, BooleanField
-from umo.models import Semester, Discipline, ExamMarks, EduProgram, Kafedra, Control
+from umo.models import Semester, Discipline, ExamMarks, EduProgram, Kafedra, Control, Competency, CompetencyIndicator
 
 # Create your models here.
 #HourType
@@ -22,7 +22,7 @@ exam_rating = 1
 credit_rating = 2
 course_work_rating = 3
 presentation_rating = 4
-#SRSType
+#PracticeType
 SRS = 1
 labs = 2
 #Level
@@ -34,11 +34,11 @@ not_complete = 5
 
 
 #Вспомогательные классы
-
 Language = (
     (russian, 'Русский язык'),
     (english, 'Английский язык'),
 )
+
 
 RatingType = (
     (exam_rating, 'Рейтинг дисциплины с экзаменом'),
@@ -47,10 +47,12 @@ RatingType = (
     (presentation_rating, 'Рейтинг защиты курсовой'),
 )
 
+
 PracticeType = (
     (SRS,'Самостоятельная'),
     (labs, 'Лабораторная')
 )
+
 
 Level = (
     (hight,'Высокий'),
@@ -59,6 +61,7 @@ Level = (
     (complete,'Освоено'),
     (not_complete,'Неосвоено'),
 )
+
 
 HourType = (
     (lecture, 'Лекция'),
@@ -73,9 +76,8 @@ HourType = (
     (SRS,'Самостоятельная'),
 )
 
+
 #Классы UMO
-
-
 #class CompetencyType(Model):#подкласс
 #    name = CharField(verbose_name="Название", max_length=250, db_index=True, default=1)
 
@@ -96,11 +98,14 @@ class RPDDiscipline(Discipline):
     # Далее обдумать
     education_methodology = TextField(verbose_name="Формы и методы проведения занятий, применяемые учебные технологии")
     methodological_instructions = TextField(verbose_name="Методические указания для обучающихся по освоению дисциплины")
-    scaling_methodology = CharField(verbose_name="???",max_length=500, db_index=True)
+    scaling_methodology = TextField(verbose_name="Методические материалы, определяющие процедуры оценивания")
+    fos_methodology = TextField(verbose_name="Примерные контрольные задания (вопросы) для промежуточной аттестации")
+    web_resource = TextField(verbose_name="Перечень ресурсов информационно-телекоммуникационной сети Интернет")
     material = TextField(verbose_name="Перечень материально-технической базы")
     it = TextField(verbose_name="Перечень информационных технологий")
     software = TextField(verbose_name="Перечень программного обеспечения")
     iss = TextField(verbose_name="Перечень информационных справочных систем")
+
 
 class Basement(Model):
     discipline = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
@@ -113,10 +118,12 @@ class DisciplineResult(Model):
     skill = TextField(verbose_name="Планируемые результаты")
     fos = TextField(verbose_name="Оценочные средства") #перечислениеfos
 
+
 class RPDDisciplineContent(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
     theme = CharField(verbose_name="Тема",max_length=500, db_index=True, default=1)
     content = TextField(verbose_name="Содержимое")
+
 
 class RPDDisciplineContentHours(Model):
     content = ForeignKey(RPDDisciplineContent, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
@@ -127,6 +134,7 @@ class RPDDisciplineContentHours(Model):
 class ClassType(Model): #подкласс
     name = CharField(verbose_name="Название",max_length=250, db_index=True)
 
+
 class PracticeDescription(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
     practice_type = IntegerField('Тип практикума', choices=PracticeType, db_index=True, default=1)
@@ -135,8 +143,10 @@ class PracticeDescription(Model):
     hours = IntegerField(verbose_name="Кол-во часов",  db_index=True, default=200)
     control = CharField(verbose_name="Контроль", max_length=300, db_index=True, default=1)
 
+
 class WorkType(Model): #подкласс
     name = CharField('Наименование типа работы', max_length=250, db_index=True)
+
 
 class DisciplineRating(Model):
     rating_type = IntegerField('Вид рейтинговой таблицы', choices=RatingType, db_index=True, default=exam_rating)
@@ -162,7 +172,6 @@ class FOS(Model): #Общие показатели оценивания?
     sample = TextField(verbose_name="Образец")
 
 
-
 class ELibrary(Model): #подкласс
     name = CharField(verbose_name="Название",max_length=100, db_index=True, default=1)
 
@@ -171,5 +180,6 @@ class Bibliography(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
     reference = TextField(verbose_name="Библиографическая ссылка")
     elibrary = ForeignKey(ELibrary, verbose_name='Электронная литература', null=True, blank=True, db_index=True, on_delete=SET_NULL)
-    URL = CharField(verbose_name="Ссылка на веб-русурс",max_length=500, db_index=True, default=1)
+    grif = CharField(verbose_name="Наличие грифа",max_length=200, db_index=True, default=1)
     is_main = BooleanField("Главная литература", default=False)
+    count = IntegerField(verbose_name="Кол-во экземпляров", default= 1)
