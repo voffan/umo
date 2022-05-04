@@ -86,3 +86,7 @@ class CourseMaxPoints(admin.ModelAdmin):
     list_display = ['course', 'checkpoint', 'max_point']
     search_fields = ['course__discipline_detail__discipline__Name']
     list_filter = ['course__lecturer']
+
+
+admin.site.register(models.Competency)
+admin.site.register(models.CompetencyIndicator)
