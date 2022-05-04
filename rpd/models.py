@@ -108,7 +108,7 @@ class RPDDiscipline(Discipline):
 
 
 class Basement(Model):
-    discipline = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
+    discipline = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", related_name='bases', db_index=True, on_delete=CASCADE)
     base = ForeignKey(RPDDiscipline, verbose_name="Базовые знания", db_index=True, on_delete=CASCADE)
 
 
@@ -116,7 +116,7 @@ class DisciplineResult(Model):
     competency = ForeignKey(Competency, verbose_name="Компетенция", db_index=True, on_delete=CASCADE)
     indicator = ForeignKey(CompetencyIndicator, verbose_name="Индикатор компетенции", db_index=True, on_delete=CASCADE)
     skill = TextField(verbose_name="Планируемые результаты")
-    fos = TextField(verbose_name="Оценочные средства") #перечислениеfos
+    judging = TextField(verbose_name="Оценочные средства") #перечислениеfos
 
 
 class RPDDisciplineContent(Model):
