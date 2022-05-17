@@ -137,8 +137,8 @@ class ClassType(Model): #подкласс
 
 class PracticeDescription(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
-    practice_type = IntegerField('Тип практикума', choices=PracticeType, db_index=True, default=1)
     theme = ForeignKey(RPDDisciplineContent, verbose_name='Тема', db_index=True, on_delete=CASCADE)
+    practice_type = IntegerField('Тип практикума', choices=PracticeType, db_index=True, default=1)
     class_type = ForeignKey(ClassType, verbose_name='Вид работы', db_index=True, on_delete=CASCADE)
     hours = IntegerField(verbose_name="Кол-во часов",  db_index=True, default=200)
     control = CharField(verbose_name="Контроль", max_length=300, db_index=True, default=1)

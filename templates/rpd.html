@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Добавление{% endblock %}
+{% block content %}
+<h1>1. Аннотация</h1>
+<h2 align="center">к рабочей программе дисциплины</h2>
+<h2 align="center"><textarea name="text" rows="1" cols="40" autofocus placeholder="индекс и наименование дисциплины" required=""></textarea></h2>
+<h3 align="center"><textarea rows="1" cols="20" autofocus required="">Трудоемкость __з.е.</textarea></h3>
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ form.as_p }}
+
+    </form>
+{% endblock %}
