@@ -93,26 +93,35 @@ HourType = (
 
 #Классы вне UMO
 class RPDDiscipline(Discipline):
-    goal = CharField(verbose_name="Цель",max_length=500, db_index=True)
+    goal = CharField(verbose_name="Цель", max_length=500, db_index=True)
+    abstract = TextField(verbose_name="Краткое содержание дисциплины")
     language = IntegerField('Язык', choices=Language, db_index=True, default=1)
-    # Далее обдумать
     education_methodology = TextField(verbose_name="Формы и методы проведения занятий, применяемые учебные технологии")
+    count_e_method_support = TextField(verbose_name="Перечень учебно-методического обеспечения для самостоятельной работы обучающихся по дисциплине:")
     methodological_instructions = TextField(verbose_name="Методические указания для обучающихся по освоению дисциплины")
-    scaling_methodology = TextField(verbose_name="Методические материалы, определяющие процедуры оценивания")
+    fos_fond = TextField(verbose_name="Фонд оценочных средств для проведения промежуточной аттестации обучающихся по дисциплине")
     fos_methodology = TextField(verbose_name="Примерные контрольные задания (вопросы) для промежуточной аттестации")
+    scaling_methodology = TextField(verbose_name="Методические материалы, определяющие процедуры оценивания")
     web_resource = TextField(verbose_name="Перечень ресурсов информационно-телекоммуникационной сети Интернет")
     material = TextField(verbose_name="Перечень материально-технической базы")
     it = TextField(verbose_name="Перечень информационных технологий")
     software = TextField(verbose_name="Перечень программного обеспечения")
     iss = TextField(verbose_name="Перечень информационных справочных систем")
 
+    def __str__(self):
+        return self.Name
+
 
 class Basement(Model):
     discipline = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", related_name='bases', db_index=True, on_delete=CASCADE)
     base = ForeignKey(RPDDiscipline, verbose_name="Базовые знания", db_index=True, on_delete=CASCADE)
 
+    def __str__(self):
+        return self.discipline.Name
+
 
 class DisciplineResult(Model):
+    rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
     competency = ForeignKey(Competency, verbose_name="Компетенция", db_index=True, on_delete=CASCADE)
     indicator = ForeignKey(CompetencyIndicator, verbose_name="Индикатор компетенции", db_index=True, on_delete=CASCADE)
     skill = TextField(verbose_name="Планируемые результаты")
@@ -121,18 +130,27 @@ class DisciplineResult(Model):
 
 class RPDDisciplineContent(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
-    theme = CharField(verbose_name="Тема",max_length=500, db_index=True, default=1)
+    theme = CharField(verbose_name="Тема", max_length=500, db_index=True, default=1)
     content = TextField(verbose_name="Содержимое")
+
+    def __str__(self):
+        return self.theme
 
 
 class RPDDisciplineContentHours(Model):
-    content = ForeignKey(RPDDisciplineContent, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
+    content = ForeignKey(RPDDisciplineContent, verbose_name="Тема", db_index=True, on_delete=CASCADE)
     hours_type = IntegerField('Тип работы', choices=HourType, db_index=True, default=1)
     hours = IntegerField(verbose_name="Кол-во часов",  db_index=True, default=200)
+
+    def __str__(self):
+        return self.content
 
 
 class ClassType(Model): #подкласс
     name = CharField(verbose_name="Название",max_length=250, db_index=True)
+
+    def __str__(self):
+        return self.name
 
 
 class PracticeDescription(Model):
@@ -143,9 +161,15 @@ class PracticeDescription(Model):
     hours = IntegerField(verbose_name="Кол-во часов",  db_index=True, default=200)
     control = CharField(verbose_name="Контроль", max_length=300, db_index=True, default=1)
 
+    def __str__(self):
+        return self.theme
+
 
 class WorkType(Model): #подкласс
     name = CharField('Наименование типа работы', max_length=250, db_index=True)
+
+    def __str__(self):
+        return self.name
 
 
 class DisciplineRating(Model):
@@ -155,6 +179,9 @@ class DisciplineRating(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
     max_points = IntegerField(verbose_name="Макс.балл",  default=100)
     min_points = IntegerField(verbose_name="Мин.балл",  default=1)
+
+    def __str__(self):
+        return self.rpd.Name
 
 
 class MarkScale(Model):
@@ -174,6 +201,9 @@ class FOS(Model): #Общие показатели оценивания?
 
 class ELibrary(Model): #подкласс
     name = CharField(verbose_name="Название",max_length=100, db_index=True, default=1)
+
+    def __str__(self):
+        return self.name
 
 
 class Bibliography(Model):

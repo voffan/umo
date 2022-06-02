@@ -7,17 +7,25 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import login, update_session_auth_hash
 from django.core.validators import validate_email
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.forms import ModelForm, CharField, ValidationError, PasswordInput, HiddenInput
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
 
 import synch.models as sync_models
+import rpd.forms as forms
+from django.forms import formset_factory
+from django.shortcuts import get_object_or_404
+
+from nomenclature.form import AddSubjectToteacherForm
+from rpd.models import RPDDiscipline, DisciplineResult, Basement, RPDDisciplineContentHours, RPDDisciplineContent, \
+    PracticeDescription, DisciplineRating, MarkScale, FOS, Bibliography
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
-                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam)
+                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam, Course, Person)
 
 
 def index(request):
@@ -26,37 +34,61 @@ def index(request):
     else:
         return redirect('disciplines:disciplines_list')
 
+
 # Create your views here.
-class RPD(PermissionRequiredMixin):
-    permission_required = 'rpd.add_rpd'
-    template_name = 'rpd.html'
-    model = Teacher
+class RPDList(ListView):
+    template_name = 'rpd_list.html'
+    context_object_name = 'list'
+
+    def get_queryset(self):
+        return RPDDiscipline.objects.all()
 
 
-# class TeacherList(PermissionRequiredMixin, ListView):
-#     permission_required = 'umo.add_teacher'
-#     template_name = 'teachers_list.html'
-#     model = Teacher
-#
-#
-# class TeacherCreate(PermissionRequiredMixin, CreateView):
-#     permission_required = 'umo.change_teacher'
-#     template_name = 'teacher_form.html'
-#     success_url = reverse_lazy('teachers:list_teachers')
-#     model = Teacher
-#     fields = ['FIO', 'position', 'zvanie', 'cathedra', 'user']
-#
-#
-# class TeacherUpdate(PermissionRequiredMixin, UpdateView):
-#     permission_required = 'umo.change_teacher'
-#     template_name = 'teacher_edit.html'
-#     success_url = reverse_lazy('teachers:list_teachers')
-#     model = Teacher
-#     fields = ['last_name', 'first_name', 'second_name', 'position', 'title', 'cathedra']
-#
-#
-# class TeacherDelete(PermissionRequiredMixin, DeleteView):
-#     permission_required = 'umo.delete_teacher'
-#     model = Teacher
-#     success_url = reverse_lazy('teachers:list_teachers')
-#     template_name = 'teacher_delete.html'
+def rpd_create(request, rpddiscipline_id):
+    discipline = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+    if request.method == 'POST':
+        form = forms.RPDProgram(request.POST)
+        results = forms.ResultsSet(request.POST)
+        basement = forms.BasementSet(request.POST)
+        hours_distribution = forms.HoursDistributionSet(request.POST)
+        theme = forms.ThemeSet(request.POST)
+        srs_content = forms.SRSContentSet(request.POST)
+        labs_content = forms.LabContentSet(request.POST)
+        disc_rating = forms.DiscRatingSet(request.POST)
+        mark_scale = forms.MarkScaleSet(request.POST)
+        fos_table = forms.FosTableSet(request.POST)
+        bibl = forms.BibliographySet(request.POST)
+        bibl2 = forms.BibliographySet(request.POST)
+    else:
+        data = {'goal': discipline.goal,
+                'abstract': discipline.abstract,
+                'language': discipline.language,
+                'education_methodology': discipline.education_methodology,
+                'count_e_method_support': discipline.count_e_method_support,
+                'methodological_instructions': discipline.methodological_instructions,
+                'fos_fond': discipline.fos_fond,
+                'fos_methodology': discipline.fos_methodology,
+                'scaling_methodology': discipline.scaling_methodology,
+                'web_resource': discipline.web_resource,
+                'material': discipline.material,
+                'it': discipline.it,
+                'software': discipline.software,
+                'iss': discipline.iss
+                }
+        form = forms.RPDProgram(data)
+        results = forms.ResultsSet(queryset=DisciplineResult.objects.filter(rpd__id=rpddiscipline_id))
+        basement = forms.BasementSet(queryset=Basement.objects.filter(id=rpddiscipline_id))
+        hours_distribution = forms.HoursDistributionSet(queryset=RPDDisciplineContentHours.objects.filter(id=rpddiscipline_id))
+        theme = forms.ThemeSet(queryset=RPDDisciplineContent.objects.filter(id=rpddiscipline_id))
+        srs_content = forms.SRSContentSet(queryset=PracticeDescription.objects.filter(id=rpddiscipline_id))
+        labs_content = forms.LabContentSet(queryset=PracticeDescription.objects.filter(id=rpddiscipline_id))
+        disc_rating = forms.DiscRatingSet(queryset=DisciplineRating.objects.filter(rpd__id=rpddiscipline_id))
+        mark_scale = forms.MarkScaleSet(queryset=MarkScale.objects.filter(rpd__id=rpddiscipline_id))
+        fos_table = forms.FosTableSet(queryset=FOS.objects.filter(rpd__id=rpddiscipline_id))
+        bibl = forms.BibliographySet(queryset=Bibliography.objects.filter(rpd__id=rpddiscipline_id, is_main=True))
+        bibl2 = forms.BibliographySet(queryset=Bibliography.objects.filter(rpd__id=rpddiscipline_id, is_main=False ))
+    return render(request, 'rpd.html', context={'discipline': discipline, 'form': form, 'results': results, 'basement': basement,
+                                                'hours_distribution': hours_distribution, 'theme': theme, 'srs_content': srs_content,
+                                                'labs_content': labs_content, 'disc_rating': disc_rating, 'mark_scale': mark_scale,
+                                                'fos_table': fos_table, 'bibl': bibl, 'bibl2': bibl2})
+
