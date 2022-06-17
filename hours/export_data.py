@@ -143,6 +143,7 @@ def kup_header(ws, teacher):
 
 def kup_body(ws, teacher):
     start = 9
+    row_data = 0
     year = EduPeriod.objects.filter(active=True).first()
     courses = CourseHours.objects.filter(teacher_id=teacher.id, edu_period=year)
     ws.cell(row=start, column=2).value = 'Первый семестр'
@@ -156,125 +157,136 @@ def kup_body(ws, teacher):
                 start = start + 1
                 ws.cell(row=start, column=2).value = 'Очная форма обучения'
                 kup_body_data(ws, start, course, supervision, practice, other)
-                start = start + 1
+                start += 1
+                row_data += 1
             if course.group.edu_type == 2:
-                start = start + 1
+                start += 1
                 ws.cell(row=start, column=2).value = 'Заочная форма обучения'
                 kup_body_data(ws, start, course, supervision, practice, other)
-                start = start + 1
+                start += 1
+                row_data += 1
             if course.group.edu_type == 3:
-                start = start + 1
+                start += 1
                 ws.cell(row=start, column=2).value = 'Очно-заочная форма обучения'
                 kup_body_data(ws, start, course, supervision, practice, other)
-                start = start + 1
-    start = start + 1
+                start += 1
+                row_data += 1
+    start += 1
+    sum_row1 = start
     ws.cell(row=start, column=3).value = 'Итого за 1 семестр'
-    ws.cell(row=start, column=9).value = '=SUM(I11:I' + str(start-1) + ')'
-    ws.cell(row=start, column=10).value = '=SUM(J11:J' + str(start-1) + ')'
-    ws.cell(row=start, column=11).value = 0
-    ws.cell(row=start, column=12).value = 0
-    ws.cell(row=start, column=13).value = 0
-    ws.cell(row=start, column=14).value = 0
-    ws.cell(row=start, column=15).value = 0
-    ws.cell(row=start, column=16).value = 0
-    ws.cell(row=start, column=17).value = 0
-    ws.cell(row=start, column=18).value = 0
-    ws.cell(row=start, column=19).value = 0
-    ws.cell(row=start, column=20).value = 0
-    ws.cell(row=start, column=21).value = 0
-    ws.cell(row=start, column=22).value = 0
-    ws.cell(row=start, column=23).value = 0
-    ws.cell(row=start, column=24).value = 0
-    ws.cell(row=start, column=25).value = 0
-    ws.cell(row=start, column=27).value = 0
-    ws.cell(row=start, column=28).value = 0
-    ws.cell(row=start, column=29).value = 0
-    ws.cell(row=start, column=30).value = 0
-    ws.cell(row=start, column=31).value = 0
-    ws.cell(row=start, column=32).value = 0
-    ws.cell(row=start, column=33).value = 0
-    ws.cell(row=start, column=34).value = 0
-    ws.cell(row=start, column=35).value = 0
-    ws.cell(row=start, column=36).value = 0
-    start = start + 2
+    if row_data > 0:
+        ws.cell(row=start, column=9).value = '=SUM(I' + str(start - row_data) + ':I' + str(start - 1) + ')'
+        ws.cell(row=start, column=10).value = '=SUM(J' + str(start - row_data) + ':J' + str(start - 1) + ')'
+        ws.cell(row=start, column=11).value = '=SUM(K' + str(start - row_data) + ':K' + str(start - 1) + ')'
+        ws.cell(row=start, column=12).value = '=SUM(L' + str(start - row_data) + ':L' + str(start - 1) + ')'
+        ws.cell(row=start, column=13).value = '=SUM(M' + str(start - row_data) + ':M' + str(start - 1) + ')'
+        ws.cell(row=start, column=14).value = '=SUM(N' + str(start - row_data) + ':N' + str(start - 1) + ')'
+        ws.cell(row=start, column=15).value = '=SUM(O' + str(start - row_data) + ':O' + str(start - 1) + ')'
+        ws.cell(row=start, column=16).value = '=SUM(P' + str(start - row_data) + ':P' + str(start - 1) + ')'
+        ws.cell(row=start, column=17).value = '=SUM(Q' + str(start - row_data) + ':Q' + str(start - 1) + ')'
+        ws.cell(row=start, column=18).value = '=SUM(R' + str(start - row_data) + ':R' + str(start - 1) + ')'
+        ws.cell(row=start, column=19).value = '=SUM(S' + str(start - row_data) + ':S' + str(start - 1) + ')'
+        ws.cell(row=start, column=20).value = '=SUM(T' + str(start - row_data) + ':T' + str(start - 1) + ')'
+        ws.cell(row=start, column=21).value = '=SUM(U' + str(start - row_data) + ':U' + str(start - 1) + ')'
+        ws.cell(row=start, column=22).value = '=SUM(V' + str(start - row_data) + ':V' + str(start - 1) + ')'
+        ws.cell(row=start, column=23).value = '=SUM(W' + str(start - row_data) + ':W' + str(start - 1) + ')'
+        ws.cell(row=start, column=24).value = '=SUM(X' + str(start - row_data) + ':X' + str(start - 1) + ')'
+        ws.cell(row=start, column=25).value = '=SUM(Y' + str(start - row_data) + ':Y' + str(start - 1) + ')'
+        ws.cell(row=start, column=27).value = '=SUM(AA' + str(start - row_data) + ':AA' + str(start - 1) + ')'
+        ws.cell(row=start, column=28).value = '=SUM(AB' + str(start - row_data) + ':AB' + str(start - 1) + ')'
+        ws.cell(row=start, column=29).value = '=SUM(AC' + str(start - row_data) + ':AC' + str(start - 1) + ')'
+        ws.cell(row=start, column=30).value = '=SUM(AD' + str(start - row_data) + ':AD' + str(start - 1) + ')'
+        ws.cell(row=start, column=31).value = '=SUM(AE' + str(start - row_data) + ':AE' + str(start - 1) + ')'
+        ws.cell(row=start, column=32).value = '=SUM(AF' + str(start - row_data) + ':AF' + str(start - 1) + ')'
+        ws.cell(row=start, column=33).value = '=SUM(AG' + str(start - row_data) + ':AG' + str(start - 1) + ')'
+        ws.cell(row=start, column=34).value = '=SUM(AH' + str(start - row_data) + ':AH' + str(start - 1) + ')'
+        ws.cell(row=start, column=35).value = '=SUM(AI' + str(start - row_data) + 'AI' + str(start - 1) + ')'
+        ws.cell(row=start, column=36).value = '=SUM(AJ' + str(start - row_data) + ':AJ' + str(start - 1) + ')'
+    start += 2
+    row_data = 0
     ws.cell(row=start, column=2).value = 'Второй семестр'
     ws.merge_cells(start_row=start, start_column=2, end_row=start, end_column=36)
     for course in courses:
         if int(course.discipline_settings.semester.name) % 2 == 0:
             if course.group.edu_type == 1:
-                start = start + 1
+                start += 1
                 ws.cell(row=start, column=2).value = 'Очная форма обучения'
                 kup_body_data(ws, start, course, supervision, practice, other)
-                start = start + 1
+                start += 1
+                row_data += 1
             if course.group.edu_type == 2:
-                start = start + 1
+                start += 1
                 ws.cell(row=start, column=2).value = 'Заочная форма обучения'
                 kup_body_data(ws, start, course, supervision, practice, other)
-                start = start + 1
+                start += 1
+                row_data += 1
             if course.group.edu_type == 3:
-                start = start + 1
+                start += 1
                 ws.cell(row=start+1, column=2).value = 'Очно-заочная форма обучения'
                 kup_body_data(ws, start, course, supervision, practice, other)
-                start = start + 1
-    start = start + 1
+                start += 1
+                row_data += 1
+    start += 1
+    sum_row2 = start
     ws.cell(row=start, column=3).value = 'Итого за 2 семестр'
-    ws.cell(row=start, column=9).value = '=SUM(I11:I' + str(start - 1) + ')'
-    ws.cell(row=start, column=10).value = '=SUM(J11:J' + str(start - 1) + ')'
-    ws.cell(row=start, column=11).value = 0
-    ws.cell(row=start, column=12).value = 0
-    ws.cell(row=start, column=13).value = 0
-    ws.cell(row=start, column=14).value = 0
-    ws.cell(row=start, column=15).value = 0
-    ws.cell(row=start, column=16).value = 0
-    ws.cell(row=start, column=17).value = 0
-    ws.cell(row=start, column=18).value = 0
-    ws.cell(row=start, column=19).value = 0
-    ws.cell(row=start, column=20).value = 0
-    ws.cell(row=start, column=21).value = 0
-    ws.cell(row=start, column=22).value = 0
-    ws.cell(row=start, column=23).value = 0
-    ws.cell(row=start, column=24).value = 0
-    ws.cell(row=start, column=25).value = 0
-    ws.cell(row=start, column=27).value = 0
-    ws.cell(row=start, column=28).value = 0
-    ws.cell(row=start, column=29).value = 0
-    ws.cell(row=start, column=30).value = 0
-    ws.cell(row=start, column=31).value = 0
-    ws.cell(row=start, column=32).value = 0
-    ws.cell(row=start, column=33).value = 0
-    ws.cell(row=start, column=34).value = 0
-    ws.cell(row=start, column=35).value = 0
-    ws.cell(row=start, column=36).value = 0
-    start = start + 1
+    # if row_data > 0:
+    ws.cell(row=start, column=9).value = '=SUM(I' + str(start - row_data) + ':I' + str(start - 1) + ')'
+    ws.cell(row=start, column=10).value = '=SUM(J' + str(start - row_data) + ':J' + str(start - 1) + ')'
+    ws.cell(row=start, column=11).value = '=SUM(K' + str(start - row_data) + ':K' + str(start - 1) + ')'
+    ws.cell(row=start, column=12).value = '=SUM(L' + str(start - row_data) + ':L' + str(start - 1) + ')'
+    ws.cell(row=start, column=13).value = '=SUM(M' + str(start - row_data) + ':M' + str(start - 1) + ')'
+    ws.cell(row=start, column=14).value = '=SUM(N' + str(start - row_data) + ':N' + str(start - 1) + ')'
+    ws.cell(row=start, column=15).value = '=SUM(O' + str(start - row_data) + ':O' + str(start - 1) + ')'
+    ws.cell(row=start, column=16).value = '=SUM(P' + str(start - row_data) + ':P' + str(start - 1) + ')'
+    ws.cell(row=start, column=17).value = '=SUM(Q' + str(start - row_data) + ':Q' + str(start - 1) + ')'
+    ws.cell(row=start, column=18).value = '=SUM(R' + str(start - row_data) + ':R' + str(start - 1) + ')'
+    ws.cell(row=start, column=19).value = '=SUM(S' + str(start - row_data) + ':S' + str(start - 1) + ')'
+    ws.cell(row=start, column=20).value = '=SUM(T' + str(start - row_data) + ':T' + str(start - 1) + ')'
+    ws.cell(row=start, column=21).value = '=SUM(U' + str(start - row_data) + ':U' + str(start - 1) + ')'
+    ws.cell(row=start, column=22).value = '=SUM(V' + str(start - row_data) + ':V' + str(start - 1) + ')'
+    ws.cell(row=start, column=23).value = '=SUM(W' + str(start - row_data) + ':W' + str(start - 1) + ')'
+    ws.cell(row=start, column=24).value = '=SUM(X' + str(start - row_data) + ':X' + str(start - 1) + ')'
+    ws.cell(row=start, column=25).value = '=SUM(Y' + str(start - row_data) + ':Y' + str(start - 1) + ')'
+    ws.cell(row=start, column=27).value = '=SUM(AA' + str(start - row_data) + ':AA' + str(start - 1) + ')'
+    ws.cell(row=start, column=28).value = '=SUM(AB' + str(start - row_data) + ':AB' + str(start - 1) + ')'
+    ws.cell(row=start, column=29).value = '=SUM(AC' + str(start - row_data) + ':AC' + str(start - 1) + ')'
+    ws.cell(row=start, column=30).value = '=SUM(AD' + str(start - row_data) + ':AD' + str(start - 1) + ')'
+    ws.cell(row=start, column=31).value = '=SUM(AE' + str(start - row_data) + ':AE' + str(start - 1) + ')'
+    ws.cell(row=start, column=32).value = '=SUM(AF' + str(start - row_data) + ':AF' + str(start - 1) + ')'
+    ws.cell(row=start, column=33).value = '=SUM(AG' + str(start - row_data) + ':AG' + str(start - 1) + ')'
+    ws.cell(row=start, column=34).value = '=SUM(AH' + str(start - row_data) + ':AH' + str(start - 1) + ')'
+    ws.cell(row=start, column=35).value = '=SUM(AI' + str(start - row_data) + 'AI' + str(start - 1) + ')'
+    ws.cell(row=start, column=36).value = '=SUM(AJ' + str(start - row_data) + ':AJ' + str(start - 1) + ')'
+    start += 1
     ws.cell(row=start, column=3).value = 'Всего часов плановых'
-    ws.cell(row=start, column=9).value = '=SUM(I11:I' + str(start - 1) + ')'
-    ws.cell(row=start, column=10).value = '=SUM(J11:J' + str(start - 1) + ')'
-    ws.cell(row=start, column=11).value = 0
-    ws.cell(row=start, column=12).value = 0
-    ws.cell(row=start, column=13).value = 0
-    ws.cell(row=start, column=14).value = 0
-    ws.cell(row=start, column=15).value = 0
-    ws.cell(row=start, column=16).value = 0
-    ws.cell(row=start, column=17).value = 0
-    ws.cell(row=start, column=18).value = 0
-    ws.cell(row=start, column=19).value = 0
-    ws.cell(row=start, column=20).value = 0
-    ws.cell(row=start, column=21).value = 0
-    ws.cell(row=start, column=22).value = 0
-    ws.cell(row=start, column=23).value = 0
-    ws.cell(row=start, column=24).value = 0
-    ws.cell(row=start, column=25).value = 0
-    ws.cell(row=start, column=27).value = 0
-    ws.cell(row=start, column=28).value = 0
-    ws.cell(row=start, column=29).value = 0
-    ws.cell(row=start, column=30).value = 0
-    ws.cell(row=start, column=31).value = 0
-    ws.cell(row=start, column=32).value = 0
-    ws.cell(row=start, column=33).value = 0
-    ws.cell(row=start, column=34).value = 0
-    ws.cell(row=start, column=35).value = 0
-    ws.cell(row=start, column=36).value = 0
-    start = start +2
+    ws.cell(row=start, column=9).value = '=I' + str(sum_row1) + ' + ' + 'I' + str(sum_row2)
+    ws.cell(row=start, column=10).value = '=J' + str(sum_row1) + ' + ' + 'J' + str(sum_row2)
+    ws.cell(row=start, column=11).value = '=K' + str(sum_row1) + ' + ' + 'K' + str(sum_row2)
+    ws.cell(row=start, column=12).value = '=L' + str(sum_row1) + ' + ' + 'L' + str(sum_row2)
+    ws.cell(row=start, column=13).value = '=M' + str(sum_row1) + ' + ' + 'M' + str(sum_row2)
+    ws.cell(row=start, column=14).value = '=N' + str(sum_row1) + ' + ' + 'N' + str(sum_row2)
+    ws.cell(row=start, column=15).value = '=O' + str(sum_row1) + ' + ' + 'O' + str(sum_row2)
+    ws.cell(row=start, column=16).value = '=P' + str(sum_row1) + ' + ' + 'P' + str(sum_row2)
+    ws.cell(row=start, column=17).value = '=Q' + str(sum_row1) + ' + ' + 'Q' + str(sum_row2)
+    ws.cell(row=start, column=18).value = '=R' + str(sum_row1) + ' + ' + 'R' + str(sum_row2)
+    ws.cell(row=start, column=19).value = '=S' + str(sum_row1) + ' + ' + 'S' + str(sum_row2)
+    ws.cell(row=start, column=20).value = '=T' + str(sum_row1) + ' + ' + 'T' + str(sum_row2)
+    ws.cell(row=start, column=21).value = '=U' + str(sum_row1) + ' + ' + 'U' + str(sum_row2)
+    ws.cell(row=start, column=22).value = '=V' + str(sum_row1) + ' + ' + 'V' + str(sum_row2)
+    ws.cell(row=start, column=23).value = '=W' + str(sum_row1) + ' + ' + 'W' + str(sum_row2)
+    ws.cell(row=start, column=24).value = '=X' + str(sum_row1) + ' + ' + 'X' + str(sum_row2)
+    ws.cell(row=start, column=25).value = '=Y' + str(sum_row1) + ' + ' + 'Y' + str(sum_row2)
+    ws.cell(row=start, column=27).value = '=AA' + str(sum_row1) + ' + ' + 'AA' + str(sum_row2)
+    ws.cell(row=start, column=28).value = '=AB' + str(sum_row1) + ' + ' + 'AB' + str(sum_row2)
+    ws.cell(row=start, column=29).value = '=AC' + str(sum_row1) + ' + ' + 'AC' + str(sum_row2)
+    ws.cell(row=start, column=30).value = '=AD' + str(sum_row1) + ' + ' + 'AD' + str(sum_row2)
+    ws.cell(row=start, column=31).value = '=AE' + str(sum_row1) + ' + ' + 'AE' + str(sum_row2)
+    ws.cell(row=start, column=32).value = '=AF' + str(sum_row1) + ' + ' + 'AF' + str(sum_row2)
+    ws.cell(row=start, column=33).value = '=AG' + str(sum_row1) + ' + ' + 'AG' + str(sum_row2)
+    ws.cell(row=start, column=34).value = '=AH' + str(sum_row1) + ' + ' + 'AH' + str(sum_row2)
+    ws.cell(row=start, column=35).value = '=AI' + str(sum_row1) + ' + ' + 'AI' + str(sum_row2)
+    ws.cell(row=start, column=36).value = '=AJ' + str(sum_row1) + ' + ' + 'AJ' + str(sum_row2)
+    start += 2
     teacher_name = str(teacher.FIO).split()
     ws.cell(row=start, column=3).value = 'Преподаватель'
     ws.cell(row=start, column=6).value = '/' + teacher_name[1][0] + '.' + teacher_name[2][0] + '. ' + teacher_name[0]
@@ -301,23 +313,23 @@ def kup_body(ws, teacher):
 
 
 def kup_body_data(ws, start, course, supervision, practice, other):
-    start = start + 1
+    start += 1
     ws.cell(row=start, column=2).value = course.discipline_settings.discipline.code
     ws.cell(row=start, column=3).value = course.discipline_settings.discipline.Name
     semester = int(course.discipline_settings.semester.name)
-    # if semester == 1 or 2:
-    #     ws.cell(row=start, column=4).value = 1
-    # elif semester == 3 or 4:
-    #     ws.cell(row=start, column=4).value = 2
-    # elif semester == 5 or 6:
-    #     ws.cell(row=start, column=4).value = 3
-    # elif semester == 7 or 8:
-    #     ws.cell(row=start, column=4).value = 4
+    if semester == 1 or 2:
+        ws.cell(row=start, column=4).value = 1
+    elif semester == 3 or 4:
+        ws.cell(row=start, column=4).value = 2
+    elif semester == 5 or 6:
+        ws.cell(row=start, column=4).value = 3
+    elif semester == 7 or 8:
+        ws.cell(row=start, column=4).value = 4
     ws.cell(row=start, column=5).value = course.group.group.Name
     ws.cell(row=start, column=6).value = course.group.amount
     ws.cell(row=start, column=7).value = 1
     ws.cell(row=start, column=8).value = course.group.subgroup
-    ws.cell(row=start, column=11).value = course.f_lecture
+    ws.cell(row=start, column=9).value = course.f_lecture
     ws.cell(row=start, column=10).value = course.discipline_settings.Practice
     ws.cell(row=start, column=11).value = course.f_practice
     ws.cell(row=start, column=12).value = course.discipline_settings.Lab
