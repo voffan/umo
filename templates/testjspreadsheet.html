@@ -1,0 +1,42 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Jspreadsheet CE table - basic demo</title>
+
+</head>
+
+<body>
+    <script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
+    <script src="https://jsuites.net/v4/jsuites.js"></script>
+    <link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css">
+    <link rel="stylesheet" href="https://bossanova.uk/jspreadsheet/v4/jexcel.css" type="text/css">
+
+    <div id="course_list"></div>
+
+
+
+</body>
+
+<script>
+    jspreadsheet(document.getElementById('course_list'), {
+    url: 'hours:api:get_courselist',
+    columns: [
+        { type: 'number', width:100 },
+        { type: 'text', width:100 },
+        { type: 'text', width:100 },
+        { type: 'text', width:100 },
+        { type: 'number', width:100 },
+        { type: 'number', width:100 },
+        { type: 'number', width:100 },
+        { type: 'number', width:100 },
+        { type: 'number', width:100 },
+        { type: 'number', width:100 },
+        { type: 'number', width:100 },
+        { type: 'number', width:100 },
+        { type: 'number', width:100 }
+     ]
+});
+</script>
+
+</html>

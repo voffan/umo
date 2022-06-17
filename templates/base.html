@@ -10,6 +10,10 @@
         <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap4.min.css' %}" type="text/css">
         {% block additional_css %}{% endblock %}
         <link rel="stylesheet" href="{% static 'css/my.css' %}" type="text/css">
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.js"></script>
+        <link rel="stylesheet" href="{% static 'css/handsontable/jexcel.css' %}" type="text/css">
+<!--        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" />-->
+        <script src="{% static 'js/keyvalue.js' %}"></script>
         <title>{% block title %}{% endblock %}</title>
     </head>
     <body>

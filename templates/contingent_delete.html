@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <form action="" method="post">
+            {% csrf_token %}
+            <h1>{% block title %}Удаление группы{% endblock %}</h1>
+            <p>Вы действительно хотите удалить группу?</p>
+            <button type="submit" class="btn btn-danger">Удалить</button>
+            <a href="{% url 'hours:contingent_list' %}" class="btn btn-primary" role="button">Отмена</a>
+        </form>
+    </div>
+{% endblock %}

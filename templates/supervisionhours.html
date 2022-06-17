@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Штатное расписание{% endblock %}
+{% block content %}
+{% csrf_token %}
+<style>
+    .wtHider{
+        width:150px !important;
+    }
+    .handsontableInputHolder .wtSpreader .htCore{
+        width:150px !important;
+    }
+</style>
+    <h1>Часы ВКР и практик</h1>
+    <p align="right">
+        <label>
+            <b>Type</b>
+        </label>
+        <br>
+    </p>
+    <div id="supervision_hours_list"></div>
+    <a href="{% url 'hours:course_list' %}" class="btn btn-success">Вернуться</a>
+<!--    <a href="{% url 'hours:create_employee' %}" class="btn btn-success">Добавить сотрудника</a>-->
+    <button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
+
+
+{% endblock %}
+
+{% block scripts %}
+var hot;
+let columns = [
+  	{
+    	data: 'id',
+    	title: 'Id',
+    },
+    {
+    	data: 'teacher',
+    	title: 'Преподаватель',
+        renderer: 'html',
+<!--        source: [{% for item in teacher %}{_id:"{{ item.id }}", label: "{{ item.FIO }}"},{% endfor %}],-->
+    },
+    {
+    	data: 'group',
+    	title: 'Группа',
+    },
+    {
+    	data: 'students',
+    	title: 'Количество студентов',
+    },
+    {
+    	data: 'supervision_type',
+    	title: 'Руководство',
+        type: 'key-value-list',
+        source: [{% for item in supervision_type %}{_id:"{{ item.0 }}", label: "{{ item.1 }}"},{% endfor %}]
+    },
+    {
+    	data: 'hours',
+    	title: 'Часы',
+    },
+    {
+    	data: 'edu_period',
+    	title: 'Учебный год',
+    },
+    {
+    	data: 'cathedra',
+    	title: 'Кафедра',
+        type: 'key-value-list',
+        source: [{% for item in cathedra %}{_id:"{{ item.id }}", label: "{{ item.name }}"},{% endfor %}],
+    },
+  ];
+
+fetch("{% url 'hours:api:get_supervision_hours' %}")
+.then((response)=>{
+    if(response.status != 200)
+    {
+        //process error
+        return [];
+    }
+    return response.json();
+})
+.then((data)=>{
+    const container = document.getElementById('supervision_hours_list');
+    hot = new Handsontable(container, {
+      data: data,
+      rowHeaders: true,
+      colHeaders: true,
+      height: 300,
+      hiddenColumns: {
+        columns: [0]
+      },
+      language: 'ru-RU',
+      licenseKey: 'non-commercial-and-evaluation',
+      columns: columns,
+      beforeValidate:(value, row, prop)=>{
+        if(prop === 'teacher') {
+            columns[1].source.forEach((el, index) => {
+                if(el.label.includes(value)) {
+                    //console.log(el);
+                    console.log(value);
+                    return (value = el._id);
+                }
+            });
+        }
+        return value;
+      },
+      afterChange: (changes) => {
+        //console.log(data)
+      }
+    });
+    //console.log(data);
+    //console.log(hot.getSourceData());
+});
+let saveButton  = document.querySelector('#save');
+saveButton.addEventListener('click', () => {
+    fetch("{% url 'hours:api:save_supervision_hours' %}", {
+        method: 'POST',
+        body: JSON.stringify({'data': hot.getData()}),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector("[name=csrfmiddlewaretoken]").value,
+        },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        console.log('Success:', hot.getData());
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+<!--        undoRedo.undo()-->
+        alert("Ошибка в сохранении");
+    })
+});
+{% endblock %}

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Штатное расписание{% endblock %}
 {% block content %}
+{% csrf_token %}
     <h1>Штатное расписание</h1>
     <p align="right" id="employee_list_filter">
         <label>
@@ -8,27 +9,108 @@
         </label>
         <br>
     </p>
-    <table id="semployee_list" class="table table-bordered">
-        <thead class="thead-light">
-        <tr>
-            <th>№</th>
-            <th>Преподаватель</th>
-            <th>Ставка</th>
-            <th>Тип</th>
-            <th>Преподаватель активен</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for employee in object_list %}
-            <tr>
-                <td></td>
-                <td><a href="{% url 'hours:edit_employee' employee.id %}">{{ employee.teacher }}</a></td>
-                <td>{{ employee.stavka }}</td>
-                <td>{{ employee.employee_type }}</td>
-                <td>{{ employee.is_active }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <br>
+    <div id="employeelist"></div>
+    <a href="{% url 'hours:create_employee' %}" class="btn btn-success">Добавить сотрудника</a>
+    <button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
+
+
+{% endblock %}
+
+{% block scripts %}
+var hot;
+let columns = [
+  	{
+    	data: 'id',
+    	title: 'Id',
+    },
+    {
+    	data: 'teacher',
+    	title: 'Преподаватель',
+        renderer: 'html',
+<!--        source: [{% for item in teacher %}{_id:"{{ item.id }}", label: "{{ item.FIO }}"},{% endfor %}],-->
+    },
+    {
+    	data: 'stavka',
+    	title: 'Ставка',
+        type: 'numeric',
+    },
+    {
+    	data: 'employee_type',
+    	title: 'Тип',
+    },
+    {
+    	data: 'is_active',
+    	title: 'Преподаватель активен',
+    	type: 'checkbox',
+    },
+    {
+        data: 'buttons',
+        title: 'КУП',
+        renderer: 'html',
+        readOnly: true,
+    }
+  ];
+
+fetch("{% url 'hours:api:get_employeelist' %}")
+.then((response)=>{
+    if(response.status != 200)
+    {
+        //process error
+        return [];
+    }
+    return response.json();
+})
+.then((data)=>{
+    const container = document.getElementById('employeelist');
+    hot = new Handsontable(container, {
+      data: data,
+      rowHeaders: true,
+      colHeaders: true,
+      height: 300,
+      hiddenColumns: {
+        columns: [0]
+      },
+      language: 'ru-RU',
+      licenseKey: 'non-commercial-and-evaluation',
+      columns: columns,
+      beforeValidate:(value, row, prop)=>{
+        if(prop === 'teacher') {
+            columns[1].source.forEach((el, index) => {
+                if(el.label.includes(value)) {
+                    //console.log(el);
+                    console.log(value);
+                    return (value = el._id);
+                }
+            });
+        }
+        return value;
+      },
+      afterChange: (changes) => {
+        //console.log(data)
+      }
+    });
+    //console.log(data);
+    //console.log(hot.getSourceData());
+});
+let saveButton  = document.querySelector('#save');
+saveButton.addEventListener('click', () => {
+    fetch("{% url 'hours:api:save_employeelist' %}", {
+        method: 'POST',
+        body: JSON.stringify({'data': hot.getData()}),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector("[name=csrfmiddlewaretoken]").value,
+        },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        console.log('Success:', hot.getData());
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+<!--        undoRedo.undo()-->
+        alert("Ошибка в сохранении");
+    })
+});
 {% endblock %}

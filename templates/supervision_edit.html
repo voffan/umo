@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Редактирование работника{% endblock %}
+{% block content %}
+    <div class="container">
+        <form action="" method="post">
+            {% csrf_token %}
+            <h1>Редактирование часов ВКР и практик</h1>
+            <br>
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 offset-md-3">
+                    {% if success_message %}
+                    <div class="alert alert-success" role="alert">
+                        {{ success_message }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 offset-md-3">
+                    {% for field in form.visible_fields %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {% render_field field class="form-control" %}
+                        </div>
+                    {% endfor %}
+                    <p align="center"><button type="submit" class="btn btn-success">Сохранить</button>
+                    <a href= "{% url 'hours:supervision_hours' %}" class="btn btn-primary">Отмена</a></p>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+$('.alert').delay(5000).slideUp(500, function() {$(this).hide();});
+{% endblock %}

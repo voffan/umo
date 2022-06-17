@@ -1186,7 +1186,7 @@ var formula = (function() {
                 ["admiralty knot", "admkn", null, "speed", false, true, 0.514773333],
                 ["ampere", "A", null, "electric_current", true, false, 1],
                 ["ampere per meter", "A/m", null, "magnetic_field_intensity", true, false, 1],
-                ["ångström", "Å", ["ang"], "length", false, true, 1e-10],
+                ["ГҐngstrГ¶m", "Г…", ["ang"], "length", false, true, 1e-10],
                 ["are", "ar", null, "area", false, true, 100],
                 ["astronomical unit", "ua", null, "length", false, false, 1.49597870691667e-11],
                 ["bar", "bar", null, "pressure", false, false, 100000],
@@ -1198,7 +1198,7 @@ var formula = (function() {
                 ["candela", "cd", null, "luminous_intensity", true, false, 1],
                 ["candela per square metre", "cd/m?", null, "luminance", true, false, 1],
                 ["coulomb", "C", null, "electric_charge", true, false, 1],
-                ["cubic ångström", "ang3", ["ang^3"], "volume", false, true, 1e-30],
+                ["cubic ГҐngstrГ¶m", "ang3", ["ang^3"], "volume", false, true, 1e-30],
                 ["cubic foot", "ft3", ["ft^3"], "volume", false, true, 0.028316846592],
                 ["cubic inch", "in3", ["in^3"], "volume", false, true, 0.000016387064],
                 ["cubic light-year", "ly3", ["ly^3"], "volume", false, true, 8.46786664623715e-47],
@@ -1210,7 +1210,7 @@ var formula = (function() {
                 ["cup", "cup", null, "volume", false, true, 0.0002365882365],
                 ["dalton", "Da", ["u"], "mass", false, false, 1.66053886282828e-27],
                 ["day", "d", ["day"], "time", false, true, 86400],
-                ["degree", "°", null, "angle", false, false, 0.0174532925199433],
+                ["degree", "В°", null, "angle", false, false, 0.0174532925199433],
                 ["degrees Rankine", "Rank", null, "temperature", false, true, 0.555555555555556],
                 ["dyne", "dyn", ["dy"], "force", false, true, 0.00001],
                 ["electronvolt", "eV", ["ev"], "energy", false, true, 1.60217656514141],
@@ -1270,12 +1270,12 @@ var formula = (function() {
                 ["n.u. of time", "?/(me?c??)", null, "time", false, false, 1.28808866778687e-21],
                 ["nautical mile", "M", ["Nmi"], "length", false, true, 1852],
                 ["newton", "N", null, "force", true, true, 1],
-                ["œrsted", "Oe ", null, "magnetic_field_intensity", false, false, 79.5774715459477],
-                ["ohm", "Ω", null, "electric_resistance", true, false, 1],
+                ["Е“rsted", "Oe ", null, "magnetic_field_intensity", false, false, 79.5774715459477],
+                ["ohm", "О©", null, "electric_resistance", true, false, 1],
                 ["ounce mass", "ozm", null, "mass", false, true, 0.028349523125],
                 ["pascal", "Pa", null, "pressure", true, false, 1],
                 ["pascal second", "Pa?s", null, "dynamic_viscosity", true, false, 1],
-                ["pferdestärke", "PS", null, "power", false, true, 735.49875],
+                ["pferdestГ¤rke", "PS", null, "power", false, true, 735.49875],
                 ["phot", "ph", null, "illuminance", false, false, 0.0001],
                 ["pica (1/6 inch)", "pica", null, "length", false, true, 0.00035277777777778],
                 ["pica (1/72 inch)", "Pica", ["Picapt"], "length", false, true, 0.00423333333333333],
@@ -1291,7 +1291,7 @@ var formula = (function() {
                 ["siemens", "S", null, "electrical_conductance", true, false, 1],
                 ["sievert", "Sv", null, "equivalent_dose", true, false, 1],
                 ["slug", "sg", null, "mass", false, true, 14.59390294],
-                ["square ångström", "ang2", ["ang^2"], "area", false, true, 1e-20],
+                ["square ГҐngstrГ¶m", "ang2", ["ang^2"], "area", false, true, 1e-20],
                 ["square foot", "ft2", ["ft^2"], "area", false, true, 0.09290304],
                 ["square inch", "in2", ["in^2"], "area", false, true, 0.00064516],
                 ["square light-year", "ly2", ["ly^2"], "area", false, true, 8.95054210748189e+31],
@@ -5127,7 +5127,7 @@ var formula = (function() {
         exports.MODE = {};
 
         exports.MODE.MULT = function() {
-            // Credits: Roönaän
+            // Credits: RoГ¶naГ¤n
             var range = utils.parseNumberArray(utils.flatten(arguments));
             if (range instanceof Error) {
                 return range;

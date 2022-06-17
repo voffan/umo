@@ -1,35 +1,116 @@
 {% extends 'base.html' %}
 {% block title %}Список контингента{% endblock %}
 {% block content %}
+{% csrf_token %}
+<style>
+    .wtHider{
+        width:150px !important;
+    }
+    .handsontableInputHolder .wtSpreader .htCore{
+        width:150px !important;
+    }
+</style>
     <h1>Список контингента студентов</h1>
-    <p align="right" id="contingent_list_filter">
+    <p align="right">
         <label>
             <b>Группы</b>
         </label>
         <br>
     </p>
-    <table id="contingent_list" class="table table-bordered">
-        <thead class="thead-light">
-        <tr>
-            <th>№</th>
-            <th>Группа</th>
-            <th>Тип группы</th>
-            <th>Количество подгрупп</th>
-            <th>Количество студентов</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for contingent in object_list %}
-            <tr>
-                <td></td>
-                <td><a href="{% url 'hours:edit_contingent' contingent.id %}">{{ contingent.group }}</a></td>
-                <td>{{ contingent.group_type }}</td>
-                <td>{{ contingent.subgroup }}</td>
-                <td>{{ contingent.amount }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div id="contingentlist" class="hot"></div>
     <br>
     <a href="{% url 'hours:contingent_upload' %}" class="btn btn-success">Загрузить контингент</a>
+    <button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
+
+{% endblock %}
+
+{% block scripts %}
+var hot;
+let columns = [
+  	{
+    	data: 'id',
+    	title: 'Id',
+    },
+    {
+    	data: 'group',
+    	title: 'Группа',
+        renderer: 'html',
+    },
+    {
+    	data: 'group_type',
+    	title: 'Тип группы',
+        type: 'key-value-list',
+        source: [{% for item in group_type %}{_id:"{{ item.0 }}", label: "{{ item.1 }}"},{% endfor %}]
+
+    },
+    {
+    	data: 'subgroup',
+    	title: 'Количество подгрупп',
+    },
+    {
+    	data: 'amount',
+    	title: 'Количество студентов',
+    },
+    {
+        data:'buttons',
+        title: 'Удаление',
+        readOnly: true,
+        width: 95,
+        renderer: 'html',
+    },
+  ];
+
+fetch("{% url 'hours:api:get_contingentlist' %}")
+.then((response)=>{
+    if(response.status != 200)
+    {
+        //process error
+        return [];
+    }
+    return response.json();
+})
+.then((data)=>{
+    const container = document.getElementById('contingentlist');
+    hot = new Handsontable(container, {
+      data: data,
+      colWidths: 150,
+      rowHeaders: true,
+      colHeaders: true,
+      height: 300,
+      language: 'en-US',
+      licenseKey: 'non-commercial-and-evaluation',
+      columns: columns,
+      hiddenColumns: {
+        columns: [0],
+        indicators: true
+      }
+    });
+let saveButton  = document.querySelector('#save');
+saveButton.addEventListener('click', () => {
+    fetch("{% url 'hours:api:save_contingent' %}", {
+        method: 'POST',
+        body: JSON.stringify({'data': hot.getData()}),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector("[name=csrfmiddlewaretoken]").value,
+            },
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:', hot.getData());
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert("Ошибка в сохранении");
+        })
+    });
+});
+
+
+
+
+function test1() {
+    console.log('1');
+}
 {% endblock %}

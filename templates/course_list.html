@@ -1,53 +1,301 @@
 {% extends 'base.html' %}
 {% block title %}Список курсов{% endblock %}
 {% block content %}
+{% csrf_token %}
+<style>
+    .handsontable thead th {
+        height: 260px;
+    }
+    .handsontable thead th .relative{
+        transform: rotate(90deg);
+        bottom: 20px;
+    }
+    .handsontable span.colHeader {
+        line-height: 200px;
+    }
+    .wtHider{
+        width:250px !important;
+    }
+    .handsontableInputHolder .wtSpreader .htCore{
+        width:250px !important;
+    }
+    .handsontable .valid {
+        background-color: red;
+    }
+</style>
     <h1>Список курсов</h1>
-    <p align="right" id="course_list_filter">
+    <p align="right">
         <label>
             <b>Курсы</b>
         </label>
         <br>
     </p>
-    <table id="course_list" class="table table-bordered">
-        <thead class="thead-light">
-        <tr>
-            <th>№</th>
-            <th>Учебный год</th>
-            <th>Преподаватель</th>
-            <th>Группа</th>
-            <th>Дисциплина</th>
-            <th>Лекции</th>
-            <th>Практики</th>
-            <th>Лабораторные работы</th>
-            <th>Консультации</th>
-            <th>Экзамены</th>
-            <th>Проверка РГР</th>
-            <th>Проверка остаточных знаний</th>
-            <th>Контроль СРС</th>
-            <th>Контроль БРС</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for course in object_list %}
-            <tr>
-                <td></td>
-                <td>{{ course.edu_period }}</td>
-                <td>{{ course.teacher }}</td>
-                <td>{{ course.group }}</td>
-                <td>{{ course.discipline_settings }}</td>
-                <td>{{ course.f_lecture }}</td>
-                <td>{{ course.f_practice }}</td>
-                <td>{{ course.f_lab }}</td>
-                <td>{{ course.f_consult_hours }}</td>
-                <td>{{ course.f_exam_hours }}</td>
-                <td>{{ course.f_check_hours }}</td>
-                <td>{{ course.f_control_hours }}</td>
-                <td>{{ course.f_control_SRS }}</td>
-                <td>{{ course.f_control_BRS }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div id="course_list" class="hot"></div>
     <br>
     <a href="{% url 'hours:course_upload' %}" class="btn btn-success">Загрузить курсы</a>
+    <button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
+<!--    <button id="kup" class="btn btn-success" name="kup">TEST</button>-->
+    <a href="{% url 'hours:supervision_hours' %}" class="btn btn-success">Часы ВКР и курсовых</a>
 {% endblock %}
+
+{% block scripts %}
+var hot;
+var k={ {% for item in teacher_status %}{{item.0}}: {{ item.1 }},{% endfor %} };
+
+let columns = [
+  	{
+    	data: 'id',
+    	title: 'Id',
+        width: 50,
+        renderer: valid,
+    },
+    {
+    	data: 'edu_period',
+    	title: 'Учебный год',
+        renderer: valid,
+    },
+    {
+    	data: 'teacher',
+    	title: 'Преподаватель',
+        type: 'key-value-list',
+        source: [{% for item in teacher %}{_id:"{{ item.id }}", label: "{{ item.FIO }}"},{% endfor %}],
+    },
+    {
+    	data: 'group',
+    	title: 'Группа',
+        renderer: valid,
+        readOnly: true,
+<!--        source: [{% for item in group %}{ id:"{{ item.id }}", label: "{{ item.Name }}"},{% endfor %}],-->
+
+    },
+    {
+    	data: 'cathedra',
+    	title: 'Кафедра',
+        type: 'key-value-list',
+        source: [{% for item in cathedra %}{_id:"{{ item.id }}", label: "{{ item.name }}"},{% endfor %}],
+    },
+    {
+    	data: 'discipline_settings',
+    	title: 'Дисциплина',
+        renderer: valid,
+        readOnly: true,
+    },
+    {
+    	data: 'f_lecture',
+    	title: 'Лекции',
+        width: 50,
+        renderer: valid,
+    },
+    {
+    	data: 'f_practice',
+    	title: 'Практики',
+        width: 50,
+        renderer: valid,
+    },
+    {
+    	data: 'f_lab',
+    	title: 'Лабораторные работы',
+        width: 50,
+        renderer: valid,
+    },
+    {
+    	data: 'f_consult_hours',
+    	title: 'Консультации',
+        width: 50,
+        renderer: valid,
+    },
+    {
+    	data: 'f_exam_hours',
+    	title: 'Экзамены',
+        width: 50,
+        renderer: valid,
+    },
+    {
+    	data: 'f_control_hours',
+    	title: 'Проверка РГР',
+        width: 50,
+        renderer: valid,
+
+    },
+    {
+    	data: 'f_check_hours',
+    	title: 'Проверка остаточных знаний',
+        width: 50,
+        renderer: valid,
+    },
+    {
+    	data: 'f_control_SRS',
+    	title: 'Контроль СРС',
+        width: 50,
+        renderer: valid,
+    },
+    {
+    	data: 'f_control_BRS',
+    	title: 'Контроль БРС',
+        width: 50,
+        renderer: valid,
+    },
+    {
+        data: 'edu',
+        title: 'Учебная',
+        width: 50,
+    },
+    {
+        data: 'intern',
+        title: 'Производственная',
+        width: 50,
+    },
+    {
+        data: 'graduate',
+        title: 'Преддипломная',
+        width: 50,
+    },
+    {
+        data: 'teaching',
+        title: 'Педагогическая',
+        width: 50,
+    },
+    {
+        data: 'gek',
+        title: 'ГЭК, ГАК',
+        width: 50,
+    },
+    {
+        data: 'vkr_rev',
+        title: 'Рецензия ВКР',
+        width: 50,
+    },
+    {
+        data: 'admis',
+        title: 'Прием кандидатского',
+        width: 50,
+    },
+    {
+        data: 'ref_rev',
+        title: 'Рецензия рефератов',
+        width: 50,
+    },
+    {
+        data: 'is_lecture_seperate',
+        title: 'Лекции отдельно',
+        width: 50,
+        type: 'checkbox',
+    },
+    {
+        data: 'practice_weekly',
+        title: 'Недель практики',
+        width: 50,
+    },
+    {
+        data: 'is_hourly',
+        title: 'Почасовая',
+        width: 50,
+        type: 'checkbox',
+    },
+    {
+        data: 'is_KR_KP_VKR',
+        title: 'КР/КП ВКР',
+        width: 50,
+        type: 'checkbox',
+    },
+    {
+        data: 'is_new',
+        title: 'Вновь вводимый',
+        width: 50,
+        type: 'checkbox',
+    },
+    {
+        data: 'need_new_RPD',
+        title: 'Составление РПД',
+        width: 50,
+        type: 'checkbox',
+    },
+    {
+        data: 'need_upd_RPD',
+        title: 'Обновление РПД',
+        width: 50,
+        type: 'checkbox',
+    },
+  ];
+
+
+fetch("{% url 'hours:api:get_courselist' %}")
+.then((response)=>{
+    if(response.status != 200)
+    {
+        //process error
+        return [];
+    }
+    return response.json();
+})
+.then((data)=>{
+    const container = document.getElementById('course_list');
+    hot = new Handsontable(container, {
+      data: data,
+      rowHeaders: true,
+      colHeaders: true,
+      height: 500,
+      language: 'ru-RU',
+      trimDropdown: false,
+      licenseKey: 'non-commercial-and-evaluation',
+      columns: columns,
+      beforeValidate:(value, row, prop)=>{
+        if(prop === 'teacher') {
+            columns[2].source.forEach((el, index) => {
+                if(el.label.includes(value)) {
+                    //console.log(el);
+                    console.log(prop);
+                    return (value = el._id);
+                }
+            });
+            return value;
+        }
+        if(prop === 'cathedra') {
+            columns[4].source.forEach((el, index) => {
+                if(el.label.includes(value)) {
+                    return (value = el._id);
+                }
+            });
+            return value;
+        }
+      },
+      afterChange: (changes) => {
+        //console.log(data)
+      }
+    });
+});
+let saveButton  = document.querySelector('#save');
+saveButton.addEventListener('click', () => {
+    fetch("{% url 'hours:api:save_courselist' %}", {
+        method: 'POST',
+        body: JSON.stringify({'data': hot.getData()}),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector("[name=csrfmiddlewaretoken]").value,
+        },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        for (key in data['valid']) {
+            k[key] = data['valid'][key];
+        }
+        console.log('Success:', hot.getData());
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+<!--        undoRedo.undo()-->
+        alert("Ошибка в сохранении");
+    })
+});
+function valid(instance, td, row, col, prop, value, cellProperties) {
+    Handsontable.renderers.TextRenderer.apply(this, arguments);
+    console.log(k[(instance.getData()[row][2])]);
+    if(k[instance.getData()[row][2]] === 0)
+    {
+        td.style.backgroundColor = 'red';
+    }
+}
+
+{% endblock %}
+

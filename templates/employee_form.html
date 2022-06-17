@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Добавление сотрудника{% endblock %}
+{% block content %}
+    <div class="container">
+        <form action="{% url 'hours:create_employee' %}" method="post">
+            {% csrf_token %}
+            <h1>Добавление сотрудника</h1>
+            <br>
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    {% for field in form.visible_fields %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {% render_field field class="form-control" %}
+                        </div>
+                    {% endfor %}
+                    <p align="center"><button type="submit" class="btn btn-success">Сохранить</button>
+                    <a href= "{% url 'hours:employee_list' %}" class="btn btn-primary">Отмена</a></p>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

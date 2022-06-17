@@ -92,7 +92,7 @@ class PlnEduProg(YSUMainModel):
     id_studyform = models.SmallIntegerField(null=False)
     real_studyform = models.SmallIntegerField(null=False)
     duration = models.CharField(max_length=25)
-    id_qualify = models.SmallIntegerField(null=False)
+    id_qualify = models.ForeignKey('PlnSprQualify', db_column='id_qualify', on_delete=models.CASCADE)
     id_eduprogtype = models.SmallIntegerField(null=False)
     addinfo = models.CharField(max_length=50)
     docprefix = models.CharField(max_length=10)
@@ -163,7 +163,7 @@ class PlnGroupStud(YSUMainModel):
 
 class PlnSprSpecializ(YSUMainModel):
     id_spec = models.IntegerField(primary_key=True, null=False)
-    id_specialn = models.IntegerField(null=False)
+    id_specialn = models.ForeignKey('PlnSprSpecialnost', db_column='id_specialn', on_delete=models.CASCADE)
     name = models.CharField(max_length=250, null=False)
     shortname = models.CharField(max_length=20, null=False)
     code = models.CharField(max_length=20, null=False)
@@ -173,3 +173,34 @@ class PlnSprSpecializ(YSUMainModel):
 
     class Meta(YSUMainModel.Meta):
         db_table = 'pln_spr_Specializ'
+
+
+class PlnSprSpecialnost(YSUMainModel):
+    id_specialn = models.IntegerField(primary_key=True, null=False)
+    name = models.CharField(max_length=250, null=False)
+    shortname = models.CharField(max_length=20, null=False)
+    code = models.CharField(max_length=20, null=False)
+    id_edugroup = models.IntegerField(null=False)
+    id_edunapr = models.IntegerField(null=False)
+
+    class Meta(YSUMainModel.Meta):
+        db_table = 'pln_spr_Specialnost'
+
+
+class PlnSprQualify(YSUMainModel):
+    id_qualify = models.IntegerField(primary_key=True, null=False)
+    name = models.CharField(max_length=100, null=False)
+    id_qualifylevel = models.ForeignKey('PlnSprQualifyLevel', db_column='id_qualifylevel', on_delete=models.CASCADE)
+
+    class Meta(YSUMainModel.Meta):
+        db_table = 'pln_spr_Qualify'
+
+
+class PlnSprQualifyLevel(YSUMainModel):
+    id_qualifylevel = models.IntegerField(primary_key=True, null=False)
+    name = models.CharField(max_length=50, null=False)
+    shortname = models.CharField(max_length=5, null=False)
+    qualifylevelcommon = models.CharField(max_length=5, null=False)
+
+    class Meta(YSUMainModel.Meta):
+        db_table = 'pln_spr_QualifyLevel'
