@@ -127,6 +127,9 @@ class DisciplineResult(Model):
     skill = TextField(verbose_name="Планируемые результаты")
     judging = TextField(verbose_name="Оценочные средства") #перечислениеfos
 
+    def __str__(self):
+        return self.competency.name
+
 
 class RPDDisciplineContent(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
@@ -134,7 +137,7 @@ class RPDDisciplineContent(Model):
     content = TextField(verbose_name="Содержимое")
 
     def __str__(self):
-        return self.theme
+        return self.rpd.Name + ": " + self.theme
 
 
 class RPDDisciplineContentHours(Model):
@@ -200,7 +203,7 @@ class FOS(Model): #Общие показатели оценивания?
 
 
 class ELibrary(Model): #подкласс
-    name = CharField(verbose_name="Название",max_length=100, db_index=True, default=1)
+    name = CharField(verbose_name="Ссылка",max_length=100, db_index=True, default=1)
 
     def __str__(self):
         return self.name
@@ -210,6 +213,6 @@ class Bibliography(Model):
     rpd = ForeignKey(RPDDiscipline, verbose_name="Дисциплина", db_index=True, on_delete=CASCADE)
     reference = TextField(verbose_name="Библиографическая ссылка")
     elibrary = ForeignKey(ELibrary, verbose_name='Электронная литература', null=True, blank=True, db_index=True, on_delete=SET_NULL)
-    grif = CharField(verbose_name="Наличие грифа",max_length=200, db_index=True, default=1)
+    grif = CharField(verbose_name="Наличие грифа, вид грифа",max_length=200, db_index=True, default=1)
     is_main = BooleanField("Главная литература", default=False)
     count = IntegerField(verbose_name="Кол-во экземпляров", default= 1)
