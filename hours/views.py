@@ -181,7 +181,7 @@ def get_courselist(request):
     result = [dict(zip(fields_names, row)) for row in CourseHours.objects.select_related('edu_period').annotate(
         ep=Concat(Cast(F('edu_period__begin_year__year'), CharField()),
                   Value('-'),
-                  Cast(F('edu_period__end_year__year'), CharField())),
+                  Cast(F('edu_period__end_year__year'), CharField()))
     ).annotate(edu=Subquery(edu.values('hours')),
                intern=Subquery(intern.values('hours')),
                graduate=Subquery(graduate.values('hours')),

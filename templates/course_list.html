@@ -259,8 +259,8 @@ fetch("{% url 'hours:api:get_courselist' %}")
             return value;
         }
       },
-      afterChange: (changes) => {
-        //console.log(data)
+      beforeChange: (changes) => {
+
       }
     });
 });

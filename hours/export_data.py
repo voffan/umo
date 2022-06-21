@@ -432,7 +432,6 @@ def kup_export(teacher):
     ws.title = teacher_name[0][0] + teacher_name[1][0] + teacher_name[2][0]
     kup_header(ws, teacher)
     kup_body(ws, teacher)
-    wb.save('KUP.xlsx')
     return wb
 
 
