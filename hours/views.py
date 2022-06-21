@@ -282,6 +282,7 @@ def save_courselist(request):
                 ds.need_new_rpd = item[28]
                 ds.need_upd_rpd = item[29]
                 ds.save()
+                course.save()
                 if course.teacher is not None:
                     add_supervision_hours(t, course.group, k, 1,
                                           SupervisionHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
@@ -356,7 +357,6 @@ def save_courselist(request):
                         ds.save()
                         c.save()
                 result['valid'][t.id] = int(norm_hours(t.id) and norm_stavka(t.id))
-                course.save()
             result['result'] = True
         except Exception as e:
             result['error'] = 'Ошибка в сохранении'

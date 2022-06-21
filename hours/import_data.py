@@ -99,6 +99,14 @@ def import_course(file):
             value_lab = int(str(sheet_obj.cell(row=i, column=9).value))
             value_control = int(str(sheet_obj.cell(row=i, column=21).value))
             value_SRS = int(str(sheet_obj.cell(row=i, column=11).value))
+            ctrl_exam = int(str(sheet_obj.cell(row=i, column=12).value))
+            ctrl_zacho = int(str(sheet_obj.cell(row=i, column=13).value))
+            ctrl_zach = int(str(sheet_obj.cell(row=i, column=14).value))
+            ctrl_kp = int(str(sheet_obj.cell(row=i, column=15).value))
+            ctrl_kr = int(str(sheet_obj.cell(row=i, column=16).value))
+            ctrl_control = int(str(sheet_obj.cell(row=i, column=17).value))
+            ctrl_ref = int(str(sheet_obj.cell(row=i, column=18).value))
+            ctrl_rgr = int(str(sheet_obj.cell(row=i, column=19).value))
             code = str(sheet_obj.cell(row=i, column=2).value).split("_")[0]
             if "G" in code:
                 code = code[1:]
@@ -153,6 +161,28 @@ def import_course(file):
                     dd.need_new_RPD = False
                     dd.need_upd_RPD = False
                     dd.save()
+                    ctrl = Control()
+                    ctrl.discipline_detail = dd
+                    if ctrl_exam == 1:
+                        ctrl.control_type = 1
+                    elif ctrl_zacho == 1:
+                        ctrl.control_type = 3
+                    elif ctrl_zach == 1:
+                        ctrl.control_type = 2
+                    elif ctrl_kp == 1:
+                        ctrl.control_type = 5
+                    elif ctrl_kr == 1:
+                        ctrl.control_type = 4
+                    elif ctrl_control == 1:
+                        ctrl.control_type = 6
+                    elif ctrl_ref == 1:
+                        ctrl.control_type = 10
+                    elif ctrl_rgr == 1:
+                        ctrl.control_type = 11
+                    else:
+                        ctrl.control_type = 0
+                    ctrl.control_hours = 0
+                    ctrl.save()
                 # Курсы
                 add_course(group, group.cathedra, dd, value_lecture, value_practice, value_lab,
                            value_control, value_SRS)
@@ -411,11 +441,11 @@ def add_course(group, cathedra, dd, value_lecture, value_practice, value_lab,
     courseh.f_practice = value_practice
     courseh.f_lab = value_lab
     courseh.f_consult_hours = settings.consult if dd.control_set.get().control_type == Control.EXAM else 0
-    courseh.f_exam_hours = settings.exam * group.amount if dd.control_set.get().control_type == Control.EXAM else 0
+    courseh.f_exam_hours = settings.exam * g.amount if dd.control_set.get().control_type == Control.EXAM else 0
     courseh.f_control_hours = value_control
-    courseh.f_check_hours = None
+    courseh.f_check_hours = 0
     courseh.f_control_SRS = value_SRS
-    courseh.f_control_BRS = math.ceil(group.amount * settings.brs)  # округление в большую сторону
+    courseh.f_control_BRS = math.ceil(g.amount * settings.brs)  # округление в большую сторону
     courseh.save()
 
 
@@ -428,7 +458,7 @@ def add_supervision_hours(teacher, group, cathedra, supervision_type, superv):
     superv.students = group.amount
     superv.supervision_type = supervision_type
     course = CourseHours.objects.filter(teacher_id=teacher.id, group_id=group.id).first()
-    control = Control.objects.filter(discipline_detail__id=course.discipline_settings.id).first()
+    control = Control.objects.filter(discipline_detail__discipline__id=course.discipline_settings.discipline.id).first()
     if superv.supervision_type == 1:
         if "Руководство ВКР" in course.discipline_settings.discipline.Name:
             if group.group.program.specialization.qual == 4:
