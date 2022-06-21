@@ -1,10 +1,7 @@
-from django.db import models
-
-from django.db import models, transaction
-from django.db.models import CharField, ForeignKey, IntegerField, BooleanField, DecimalField, FloatField, DateTimeField, OneToOneField
+from django.db.models import CharField, ForeignKey, IntegerField, BooleanField, DecimalField, FloatField
 from django.db.models import Model, CASCADE, SET_NULL
 from django.core.validators import MaxValueValidator, MinValueValidator
-from umo.models import Teacher, Course, Specialization, EduOrg, Group, DisciplineDetails, EduPeriod, Kafedra
+from umo.models import Teacher, Group, DisciplineDetails, EduPeriod, Kafedra
 
 
 class DisciplineSetting(DisciplineDetails):
@@ -249,6 +246,7 @@ class HoursSettings(Model):
     ref_rev = DecimalField(verbose_name="Рецензия рефератов", default=0, decimal_places=1, max_digits=5)#1*amount
     admis = DecimalField(verbose_name="Прием кандидатского", default=0, decimal_places=2, max_digits=5)#0.75*amount
     exam = DecimalField(verbose_name="Прием экзамена", default=0, decimal_places=2, max_digits=5)#0.25*amount
+    zav_cathedra = CharField(verbose_name="Заведующий кафедры", default='', max_length=200, db_index=True)
     is_active = BooleanField(verbose_name="Активен", default=False)
 
     class Meta:

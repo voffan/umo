@@ -1,23 +1,18 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.shortcuts import render, get_object_or_404, redirect, reverse
-from django.contrib.auth.decorators import permission_required, login_required
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.db.models.functions import Cast, Concat
-from django.db.models import F, CharField, DecimalField, Value, OuterRef, Subquery
-from django.conf import settings
-import os, json
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.db.models import F, CharField, Value, OuterRef, Subquery
+import json
+from django.http import HttpResponse, JsonResponse
 from transliterate import translit
-
 from hours.import_data import import_students, import_course, add_supervision_hours, add_practice_hours, add_other_hours
-from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
-                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam, Kafedra)
+from umo.models import (Teacher, EduPeriod, Kafedra)
 from hours.models import (DisciplineSetting, GroupInfo, CourseHours, SupervisionHours, PracticeHours, OtherHours,
                           CathedraEmployee, NormControl)
-
 from .form import UploadFileForm
-from django.views.decorators.csrf import requires_csrf_token
 from nomenclature.views import hadle_uploaded_file
 from hours.export_data import kup_export
 
@@ -38,15 +33,11 @@ class CourseList(PermissionRequiredMixin, ListView):
         for item in Teacher.objects.all():
             result.append({'id': item.id, 'FIO': item.FIO})
             teacher_status.append([item.id, int(norm_hours(item.id) and norm_stavka(item.id))])
-        # group = []
-        # for item in GroupInfo.objects.all():
-        #     group.append({'id': item.id, 'Name': item.Name})
         cathedra = []
         for item in Kafedra.objects.all():
             cathedra.append({'id': item.id, 'name': item.name})
         context['teacher'] = result
         context['teacher_status'] = teacher_status
-        # context['group'] = group
         context['cathedra'] = cathedra
 
         return context
@@ -71,17 +62,11 @@ def upload_course(request):
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             f = hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
-            # cathedra = Teacher.objects.get(user__id=request.user.id).cathedra
             import_course(f)
             print('Courses are uploaded')
-            # return redirect(reverse('nomenclature:rup'))
 
     form = UploadFileForm()
     return render(request, 'upload_file.html', {'form': form, 'header': 'курсов'})
-
-
-def upload_courses(file):
-    pass
 
 
 def upload_contingent(request):
@@ -89,17 +74,11 @@ def upload_contingent(request):
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             f = hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
-            # cathedra = Teacher.objects.get(user__id=request.user.id).cathedra
             import_students(f)
             print('Contingent are uploaded')
-            # return redirect(reverse('nomenclature:rup'))
 
     form = UploadFileForm()
     return render(request, 'upload_file.html', {'form': form, 'header': 'контингента'})
-
-
-def upload_contingents(file):
-    pass
 
 
 class ContingentUpdate(PermissionRequiredMixin, UpdateView):
@@ -131,6 +110,7 @@ class EmployeeList(PermissionRequiredMixin, ListView):
         for item in Teacher.objects.all():
             teacher.append({'id': item.id, 'FIO': item.FIO})
         context['teacher'] = teacher
+        context['employee_type'] = CathedraEmployee.STAFF_TYPE
 
         return context
 
@@ -478,5 +458,3 @@ def export_kup(request, pk):
                                                                              reversed=True) + '.xlsx'
         wb.save(response)
         return response
-
-

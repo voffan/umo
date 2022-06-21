@@ -48,7 +48,6 @@
                           {% endif %}
                           <a class="dropdown-item" href="{% url 'disciplines:disciplines_list' %}">Список дисциплин</a>
                           <a class="dropdown-item" href="{% url 'teachers:list_groups' %}">Список групп</a>
-                          <a class="dropdown-item" href="{% url 'students:group_points' %}">Экран успеваемости</a>
                           <div class="dropdown-divider"></div>
                             {% if user|has_group:"zavkaf" %}
                           <a class="dropdown-item" href="{% url 'nomenclatures:rup' %}">Рабочий учебный план</a>

@@ -1,14 +1,9 @@
 import openpyxl
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django.db import transaction
-from openpyxl import load_workbook
-from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
-from openpyxl.utils.cell import get_column_interval
-from hours.models import GroupInfo, Group, EduPeriod, Teacher, Kafedra, DisciplineSetting, CourseHours, HoursSettings, \
+from hours.models import GroupInfo, EduPeriod, Kafedra, DisciplineSetting, CourseHours, HoursSettings, \
     SupervisionHours, PracticeHours, OtherHours, TeacherGekStatus
 from umo.models import Discipline, EduProgram, Group, Year, GroupList, Student, EduOrg, Specialization, Profile, \
-    Control, DisciplineDetails
+    Control, DisciplineDetails, Semester
 import synch.models as sync_models
 import datetime
 import math
@@ -25,7 +20,7 @@ def import_students(file):
             total = int(str(sheet_obj_oo.cell(row=i, column=28).value))
             edu_type = "ОФО"
             print(name_group, total)
-            if (total >= 20):
+            if total >= 20:
                 subgroup_number = 2
             else:
                 subgroup_number = 1
@@ -43,7 +38,7 @@ def import_students(file):
             total = int(str(sheet_obj_zo.cell(row=i, column=27).value))
             edu_type = "ЗФО"
             print(name_group, total)
-            if (total >= 20):
+            if total >= 20:
                 subgroup_number = 2
             else:
                 subgroup_number = 1
@@ -61,7 +56,7 @@ def import_students(file):
             total = int(str(sheet_obj_ozo.cell(row=i, column=15).value))
             edu_type = "ОЗО"
             print(name_group, total)
-            if (total >= 20):
+            if total >= 20:
                 subgroup_number = 2
             else:
                 subgroup_number = 1
@@ -103,24 +98,25 @@ def import_course(file):
             value_practice = int(str(sheet_obj.cell(row=i, column=10).value))
             value_lab = int(str(sheet_obj.cell(row=i, column=9).value))
             value_control = int(str(sheet_obj.cell(row=i, column=21).value))
-            # value_check = int(str(sheet_obj.cell(row=i, column=).value))
             value_SRS = int(str(sheet_obj.cell(row=i, column=11).value))
             code = str(sheet_obj.cell(row=i, column=2).value).split("_")[0]
             if "G" in code:
                 code = code[1:]
+            if "П" in code:
+                code = code[:len(code)-1]
+            code = code[0] + code[1] + '.' + code[2] + code[3] + '.' + code[4] + code[5]
             year = str(sheet_obj.cell(row=i, column=2).value)
             if "G" in year:
                 year = year[1:]
             seps = ['_', '-']
             for sep in seps:
                 year = year.replace(sep, ' ')
-            year = int(year.split()[1])
-            # year = int('20' + str(sheet_obj.cell(row=i, column=2).value.rsplit(sep=['_', '_', '-'])[1]))
+            year = int(str('20' + year.split()[1]))
             # Группы
             groups = Group.objects.filter(program__specialization__code=code, begin_year__year=year)
             if len(groups) < 1:
                 groups = synch_group(str(sheet_obj.cell(row=i, column=3).value), code,
-                                     year)  # add program, group(синхрoнизируются)
+                                     year)
             for group in groups:
                 # Дисцилпины
                 dd = DisciplineSetting.objects.filter(discipline__Name=name_discipline,
@@ -136,13 +132,14 @@ def import_course(file):
                         d.program = group.program
                         d.save()
                         dd = DisciplineSetting()
-                        dd.Credit = None
+                        dd.Credit = 0
                         dd.Lecture = value_lecture
                         dd.Practice = value_practice
                         dd.Lab = value_lab
                         dd.KSR = value_control
                         dd.SRS = value_SRS
-                        dd.semester.name = semester
+                        dd.semester = Semester.objects.get(name=semester)
+                        dd.discipline = d
                     else:
                         disc_detail = DisciplineDetails.objects.filter(discipline__Name=name_discipline,
                                                                        discipline__program__id=group.program.id,
@@ -184,7 +181,7 @@ def synch_group(inst_name, spec_code, begin_year):
     year = Year.objects.filter(year=begin_year.year).first()
     synch_groups = sync_models.PlnGroupStud.objects.filter(id_pln__id_dop__id_institute=institutes[inst_name]['id'],
                                                            id_pln__id_dop__id_spec__code=spec_code,
-                                                           id_pln__datebegin=begin_year.strftime('%Y-%m-%d'))
+                                                           id_pln__datebegin__gte=begin_year.strftime('%Y-%m-%d'))
     n = synch_groups.count()
     i = 1
     groups = []
@@ -234,8 +231,6 @@ def synch_group(inst_name, spec_code, begin_year):
             gl.save()
         i += 1
         groups.append(g)
-    # synch.finished = True
-    # synch.save()
     return groups
 
 
@@ -396,11 +391,20 @@ def get_edu_level(level):
 
 def add_course(group, cathedra, dd, value_lecture, value_practice, value_lab,
                value_control, value_SRS):
-    settings = HoursSettings.objects.filter(active=True).first()
+    settings = HoursSettings.objects.filter(is_active=True).first()
     courseh = CourseHours()
     courseh.edu_period = EduPeriod.objects.get(active=True)
     courseh.teacher = None
-    courseh.group = group
+    g = GroupInfo.objects.filter(group__id=group.id).first()
+    if g is None:
+        g = GroupInfo()
+        g.group = group
+        g.group_type = 1
+        g.subgroup = 1
+        g.amount = 1
+        g.edu_type = 1
+        g.save()
+    courseh.group = g
     courseh.cathedra = cathedra
     courseh.discipline_settings = dd
     courseh.f_lecture = value_lecture
@@ -436,7 +440,6 @@ def add_supervision_hours(teacher, group, cathedra, supervision_type, superv):
     elif superv.supervision_type == 2:
         if control:
             if control.control_type == 4 or 5:
-            #todo когда КПКР создавать?
                 if group.group.program.specialization.qual == 4:
                     if course.discipline_settings.semester.name == "1" or "2":
                         superv.hours = settings.kp_kr_1 * superv.students
@@ -531,7 +534,6 @@ def add_practice_hours(teacher, group, cathedra, practice_type, practice):
             else:
                 practice.hours = 0
         elif practice.practice_type == 3:
-            #todo Спросить насчет условия создания преддипломной практики
             if "преддипломная" in c.discipline_settings.discipline.Name:
                 if group.group.program.specialization.qual == 4:
                     practice.hours = settings.practice_graduate_1 * c.discipline_settings.practice_weekly + settings.practice_preparing
@@ -589,7 +591,6 @@ def add_other_hours(teacher, group, cathedra, other_type, other):
         else:
             other.hours = 0
     elif other.other_type == 3:
-        #todo ?
         if group.group.program.specialization.qual == 8:
             other.hours = settings.admis * group.amount
         else:

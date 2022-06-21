@@ -2,6 +2,14 @@
 {% block title %}Штатное расписание{% endblock %}
 {% block content %}
 {% csrf_token %}
+<style>
+    .wtHider{
+        width:150px !important;
+    }
+    .handsontableInputHolder .wtSpreader .htCore{
+        width:150px !important;
+    }
+</style>
     <h1>Штатное расписание</h1>
     <p align="right" id="employee_list_filter">
         <label>
@@ -37,6 +45,8 @@ let columns = [
     {
     	data: 'employee_type',
     	title: 'Тип',
+        type: 'key-value-list',
+        source: [{% for item in employee_type %}{_id:"{{ item.0 }}", label: "{{ item.1 }}"},{% endfor %}]
     },
     {
     	data: 'is_active',
