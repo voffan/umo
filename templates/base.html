@@ -47,6 +47,7 @@
                           <a class="dropdown-item" href="{% url 'students:group_points' %}">Экран успеваемости</a>
                           <div class="dropdown-divider"></div>
                             {% if user|has_group:"zavkaf" %}
+                          <a class="dropdown-item" href="{% url 'rpds:rpd_list' %}">Рабочий план дисциплин</a>
                           <a class="dropdown-item" href="{% url 'nomenclatures:rup' %}">Рабочий учебный план</a>
                             {% endif %}
                           <a class="dropdown-item" href="{% url 'nomenclatures:nomenclature_disciplines' %}">Номенклатура дисциплин</a>

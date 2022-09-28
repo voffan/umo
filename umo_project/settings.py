@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_extensions',
     'django_select2',
+    'rpd',
 ]
 
 MIDDLEWARE = [

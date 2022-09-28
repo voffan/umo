@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db import models, transaction
-from django.db.models import CharField, ForeignKey, IntegerField, BooleanField, DecimalField, FloatField, DateTimeField
+from django.db.models import CharField, TextField, ForeignKey, IntegerField, BooleanField, DecimalField, FloatField, DateTimeField
 from django.db.models import Model, CASCADE, SET_NULL
 
 
@@ -560,3 +560,32 @@ class Synch(Model):
 
     def __str__(self):
         return 'None'
+
+
+class Competency(Model):
+    UK = 1
+    OPK = 2
+    PK = 3
+
+    CompetencyType =(
+        (UK,"Универсальные"),
+        (OPK,"Общепрофессиональные"),
+        (PK,"Профессиональные"),
+    )
+
+    edu_program = ForeignKey(EduProgram, verbose_name="Программа обучения", db_index=True, on_delete=CASCADE)
+    type = IntegerField("Вид компетенции", choices=CompetencyType, db_index=True, default=UK)
+    short_name = CharField(verbose_name="Абривиатура", max_length=20, db_index=True, default=1)
+    name = CharField(verbose_name="Название", max_length=250, db_index=True, default=1)
+
+    def __str__(self):
+        return self.short_name + ": " + self.name
+
+
+class CompetencyIndicator(Model):
+    competency = ForeignKey(Competency, verbose_name="Компетенция", db_index=True, on_delete=CASCADE)
+    short_name = CharField(verbose_name="Название", max_length=20, db_index=True, default=2)
+    indicator = CharField(verbose_name="Индикаторы", max_length=500, default='indicator')
+
+    def __str__(self):
+        return self.short_name + ": " + self.indicator

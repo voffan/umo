@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Список РПД{% endblock %}
+
+{% block additional_css %}
+<style type="text/css">
+    select{
+        width: 450px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-danger" role="alert" id="error" style="visibility:hidden;position:fixed;top:0;left:0;width:100%;z-index:100;"></div>
+    <h1>Список рабочих программ дисциплин</h1>
+    <table id="my_table2" class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>Код</th>
+                <th>Дисциплина</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for discipline in object_list %}
+            <tr>
+                <td> {{ discipline.code }} </td>
+                <td> <a href="{% url 'rpds:rpd' discipline.id %}">{{ discipline.Name }}</a> </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block scripts %}
+{% if teacher %}
+
+$('#modal_error').hide();
+{% endif %}
+{% endblock %}
