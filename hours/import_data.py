@@ -14,11 +14,13 @@ def import_students(file):
     wb_obj = openpyxl.load_workbook(file, data_only=True)
     sheet_obj_oo = wb_obj.active
     m_row = sheet_obj_oo.max_row
+    rs_col = sheet_obj_oo.cell['Б_РС'].column
     for i in range(1, m_row + 1):
         if sheet_obj_oo.cell(row=i, column=2).value == "ИМИ":
             name_group = str(sheet_obj_oo.cell(row=i, column=4).value)
             total = int(str(sheet_obj_oo.cell(row=i, column=28).value))
             edu_type = "ОФО"
+            rs = int(str(sheet_obj_oo.cell(row=i, column=rs_col).value))
             print(name_group, total)
             if total >= 20:
                 subgroup_number = 2

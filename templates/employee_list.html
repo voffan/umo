@@ -10,16 +10,33 @@
         width:150px !important;
     }
 </style>
-    <h1>Штатное расписание</h1>
-    <p align="right" id="employee_list_filter">
-        <label>
-            <b>Type</b>
-        </label>
-        <br>
-    </p>
-    <div id="employeelist"></div>
-    <a href="{% url 'hours:create_employee' %}" class="btn btn-success">Добавить сотрудника</a>
-    <button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
+<nav style="margin: 0px 0px 20px 0px;" class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'hours:course_list' %}">Список курсов</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'hours:contingent_list' %}">Список контингента</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'hours:employee_list' %}">Штатное расписание</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<h1>Штатное расписание</h1>
+<p align="right" id="employee_list_filter">
+    <label>
+        <b>Type</b>
+    </label>
+    <br>
+</p>
+<div id="employeelist"></div>
+<a href="{% url 'hours:create_employee' %}" class="btn btn-success">Добавить сотрудника</a>
+<button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
 
 
 {% endblock %}

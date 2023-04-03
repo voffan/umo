@@ -10,17 +10,30 @@
         width:150px !important;
     }
 </style>
-    <h1>Список контингента студентов</h1>
-    <p align="right">
-        <label>
-            <b>Группы</b>
-        </label>
-        <br>
-    </p>
-    <div id="contingentlist" class="hot"></div>
-    <br>
-    <a href="{% url 'hours:contingent_upload' %}" class="btn btn-success">Загрузить контингент</a>
-    <button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
+<nav style="margin: 0px 0px 20px 0px;" class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'hours:course_list' %}">Список курсов</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'hours:contingent_list' %}">Список контингента</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'hours:employee_list' %}">Штатное расписание</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<h1>Список контингента студентов</h1>
+<br>
+<div id="contingentlist" class="hot"></div>
+<br>
+<a href="{% url 'hours:contingent_upload' %}" class="btn btn-success">Загрузить контингент</a>
+<button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
 
 {% endblock %}
 
@@ -52,7 +65,15 @@ let columns = [
     	title: 'Количество студентов',
     },
     {
-        data:'buttons',
+        data: 'rs',
+        title: 'Количество обучающихся за счет бюджета РС(Я)',
+    },
+    {
+        data: 'rf',
+        title: 'Количество обучающихся за счет бюджета РФ',
+    },
+    {
+        data: 'buttons',
         title: 'Удаление',
         readOnly: true,
         width: 95,
