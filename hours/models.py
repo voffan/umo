@@ -58,7 +58,8 @@ class GroupInfo(Model):
 
 class CourseHours(Model):
     edu_period = ForeignKey(EduPeriod, verbose_name="Учебный год", db_index=True, on_delete=CASCADE)
-    teacher = ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True, on_delete=SET_NULL)
+    teacher = ForeignKey(Teacher, verbose_name="Преподаватель", db_index=True, blank=True, null=True,
+                         on_delete=SET_NULL)
     group = ForeignKey(GroupInfo, verbose_name="группа", db_index=True, on_delete=CASCADE)
     cathedra = ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True, on_delete=CASCADE)
     discipline_settings = ForeignKey(DisciplineSetting, verbose_name="дисциплина", db_index=True, on_delete=CASCADE)
@@ -75,7 +76,7 @@ class CourseHours(Model):
     class Meta:
         verbose_name = 'Часы дисциплины'
         verbose_name_plural = 'Часы дисциплин'
-        #unique_together = ['teacher', 'group', 'edu_period']
+        # unique_together = ['teacher', 'group', 'edu_period']
 
     def __str__(self):
         return self.discipline_settings.discipline.Name
@@ -103,7 +104,7 @@ class SupervisionHours(Model):
     hours = IntegerField(verbose_name="Часы", default=0)
     edu_period = ForeignKey(EduPeriod, verbose_name="Учебный год", db_index=True, on_delete=CASCADE)
     cathedra = ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True, on_delete=CASCADE)
-    
+
     class Meta:
         verbose_name = 'Руководство'
         verbose_name_plural = 'Руководства'
@@ -129,7 +130,7 @@ class PracticeHours(Model):
     hours = IntegerField(verbose_name="Часы", default=0)
     edu_period = ForeignKey(EduPeriod, verbose_name="Учебный год", db_index=True, on_delete=CASCADE)
     cathedra = ForeignKey(Kafedra, verbose_name="Кафедра", db_index=True, blank=True, null=True, on_delete=CASCADE)
-    
+
     class Meta:
         verbose_name = 'Руководство практики'
         verbose_name_plural = 'Руководства практик'
@@ -210,42 +211,66 @@ class TeacherGekStatus(Model):
 
     def __str__(self):
         return self.teacher.FIO
-    
+
 
 class HoursSettings(Model):
-    consult = DecimalField(verbose_name="Консультации", default=0, decimal_places=1, max_digits=5)#2 or 0
+    consult = DecimalField(verbose_name="Консультации", default=0, decimal_places=1, max_digits=5)  # 2 or 0
     check = DecimalField(verbose_name="Проверка остаточных знаний", default=0, decimal_places=1, max_digits=5)
-    brs = DecimalField(verbose_name="Контроль БРС", default=0, decimal_places=1, max_digits=5)#amount*0.1
-    gek_1 = DecimalField(verbose_name="ГЭК член комиссии", default=0, decimal_places=2, max_digits=5)#amount*0.5 или 0.75 или 1.5vkr и 0.3 на 1 работу
-    gek_2 = DecimalField(verbose_name="ГЭК председатель и секретарь", default=0, decimal_places=2, max_digits=5)#0.75
-    gek_3 = DecimalField(verbose_name="ГЭК секретарь ВКР", default=0, decimal_places=2, max_digits=5)#1.5
-    gek_med = DecimalField(verbose_name="ГЭК по мединцинским специальностям", default=0, decimal_places=1, max_digits=5)#amount*0.5
-    vkr_rev_1 = DecimalField(verbose_name="Рецензия ВКР по программам специалитета, магистратуры", default=0, decimal_places=1, max_digits=5)#2
-    vkr_rev_2 = DecimalField(verbose_name="Рецензия ВКР по программам аспирантуры", default=0, decimal_places=1, max_digits=5)#3
-    vkr = DecimalField(verbose_name="Руководство ВКР", default=0, decimal_places=1, max_digits=5)#22*amount
-    kp_kr_1 = DecimalField(verbose_name="Руководство курсовыми работами бакалавриат 1 и 2 семестр", default=0, decimal_places=1, max_digits=5)#1*amount
-    kp_kr_2 = DecimalField(verbose_name="Руководство курсовыми работами бакалавриат остальные семестры", default=0, decimal_places=1, max_digits=5)#2*amount
-    kp_kr_3 = DecimalField(verbose_name="Руководство курсовыми работами магистратура", default=0, decimal_places=1, max_digits=5)#3*amount
-    graduate = DecimalField(verbose_name="Руководство аспирантами", default=0, decimal_places=1, max_digits=5)#50*amount
-    master = DecimalField(verbose_name="Руководство магистрантами", default=0, decimal_places=1, max_digits=5)#30*amount
-    master_prog = DecimalField(verbose_name="Руководство программой магистратуры", default=0, decimal_places=1, max_digits=5)#50*кол-во групп
-    practice_edu_1 = DecimalField(verbose_name="Руководство учебной практикой ОФО Бакалавриат", default=0, decimal_places=1, max_digits=5)#5*неде или пропорционально
-    practice_edu_2 = DecimalField(verbose_name="Руководство учебной практикой ОФО Магистратура", default=0, decimal_places=1, max_digits=5)
-    practice_edu_3 = DecimalField(verbose_name="Руководство учебной практикой ЗФО Бакалавриат", default=0, decimal_places=1, max_digits=5)
-    practice_edu_4 = DecimalField(verbose_name="Руководство учебной практикой ЗФО Магистратура", default=0, decimal_places=1, max_digits=5)
-    practice_min = DecimalField(verbose_name="Минимальное количество студентов", default=0, decimal_places=1, max_digits=5)#8
-    practice_preparing = DecimalField(verbose_name="Проведение организационных мероприятий по практикам", default=0, decimal_places=1, max_digits=5)#2
-    practice_intern_1 = DecimalField(verbose_name="Руководство производственной практикой ОФО Бакалавриат", default=0, decimal_places=1, max_digits=5)#2*неде
-    practice_intern_2 = DecimalField(verbose_name="Руководство производственной практикой ОФО Магистратура", default=0, decimal_places=1, max_digits=5)
-    practice_intern_3 = DecimalField(verbose_name="Руководство производственной практикой ЗФО Бакалавриат", default=0, decimal_places=1, max_digits=5)
-    practice_intern_4 = DecimalField(verbose_name="Руководство произоводствееной практикой ЗФО Магистратура", default=0, decimal_places=1, max_digits=5)
-    practice_graduate_1 = DecimalField(verbose_name="Руководство преддипломной практикой Бакалавриат", default=0, decimal_places=1, max_digits=5)#5*недел
-    practice_graduate_2 = DecimalField(verbose_name="Руководство преддипломной практикой Магистратура", default=0, decimal_places=1, max_digits=5)
-    practice_teaching_1 = DecimalField(verbose_name="Руководство педагогической практикой 1-2", default=0, decimal_places=2, max_digits=5)#0,75
-    practice_teaching_2 = DecimalField(verbose_name="Руководство педагогической практикой 3-4", default=0, decimal_places=2, max_digits=5)#1
-    ref_rev = DecimalField(verbose_name="Рецензия рефератов", default=0, decimal_places=1, max_digits=5)#1*amount
-    admis = DecimalField(verbose_name="Прием кандидатского", default=0, decimal_places=2, max_digits=5)#0.75*amount
-    exam = DecimalField(verbose_name="Прием экзамена", default=0, decimal_places=2, max_digits=5)#0.25*amount
+    brs = DecimalField(verbose_name="Контроль БРС", default=0, decimal_places=1, max_digits=5)  # amount*0.1
+    gek_1 = DecimalField(verbose_name="ГЭК член комиссии", default=0, decimal_places=2,
+                         max_digits=5)  # amount*0.5 или 0.75 или 1.5vkr и 0.3 на 1 работу
+    gek_2 = DecimalField(verbose_name="ГЭК председатель и секретарь", default=0, decimal_places=2, max_digits=5)  # 0.75
+    gek_3 = DecimalField(verbose_name="ГЭК секретарь ВКР", default=0, decimal_places=2, max_digits=5)  # 1.5
+    gek_med = DecimalField(verbose_name="ГЭК по мединцинским специальностям", default=0, decimal_places=1,
+                           max_digits=5)  # amount*0.5
+    vkr_rev_1 = DecimalField(verbose_name="Рецензия ВКР по программам специалитета, магистратуры", default=0,
+                             decimal_places=1, max_digits=5)  # 2
+    vkr_rev_2 = DecimalField(verbose_name="Рецензия ВКР по программам аспирантуры", default=0, decimal_places=1,
+                             max_digits=5)  # 3
+    vkr = DecimalField(verbose_name="Руководство ВКР", default=0, decimal_places=1, max_digits=5)  # 22*amount
+    kp_kr_1 = DecimalField(verbose_name="Руководство курсовыми работами бакалавриат 1 и 2 семестр", default=0,
+                           decimal_places=1, max_digits=5)  # 1*amount
+    kp_kr_2 = DecimalField(verbose_name="Руководство курсовыми работами бакалавриат остальные семестры", default=0,
+                           decimal_places=1, max_digits=5)  # 2*amount
+    kp_kr_3 = DecimalField(verbose_name="Руководство курсовыми работами магистратура", default=0, decimal_places=1,
+                           max_digits=5)  # 3*amount
+    graduate = DecimalField(verbose_name="Руководство аспирантами", default=0, decimal_places=1,
+                            max_digits=5)  # 50*amount
+    master = DecimalField(verbose_name="Руководство магистрантами", default=0, decimal_places=1,
+                          max_digits=5)  # 30*amount
+    master_prog = DecimalField(verbose_name="Руководство программой магистратуры", default=0, decimal_places=1,
+                               max_digits=5)  # 50*кол-во групп
+    practice_edu_1 = DecimalField(verbose_name="Руководство учебной практикой ОФО Бакалавриат", default=0,
+                                  decimal_places=1, max_digits=5)  # 5*неде или пропорционально
+    practice_edu_2 = DecimalField(verbose_name="Руководство учебной практикой ОФО Магистратура", default=0,
+                                  decimal_places=1, max_digits=5)
+    practice_edu_3 = DecimalField(verbose_name="Руководство учебной практикой ЗФО Бакалавриат", default=0,
+                                  decimal_places=1, max_digits=5)
+    practice_edu_4 = DecimalField(verbose_name="Руководство учебной практикой ЗФО Магистратура", default=0,
+                                  decimal_places=1, max_digits=5)
+    practice_min = DecimalField(verbose_name="Минимальное количество студентов", default=0, decimal_places=1,
+                                max_digits=5)  # 8
+    practice_preparing = DecimalField(verbose_name="Проведение организационных мероприятий по практикам", default=0,
+                                      decimal_places=1, max_digits=5)  # 2
+    practice_intern_1 = DecimalField(verbose_name="Руководство производственной практикой ОФО Бакалавриат", default=0,
+                                     decimal_places=1, max_digits=5)  # 2*неде
+    practice_intern_2 = DecimalField(verbose_name="Руководство производственной практикой ОФО Магистратура", default=0,
+                                     decimal_places=1, max_digits=5)
+    practice_intern_3 = DecimalField(verbose_name="Руководство производственной практикой ЗФО Бакалавриат", default=0,
+                                     decimal_places=1, max_digits=5)
+    practice_intern_4 = DecimalField(verbose_name="Руководство произоводствееной практикой ЗФО Магистратура", default=0,
+                                     decimal_places=1, max_digits=5)
+    practice_graduate_1 = DecimalField(verbose_name="Руководство преддипломной практикой Бакалавриат", default=0,
+                                       decimal_places=1, max_digits=5)  # 5*недел
+    practice_graduate_2 = DecimalField(verbose_name="Руководство преддипломной практикой Магистратура", default=0,
+                                       decimal_places=1, max_digits=5)
+    practice_teaching_1 = DecimalField(verbose_name="Руководство педагогической практикой 1-2", default=0,
+                                       decimal_places=2, max_digits=5)  # 0,75
+    practice_teaching_2 = DecimalField(verbose_name="Руководство педагогической практикой 3-4", default=0,
+                                       decimal_places=2, max_digits=5)  # 1
+    ref_rev = DecimalField(verbose_name="Рецензия рефератов", default=0, decimal_places=1, max_digits=5)  # 1*amount
+    admis = DecimalField(verbose_name="Прием кандидатского", default=0, decimal_places=2, max_digits=5)  # 0.75*amount
+    exam = DecimalField(verbose_name="Прием экзамена", default=0, decimal_places=2, max_digits=5)  # 0.25*amount
     zav_cathedra = CharField(verbose_name="Заведующий кафедры", default='', max_length=200, db_index=True)
     is_active = BooleanField(verbose_name="Активен", default=False)
 
@@ -255,9 +280,30 @@ class HoursSettings(Model):
 
 
 class NormControl(Model):
-    max_hours = DecimalField(verbose_name="Максимальные часы", default=0, decimal_places=1, max_digits=5)#sumhours<stavka*900
-    max_stavka = DecimalField(verbose_name="Максимальная ставка", default=0, decimal_places=1, max_digits=5)#stavka<=1.5
+    max_hours = DecimalField(verbose_name="Максимальные часы", default=0, decimal_places=1,
+                             max_digits=5)  # sumhours<stavka*900
+    max_stavka = DecimalField(verbose_name="Максимальная ставка", default=0, decimal_places=1,
+                              max_digits=5)  # stavka<=1.5
 
     class Meta:
         verbose_name = 'Нормоконтроль'
         verbose_name_plural = 'Нормоконтроль'
+
+
+class StudentsGroup(Model):
+    RS = 0
+    RF = 1
+    D = 2
+
+    STUDENT_TYPE = (
+        (RS, 'Бюджет РС(Я)'),
+        (RF, 'Бюджет РФ'),
+        (D, 'Договор'),
+    )
+
+    course = IntegerField(verbose_name="Курс", default=1)
+    student_type = IntegerField(verbose_name="Тип студента", choices=STUDENT_TYPE, blank=True, default=0)
+
+    class Meta:
+        verbose_name = 'Информация о студентах'
+        verbose_name_plural = 'Информации о  студентах'
