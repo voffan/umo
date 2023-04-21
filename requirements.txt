@@ -13,6 +13,6 @@ Pillow==9.0.1
 pyodbc==4.0.30
 pytz==2017.3
 six==1.11.0
-sqlparse==0.4.2
+sqlparse==0.4.4
 transliterate==1.10.2
 python-docx==0.8.10
