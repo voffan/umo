@@ -567,10 +567,10 @@ class Competency(Model):
     OPK = 2
     PK = 3
 
-    CompetencyType =(
-        (UK,"Универсальные"),
-        (OPK,"Общепрофессиональные"),
-        (PK,"Профессиональные"),
+    CompetencyType = (
+        (UK, "Универсальные"),
+        (OPK, "Общепрофессиональные"),
+        (PK, "Профессиональные"),
     )
 
     edu_program = ForeignKey(EduProgram, verbose_name="Программа обучения", db_index=True, on_delete=CASCADE)

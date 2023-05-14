@@ -19,9 +19,10 @@ from django.shortcuts import get_object_or_404
 
 
 from rpd.models import RPDDiscipline, DisciplineResult, Basement, RPDDisciplineContentHours, RPDDisciplineContent, \
-    PracticeDescription, DisciplineRating, MarkScale, FOS, Bibliography
+    PracticeDescription, DisciplineRating, MarkScale, FOS, Bibliography, Language
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
-                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam, Course, Person, Competency)
+                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam, Course, Person, Competency,
+                        CompetencyIndicator)
 
 
 def index(request):
@@ -39,6 +40,36 @@ class RPDList(ListView):
     def get_queryset(self):
         return RPDDiscipline.objects.all()
 
+def empty_rpd_create(request):
+    if request.method == 'POST':
+        prog = EduProgram.objects.first()
+        rpd = RPDDiscipline()
+        rpd.Name = 'name'
+        rpd.code = 'code'
+        rpd.program = prog
+        rpd.goal = '1'
+        rpd.abstract = '1'
+        rpd.language = 1
+        rpd.education_methodology = '1'
+        rpd.count_e_method_support = '1'
+        rpd.methodological_instructions = '1'
+        rpd.fos_fond = '1'
+        rpd.fos_methodology = '1'
+        rpd.scaling_methodology = '1'
+        rpd.web_resource = '1'
+        rpd.material = '1'
+        rpd.it = '1'
+        rpd.software = '1'
+        rpd.iss = '1'
+        rpd.save()
+
+    return HttpResponseRedirect("/rpd/list")
+
+def rpd_delete(request, id):
+    if request.method == 'POST':
+        rpd = RPDDiscipline.objects.get(id=id)
+        rpd.delete()
+        return HttpResponseRedirect("/rpd/list")
 
 def rpd_create(request, rpddiscipline_id):
     discipline = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
@@ -136,8 +167,7 @@ def rpd_create(request, rpddiscipline_id):
                 'material': discipline.material,
                 'it': discipline.it,
                 'software': discipline.software,
-                'iss': discipline.iss
-                }
+                'iss': discipline.iss}
         form = forms.RPDProgram(data=data)
         results = forms.ResultsSet(queryset=DisciplineResult.objects.filter(rpd__id=rpddiscipline_id), prefix='results', )
         basement = forms.BasementSet(queryset=Basement.objects.filter(discipline__id=rpddiscipline_id), prefix='basement')
@@ -149,11 +179,7 @@ def rpd_create(request, rpddiscipline_id):
         mark_scale = forms.MarkScaleSet(queryset=MarkScale.objects.filter(rpd__id=rpddiscipline_id), prefix='mark_scale')
         fos_table = forms.FosTableSet(queryset=FOS.objects.filter(rpd__id=rpddiscipline_id), prefix='fos_table')
         bibl = forms.BibliographySet(queryset=Bibliography.objects.filter(rpd__id=rpddiscipline_id, is_main=True), prefix='bibl')
-    return render(request, 'rpd.html', context={'discipline': discipline, 'form': form, 'results': results, 'basement': basement,
-                                                    'hours_distribution': hours_distribution, 'theme': theme, 'srs_content': srs_content,
-                                                    'labs_content': labs_content, 'disc_rating': disc_rating, 'mark_scale': mark_scale,
-                                                    'fos_table': fos_table, 'bibl': bibl})
-
+    return render(request, 'rpd.html', context={'discipline': discipline, 'form': form, 'results': results, 'basement': basement, 'hours_distribution': hours_distribution, 'theme': theme, 'srs_content': srs_content, 'labs_content': labs_content, 'disc_rating': disc_rating, 'mark_scale': mark_scale, 'fos_table': fos_table, 'bibl': bibl})
 
 def export_docx(request, rpddiscipline_id):
     if request.method == 'GET':

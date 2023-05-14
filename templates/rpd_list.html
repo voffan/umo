@@ -17,6 +17,7 @@
             <tr>
                 <th>Код</th>
                 <th>Дисциплина</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -24,12 +25,24 @@
             <tr>
                 <td> {{ discipline.code }} </td>
                 <td> <a href="{% url 'rpds:rpd' discipline.id %}">{{ discipline.Name }}</a> </td>
+                <td>
+                     <form action = "delete/{{discipline.id}}/" method="post">
+                         {% csrf_token %}
+                         <input type="hidden" name="discipline" value="{{ discipline.id }}"/>
+                         <input type="submit"  value="Удалить" class="btn btn-danger">
+                     </form>
+                </td>
             </tr>
+
             {% endfor %}
         </tbody>
     </table>
-{% endblock %}
 
+    <form method="POST" action="empty/">
+        {% csrf_token %}
+        <input type="submit" value="Создать рпд" >
+    </form>
+{% endblock %}
 {% block scripts %}
 {% if teacher %}
 

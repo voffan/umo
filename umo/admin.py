@@ -3,6 +3,8 @@ from django.contrib import admin
 from umo import models
 
 # Register your models here.
+admin.site.register(models.Competency)
+admin.site.register(models.CompetencyIndicator)
 
 @admin.register(models.BRSpoints)
 class AdminBRSpoints(admin.ModelAdmin):
@@ -55,7 +57,6 @@ admin.site.register(models.Semester)
 admin.site.register(models.Specialization)
 admin.site.register(models.Year)
 
-
 @admin.register(models.Person)
 class AdminPerson(admin.ModelAdmin):
     list_display = ('FIO', 'last_name', 'first_name', 'second_name')
@@ -86,7 +87,3 @@ class CourseMaxPoints(admin.ModelAdmin):
     list_display = ['course', 'checkpoint', 'max_point']
     search_fields = ['course__discipline_detail__discipline__Name']
     list_filter = ['course__lecturer']
-
-
-admin.site.register(models.Competency)
-admin.site.register(models.CompetencyIndicator)
