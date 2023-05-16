@@ -1,5 +1,5 @@
 from django.contrib import admin
-from hours.models import (DisciplineSetting, GroupInfo, CourseHours, SupervisionHours, PracticeHours, OtherHours, CathedraEmployee, HoursSettings, NormControl, TeacherGekStatus)
+from hours.models import (DisciplineSetting, GroupInfo, CourseHours, SupervisionHours, PracticeHours, OtherHours, CathedraEmployee, HoursSettings, NormControl, TeacherGekStatus, StudentsGroup)
 
 admin.site.register(CourseHours)
 admin.site.register(GroupInfo)
@@ -11,3 +11,4 @@ admin.site.register(OtherHours)
 admin.site.register(HoursSettings)
 admin.site.register(NormControl)
 admin.site.register(TeacherGekStatus)
+admin.site.register(StudentsGroup)

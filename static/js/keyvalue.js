@@ -58,7 +58,7 @@ class KeyValueListEditor extends Handsontable.editors.HandsontableEditor {
 
   getValue() {
     const value = super.getValue();
-
+    console.log(value);
     if (this.htEditor) {
       const labels = this.htEditor.getDataAtProp('label');
       const row = labels.indexOf(value);

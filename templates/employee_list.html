@@ -65,10 +65,15 @@ let columns = [
         type: 'key-value-list',
         source: [{% for item in employee_type %}{_id:"{{ item.0 }}", label: "{{ item.1 }}"},{% endfor %}]
     },
+
     {
     	data: 'is_active',
     	title: 'Преподаватель активен',
     	type: 'checkbox',
+    },
+    {
+        data: 'position',
+        title: 'Должность',
     },
     {
         data: 'buttons',
@@ -76,7 +81,7 @@ let columns = [
         renderer: 'html',
         readOnly: true,
     }
-  ];
+];
 
 fetch("{% url 'hours:api:get_employeelist' %}")
 .then((response)=>{

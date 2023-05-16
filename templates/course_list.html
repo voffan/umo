@@ -9,9 +9,11 @@
     .handsontable thead th .relative{
         transform: rotate(90deg);
         bottom: 20px;
+        margin-top: -20px;
     }
     .handsontable span.colHeader {
-        line-height: 200px;
+        line-height: 100px;
+        margin-left: 70px;
     }
     .wtHider{
         width:250px !important;
@@ -22,23 +24,27 @@
     .handsontable .valid {
         background-color: red;
     }
+
+
+
 </style>
 <nav style="margin: 0px 0px 20px 0px;" class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <div class="collapse navbar-collapse" id="navbarText">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'hours:course_list' %}">Список курсов</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'hours:contingent_list' %}">Список контингента</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'hours:employee_list' %}">Штатное расписание</a>
-        </li>
-      </ul>
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url 'hours:course_list' %}">Список
+                        курсов</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'hours:contingent_list' %}">Список контингента</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'hours:employee_list' %}">Штатное расписание</a>
+                </li>
+            </ul>
+        </div>
     </div>
-  </div>
 </nav>
 <h1>Список курсов</h1>
 <p align="right">
@@ -60,97 +66,101 @@ var hot;
 var k={ {% for item in teacher_status %}{{item.0}}: {{ item.1 }},{% endfor %} };
 
 let columns = [
-  	{
-    	data: 'id',
-    	title: 'Id',
+    {
+        data: 'id',
+        title: 'Id',
         width: 50,
         renderer: valid,
     },
     {
-    	data: 'edu_period',
-    	title: 'Учебный год',
+        data: 'edu_period',
+        title: 'Учебный год',
         renderer: valid,
     },
     {
-    	data: 'teacher',
-    	title: 'Преподаватель',
+        data: 'teacher',
+        title: 'Преподаватель',
         type: 'key-value-list',
-        source: [{% for item in teacher %}{_id:"{{ item.id }}", label: "{{ item.FIO }}"},{% endfor %}],
+        source: [{_id:"None",label:""},{% for item in teacher %}{_id:"{{ item.id }}", label: "{{ item.FIO }}"},{% endfor %}],
     },
     {
-    	data: 'group',
-    	title: 'Группа',
+        data: 'group',
+        title: 'Группа',
         renderer: valid,
         readOnly: true,
-<!--        source: [{% for item in group %}{ id:"{{ item.id }}", label: "{{ item.Name }}"},{% endfor %}],-->
+    <!--        source: [{% for item in group %}{ id:"{{ item.id }}", label: "{{ item.Name }}"},{% endfor %}],-->
 
     },
     {
-    	data: 'cathedra',
-    	title: 'Кафедра',
+        data: 'cathedra',
+        title: 'Кафедра',
         type: 'key-value-list',
         source: [{% for item in cathedra %}{_id:"{{ item.id }}", label: "{{ item.name }}"},{% endfor %}],
     },
     {
-    	data: 'discipline_settings',
-    	title: 'Дисциплина',
+        data: 'discipline_settings',
+        title: 'Дисциплина',
         renderer: valid,
         readOnly: true,
     },
     {
-    	data: 'f_lecture',
-    	title: 'Лекции',
-        width: 50,
+        data: 'f_lecture',
+        title: 'Лекции',
         renderer: valid,
+        width: 50,
     },
     {
-    	data: 'f_practice',
-    	title: 'Практики',
-        width: 50,
+        data: 'f_practice',
+        title: 'Практики',
         renderer: valid,
+        width: 50,
     },
     {
-    	data: 'f_lab',
-    	title: 'Лабораторные работы',
-        width: 50,
+        data: 'f_lab',
+        title: 'Лабораторные работы',
         renderer: valid,
+        width: 50,
     },
     {
-    	data: 'f_consult_hours',
-    	title: 'Консультации',
-        width: 50,
+        data: 'f_consult_hours',
+        title: 'Консультации',
         renderer: valid,
+        width: 50,
     },
     {
-    	data: 'f_exam_hours',
-    	title: 'Экзамены',
-        width: 50,
+        data: 'f_exam_hours',
+        title: 'Экзамены',
         renderer: valid,
+        width: 50,
     },
     {
-    	data: 'f_control_hours',
-    	title: 'Проверка РГР',
-        width: 50,
+        data: 'f_control_hours',
+        title: 'Проверка РГР',
         renderer: valid,
-
+        width: 50,
     },
     {
-    	data: 'f_check_hours',
-    	title: 'Проверка остаточных знаний',
-        width: 50,
+        data: 'f_check_hours',
+        title: 'Проверка остаточных знаний',
         renderer: valid,
+        width: 50,
     },
     {
-    	data: 'f_control_SRS',
-    	title: 'Контроль СРС',
-        width: 50,
+        data: 'f_control_SRS',
+        title: 'Контроль СРС',
         renderer: valid,
+        width: 50,
     },
     {
-    	data: 'f_control_BRS',
-    	title: 'Контроль БРС',
-        width: 50,
+        data: 'f_control_BRS',
+        title: 'Контроль БРС',
         renderer: valid,
+        width: 50,
+    },
+    {
+        data: 'subgroup',
+        title: 'Количество подгрупп',
+        width: 50,
     },
     {
         data: 'edu',
@@ -173,38 +183,33 @@ let columns = [
         width: 50,
     },
     {
-        data: 'gek',
-        title: 'ГЭК, ГАК',
-        width: 50,
-    },
-    {
-        data: 'ruk_vkr',
+        data: 'supervision_vkr',
         title: 'Руководство ВКР',
         width: 50,
     },
     {
-        data: 'ruk_mag',
+        data: 'supervision_kp_kr',
+        title: 'Руководство КП/КР',
+        width: 50,
+    },
+    {
+        data: 'supervision_mag',
         title: 'Руководство магистрантом',
         width: 50,
     },
     {
-        data: 'ruk_asp',
+        data: 'supervision_asp',
         title: 'Руководство аспирантом',
         width: 50,
     },
     {
-        data: 'ruk_prog_mag',
+        data: 'supervision_prog_mag',
         title: 'Руководство программой магистратуры',
         width: 50,
     },
     {
-        data: 'ruk_prog_asp',
-        title: 'Руководство программой аспирантуры',
-        width: 50,
-    },
-    {
-        data: 'subgroup',
-        title: 'Количество подгрупп',
+        data: 'gek',
+        title: 'ГЭК, ГАК',
         width: 50,
     },
     {
@@ -225,8 +230,8 @@ let columns = [
     {
         data: 'is_lecture_seperate',
         title: 'Лекции отдельно',
-        width: 50,
         type: 'checkbox',
+        width: 50,
     },
     {
         data: 'practice_weekly',
@@ -263,7 +268,7 @@ let columns = [
         width: 50,
         type: 'checkbox',
     },
-  ];
+];
 
 
 fetch("{% url 'hours:api:get_courselist' %}")
@@ -278,37 +283,36 @@ fetch("{% url 'hours:api:get_courselist' %}")
 .then((data)=>{
     const container = document.getElementById('course_list');
     hot = new Handsontable(container, {
-      data: data,
-      rowHeaders: true,
-      colHeaders: true,
-      height: 500,
-      language: 'ru-RU',
-      trimDropdown: false,
-      licenseKey: 'non-commercial-and-evaluation',
-      columns: columns,
-      beforeValidate:(value, row, prop)=>{
+    data: data,
+    rowHeaders: true,
+    colHeaders: true,
+    height: 500,
+    language: 'ru-RU',
+    trimDropdown: false,
+    licenseKey: 'non-commercial-and-evaluation',
+    columns: columns,
+    beforeValidate:(value, row, prop)=>{
         if(prop === 'teacher') {
             columns[2].source.forEach((el, index) => {
                 if(el.label.includes(value)) {
-                    //console.log(el);
                     console.log(prop);
                     return (value = el._id);
                 }
             });
-            return value;
-        }
-        if(prop === 'cathedra') {
-            columns[4].source.forEach((el, index) => {
-                if(el.label.includes(value)) {
-                    return (value = el._id);
-                }
-            });
-            return value;
-        }
-      },
-      beforeChange: (changes) => {
+                return value;
+            }
+            if(prop === 'cathedra') {
+                columns[4].source.forEach((el, index) => {
+                    if(el.label.includes(value)) {
+                        return (value = el._id);
+                    }
+                });
+                return value;
+            }
+        },
+        beforeChange: (changes) => {
 
-      }
+    }
     });
 });
 let saveButton  = document.querySelector('#save');
@@ -317,9 +321,9 @@ saveButton.addEventListener('click', () => {
         method: 'POST',
         body: JSON.stringify({'data': hot.getData()}),
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'X-CSRFToken': document.querySelector("[name=csrfmiddlewaretoken]").value,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector("[name=csrfmiddlewaretoken]").value,
         },
     })
     .then((response) => response.json())
@@ -327,6 +331,7 @@ saveButton.addEventListener('click', () => {
         for (key in data['valid']) {
             k[key] = data['valid'][key];
         }
+        alert("Данные успешно сохранены")
         console.log('Success:', hot.getData());
     })
     .catch((error) => {
@@ -340,7 +345,7 @@ function valid(instance, td, row, col, prop, value, cellProperties) {
     console.log(k[(instance.getData()[row][2])]);
     if(k[instance.getData()[row][2]] === 0)
     {
-        td.style.backgroundColor = 'red';
+    td.style.backgroundColor = 'red';
     }
 }
 

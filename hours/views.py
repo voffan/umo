@@ -15,6 +15,7 @@ from hours.models import (DisciplineSetting, GroupInfo, CourseHours, Supervision
 from .form import UploadFileForm
 from nomenclature.views import hadle_uploaded_file
 from hours.export_data import kup_export
+from zipfile import ZipFile
 
 
 class CourseList(PermissionRequiredMixin, ListView):
@@ -160,13 +161,20 @@ class SupervisionUpdate(PermissionRequiredMixin, UpdateView):
 @login_required
 def get_courselist(request):
     fields_names = [f.name for f in CourseHours._meta.get_fields()]
-    fields_names.extend(['edu', 'intern', 'graduate', 'teaching', 'gek', 'vkr_rev', 'admis', 'ref_rev',
-                         'is_lecture_seperate', 'practice_weekly', 'is_hourly', 'is_KR_KP_VKR',
-                         'is_new', 'need_new_RPD', 'need_upd_RPD'])
+    fields_names.extend(['subgroup', 'edu', 'intern', 'graduate', 'teaching', 'supervision_vkr', 'supervision_kp_kr',
+                         'supervision_mag', 'supervision_asp', 'supervision_prog_mag', 'gek',
+                         'vkr_rev', 'admis', 'ref_rev', 'is_lecture_seperate', 'practice_weekly', 'is_hourly',
+                         'is_KR_KP_VKR', 'is_new', 'need_new_RPD', 'need_upd_RPD'])
+    subgroup = GroupInfo.objects.filter(pk=OuterRef('group_id'))
     edu = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), practice_type=1)
     intern = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), practice_type=2)
     graduate = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), practice_type=3)
     teaching = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), practice_type=4)
+    supervision_vkr = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), supervision_type=1)
+    supervision_kp_kr = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), supervision_type=2)
+    supervision_mag = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), supervision_type=3)
+    supervision_asp = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), supervision_type=4)
+    supervision_prog_mag = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), supervision_type=5)
     gek = OtherHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), other_type=1)
     vkr_rev = OtherHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), other_type=2)
     admis = OtherHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), other_type=3)
@@ -182,10 +190,16 @@ def get_courselist(request):
         ep=Concat(Cast(F('edu_period__begin_year__year'), CharField()),
                   Value('-'),
                   Cast(F('edu_period__end_year__year'), CharField()))
-    ).annotate(edu=Subquery(edu.values('hours')),
+    ).annotate(subgroup=Subquery(subgroup.values('subgroup')),
+               edu=Subquery(edu.values('hours')),
                intern=Subquery(intern.values('hours')),
                graduate=Subquery(graduate.values('hours')),
                teaching=Subquery(teaching.values('hours')),
+               supervision_vkr=Subquery(supervision_vkr.values('hours')),
+               supervision_kp_kr=Subquery(supervision_kp_kr.values('hours')),
+               supervision_mag=Subquery(supervision_mag.values('hours')),
+               supervision_asp=Subquery(supervision_asp.values('hours')),
+               supervision_prog_mag=Subquery(supervision_prog_mag.values('hours')),
                gek=Subquery(gek.values('hours')),
                vkr_rev=Subquery(vkr_rev.values('hours')),
                admis=Subquery(admis.values('hours')),
@@ -200,9 +214,10 @@ def get_courselist(request):
                ).values_list('id', 'ep', 'teacher__id', 'group__group__Name', 'cathedra__id',
                              'discipline_settings__discipline__Name', 'f_lecture', 'f_practice', 'f_lab',
                              'f_consult_hours', 'f_exam_hours', 'f_control_hours', 'f_check_hours',
-                             'f_control_SRS', 'f_control_BRS', 'edu', 'intern', 'graduate', 'teaching', 'gek',
-                             'vkr_rev', 'admis', 'ref_rev', 'is_lecture_seperate', 'practice_weekly', 'is_hourly',
-                             'is_KR_KP_VKR', 'is_new', 'need_new_RPD', 'need_upd_RPD')]
+                             'f_control_SRS', 'f_control_BRS', 'subgroup', 'edu', 'intern', 'graduate', 'teaching',
+                             'supervision_vkr', 'supervision_kp_kr', 'gek', 'supervision_mag', 'supervision_asp',
+                             'supervision_prog_mag', 'vkr_rev', 'admis', 'ref_rev', 'is_lecture_seperate',
+                             'practice_weekly', 'is_hourly', 'is_KR_KP_VKR', 'is_new', 'need_new_RPD', 'need_upd_RPD')]
     return HttpResponse(json.dumps(result), content_type='application/json')
 
 
@@ -222,9 +237,10 @@ def get_contingentlist(request):
 
 def get_employeelist(request):
     fields_names = [f.name for f in CathedraEmployee._meta.get_fields() if f.concrete == True]
+    fields_names.append('position')
     fields_names.append('teacherid')
     result = [dict(zip(fields_names, row)) for row in
-              CathedraEmployee.objects.values_list('id', 'teacher__FIO', 'stavka', 'employee_type', 'is_active', 'teacher__id')]
+              CathedraEmployee.objects.values_list('id', 'teacher__FIO', 'stavka', 'employee_type','is_active', 'teacher__position__name', 'teacher__id')]
 
     for item in result:
         item['teacher'] = '<a href="' + reverse('hours:edit_employee', kwargs={'pk': item['id']}) + '">' + item[

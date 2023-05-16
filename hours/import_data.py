@@ -14,18 +14,18 @@ def import_students(file):
     wb_obj = openpyxl.load_workbook(file, data_only=True)
     sheet_obj_oo = wb_obj.active
     m_row = sheet_obj_oo.max_row
-    rs_col = sheet_obj_oo.cell['Б_РС'].column
+    cols, begin_col = parse_cont_title(sheet_obj_oo)
     for i in range(1, m_row + 1):
         if sheet_obj_oo.cell(row=i, column=2).value == "ИМИ":
             name_group = str(sheet_obj_oo.cell(row=i, column=4).value)
             total = int(str(sheet_obj_oo.cell(row=i, column=28).value))
             edu_type = "ОФО"
-            rs = int(str(sheet_obj_oo.cell(row=i, column=rs_col).value))
             print(name_group, total)
             if total >= 20:
                 subgroup_number = 2
             else:
                 subgroup_number = 1
+            rf, rsa, d = group_student(sheet_obj_oo, cols, i)
 
             group = Group.objects.filter(Name=name_group).first()
             if group is None:
@@ -44,7 +44,7 @@ def import_students(file):
                 subgroup_number = 2
             else:
                 subgroup_number = 1
-
+            rf, rsa, d = group_student(sheet_obj_oo, cols, i)
             group = Group.objects.filter(Name=name_group).first()
             if group is None:
                 continue
@@ -62,7 +62,7 @@ def import_students(file):
                 subgroup_number = 2
             else:
                 subgroup_number = 1
-
+            rf, rsa, d = group_student(sheet_obj_oo, cols, i)
             group = Group.objects.filter(Name=name_group).first()
             if group is None:
                 continue
@@ -84,6 +84,44 @@ def add_contingent(group, name_group, subgroup_number, total, edu_type):
     elif edu_type == "ОЗО":
         contingent.edu_type = contingent.OZO
     contingent.save()
+
+
+def get_begin_row_col(sheet_obj):
+    m_row = sheet_obj.max_row
+    m_col = sheet_obj.max_column
+    for i in range(1, m_row):
+        for j in range(m_col, 0, -1):
+            if sheet_obj.cell(row=i, column=j).value == 'Общий итог':
+                begin_row = i + 1
+                begin_col = j
+                return begin_row, begin_col
+    return 0, 0
+
+
+def parse_cont_title(sheet_obj):
+    cols = []
+    begin_row, begin_col = get_begin_row_col(sheet_obj)
+    j = begin_col
+    while j > 0:
+        if sheet_obj.cell(row=begin_row, column=j).value == 'Д':
+            r = [j]
+            r += [j-1, j-2] if sheet_obj.cell(row=begin_row, column=j-1).value == 'Б_РС' else [-1, j-1]
+            cols += [r]
+        j -= 1
+    return cols, begin_col
+
+
+def group_student(sheet_obj, cols, i):
+    rf, rsa, d = (0, 0, 0)
+    for k in cols:
+        if sheet_obj.cell(row=i, column=k[2]):
+            rf = sheet_obj.cell(row=i, column=k[2]).value
+            if k[1] > 0 and sheet_obj.cell(row=i, column=k[1]):
+                rsa = sheet_obj.cell(row=i, column=k[1]).value
+            if sheet_obj.cell(row=i, column=k[0]):
+                d = sheet_obj.cell(row=i, column=k[0]).value
+            break
+    return rf, rsa, d
 
 
 @transaction.atomic
@@ -113,7 +151,7 @@ def import_course(file):
             if "G" in code:
                 code = code[1:]
             if "П" in code:
-                code = code[:len(code)-1]
+                code = code[:len(code) - 1]
             code = code[0] + code[1] + '.' + code[2] + code[3] + '.' + code[4] + code[5]
             year = str(sheet_obj.cell(row=i, column=2).value)
             if "G" in year:
@@ -637,4 +675,3 @@ def add_other_hours(teacher, group, cathedra, other_type, other):
     other.edu_period = EduPeriod.objects.get(active=True)
     other.cathedra = cathedra
     other.save()
-

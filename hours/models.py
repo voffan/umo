@@ -295,14 +295,16 @@ class StudentsGroup(Model):
     RF = 1
     D = 2
 
-    STUDENT_TYPE = (
+    BUDGET_TYPE = (
         (RS, 'Бюджет РС(Я)'),
         (RF, 'Бюджет РФ'),
         (D, 'Договор'),
     )
 
+    group = ForeignKey(GroupInfo, verbose_name="Группа", db_index=True, on_delete=CASCADE)
     course = IntegerField(verbose_name="Курс", default=1)
-    student_type = IntegerField(verbose_name="Тип студента", choices=STUDENT_TYPE, blank=True, default=0)
+    budget_type = IntegerField(verbose_name="Тип студента", choices=BUDGET_TYPE, blank=True, default=0)
+    amount = IntegerField(verbose_name="Количество студентов",  default=0)
 
     class Meta:
         verbose_name = 'Информация о студентах'
