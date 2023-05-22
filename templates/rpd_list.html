@@ -28,12 +28,11 @@
                 <td>
                      <form action = "delete/{{discipline.id}}/" method="post">
                          {% csrf_token %}
-                         <input type="hidden" name="discipline" value="{{ discipline.id }}"/>
+                         <input type="hidden" name="discipline" value="{{ discipline.id }}">
                          <input type="submit"  value="Удалить" class="btn btn-danger">
                      </form>
                 </td>
             </tr>
-
             {% endfor %}
         </tbody>
     </table>

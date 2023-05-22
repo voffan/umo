@@ -545,3 +545,7 @@ def exam_report(request):
         response.status_code = 404
         response.write('<p>Ошибка при формировании отчета!!</p>')
     return response
+
+def disciplines_by_rup(request, progspecializationid):
+    disc = Discipline.objects.filter(program=progspecializationid)
+    return render(request, 'disciplines_from_rup.html', context={'discipline_list': disc})

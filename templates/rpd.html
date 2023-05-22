@@ -3,6 +3,10 @@
 {% block content %}
     <form action="{% url 'rpds:rpd' discipline.id %}" method="POST" class="post-form">
         {% csrf_token %}
+    </form>
+
+    <form action="{% url 'rpds:create_rpd_paragraph1' discipline.id %}" method="POST" class="post-form">
+        {% csrf_token %}
         <div id="page1">
             <h1>1. Аннотация</h1>
             <h2 align="center">к рабочей программе дисциплины</h2>
@@ -12,10 +16,9 @@
             {{ form.goal }}
             {{ form.abstract.label_tag }}
             {{ form.abstract }}
-
             <h5 align="justify">1.2. Перечень планируемых результатов обучения по дисциплине, соотнесенных с планируемыми результатами освоения образовательной программы</h5>
             {{ results.management_form }}
-            <table id=results class="table table-sm">
+            <table id="results" class="table table-sm">
                 {% for form in results %}
                     {% if forloop.first %}
                         <thead align="center" class="thead-dark">
@@ -28,9 +31,13 @@
                     <tbody align="center">
                         <tr>
                             {% for field in form %}
-                                <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}
+                                <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }} </td>
                             {% endfor %}
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Удалить строку</button></td>
+                            {% if forloop.last %}
+                                <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this, 'results')">Удалить строку</button></td>
+                            {% else %}
+                                <td><button type="button" class="btn btn-danger btn-sm deleteResult" value="{{form.id.value}}">Удалить</button></td>
+                            {% endif %}
                         </tr>
                     </tbody>
                 {% endfor %}
@@ -40,8 +47,9 @@
             </div>
 
             <h5 align="justify">1.3. Место дисциплины в структуре ОПОП</h5>
+            <p align="justify">1.3.1 Зависимые</p>
             {{ basement.management_form }}
-            <table id=basement align="center" class="table table-sm">
+            <table id="basement" align="center" class="table table-sm">
                 {% for form in basement %}
                     {% if forloop.first %}
                         <thead align="center" class="thead-dark">
@@ -56,7 +64,11 @@
                             {% for field in form %}
                                 <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}
                             {% endfor %}
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Удалить строку</button></td>
+                            {% if forloop.last %}
+                                <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this, 'basement')">Удалить строку</button></td>
+                            {% else %}
+                                <td><button type="button" class="btn btn-danger btn-sm deleteBasement" value="{{form.id.value}}">Удалить</button></td>
+                            {% endif %}
                         </tr>
                     </tbody>
                 {% endfor %}
@@ -64,15 +76,123 @@
             <div align="right" class="ml-auto mr-4">
                 <button type="button" class="btn btn-success" onclick="addRow('basement');return false;">Добавить строку</button>
             </div>
+            <p align="justify">1.3.2 Зависящие</p>
+            {{ basement2.management_form }}
+            <table id="basement2" align="center" class="table table-sm">
+                {% for form in basement2 %}
+                    {% if forloop.first %}
+                        <thead align="center" class="thead-dark">
+                            {% for field in form %}
+                                <th {% if forloop.last %} style="display:None" {% endif %}>{{ field.label_tag }}</th>
+                            {% endfor %}
+                            <th></th>
+                        </thead>
+                    {% endif %}
+                    <tbody align="center">
+                        <tr>
+                            {% for field in form %}
+                                <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}
+                            {% endfor %}
+                            {% if forloop.last %}
+                                <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this, 'basement2')">Удалить строку</button></td>
+                            {% else %}
+                                <td><button type="button" class="btn btn-danger btn-sm deleteBasement2" value="{{form.id.value}}">Удалить</button></td>
+                            {% endif %}
+                        </tr>
+                    </tbody>
+                {% endfor %}
+            </table>
+            <div align="right" class="ml-auto mr-4">
+                <button type="button" class="btn btn-success" onclick="addRow('basement2');return false;">Добавить строку</button>
+            </div>
+
             <h5 align="justify">1.4. Язык преподавания:</h5>
             {{ form.language }}
+
+            <h5 align="center">3.2. Содержание тем программы дисциплины</h5>
+            {{ theme.management_form }}
+            <table id=theme class="table table-sm">
+                {% for form in theme %}
+                    {% if forloop.first %}
+                        <thead align="center" class="thead-dark">
+                            {% for field in form %}
+                                 <th {% if forloop.last %} style="display:None" {% endif %}>{{ field.label_tag }}</th>
+                            {% endfor %}
+                            <th></th>
+                        </thead>
+                    {% endif %}
+                    <tbody align="center">
+                        <tr>
+                            {% for field in form %}
+                                <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}</td>
+                            {% endfor %}
+                            {% if forloop.last %}
+                                <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this, 'theme')">Удалить строку</button></td>
+                             {% else %}
+                                <td><button type="button" class="btn btn-danger btn-sm deleteTheme" value="{{form.id.value}}">Удалить</button></td>
+                            {% endif %}
+                        </tr>
+                    </tbody>
+                {% endfor %}
+            </table>
+            <div align="right" class="ml-auto mr-4">
+                  <button type="button" class="btn btn-success" onclick="addRow('theme');return false;">Добавить строку</button>
+            </div>
+            <p align="center"><button type="submit" class="btn btn-success btn-lg">Сохранить</button></p>
+            <div class="mt-4 row">
+                <div class="ml-5">
+                    <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+                </div>
+                <div class="ml-auto mr-5">
+                    <button class=" btn btn-dark" type="submit" id="forward" onclick="goForward();">вперед</button>
+                </div>
+            </div>
         </div>
 
+    </form>
+
+    <form action="{% url 'rpds:create_rpd_paragraph2' discipline.id %}" method="POST" class="post-form">
+        {% csrf_token %}
         <div id="page2" style="display:none">
             <h5 align="justify">2. Объем дисциплины в зачетных единицах с указанием количества академических часов, выделенных на контактную работу обучающихся с преподавателем (по видам учебных занятий) и на самостоятельную работу обучающихся</h5>
-            <label>Вручную пользователем не вводится</label>
+            <table class="table table-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Семестр</th>
+                        <th>ЗЕТ</th>
+                        <th>Количество лекций</th>
+                        <th>Количество практик</th>
+                        <th>Количество лабораторных работ</th>
+                        <th>Количество контрольно-самостоятельных работ</th>
+                        <th>Количество СРС</th>
+                    </tr>
+                </thead>
+                <tbody align="center">
+                    {% for discipline in disc_details %}
+                        <tr>
+                            <td> {{ discipline.semester }} </td>
+                            <td> {{ discipline.Credit }} </td>
+                            <td> {{ discipline.Lecture }} </td>
+                            <td> {{ discipline.Practice }} </td>
+                            <td> {{ discipline.Lab }} </td>
+                            <td> {{ discipline.KSR }} </td>
+                            <td> {{ discipline.SRS }} </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="mt-4 row">
+                <div class="ml-5">
+                    <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+                </div>
+                <div class="ml-auto mr-5">
+                    <button class=" btn btn-dark" type="submit" id="forward" onclick="goForward();">вперед</button>
+                </div>
+            </div>
         </div>
-
+    </form>
+    <form action="{% url 'rpds:create_rpd_paragraph3' discipline.id %}" method="POST" class="post-form">
+        {% csrf_token %}
         <div id="page3" style="display:none">
             <h5 align="justify">3. Содержание дисциплины, структурированное по темам с указанием отведенного на них количества академических часов и видов учебных занятий</h5>
             <h5 align="center">3.1. Распределение часов по темам и видам учебных занятий</h5>
@@ -92,7 +212,7 @@
                             {% for field in form %}
                                 <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}</td>
                             {% endfor %}
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Удалить строку</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this, 'hours_distribution')">Удалить строку</button></td>
                         </tr>
                     </tbody>
                 {% endfor %}
@@ -101,59 +221,45 @@
                   <button type="button" class="btn btn-success" onclick="addRow('hours_distribution');return false;">Добавить строку</button>
             </div>
 
-            <h5 align="center">3.2. Содержание тем программы дисциплины</h5>
-            {{ theme.management_form }}
-            <table id=theme class="table table-sm">
-                {% for form in theme %}
-                    {% if forloop.first %}
-                        <thead align="center" class="thead-dark">
-                            {% for field in form %}
-                                 <th {% if forloop.last %} style="display:None" {% endif %}>{{ field.label_tag }}</th>
-                            {% endfor %}
-                            <th></th>
-                        </thead>
-                    {% endif %}
-                    <tbody align="center">
-                        <tr>
-                            {% for field in form %}
-                                <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}</td>
-                            {% endfor %}
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Удалить строку</button></td>
-                        </tr>
-                    </tbody>
-                {% endfor %}
-            </table>
-            <div align="right" class="ml-auto mr-4">
-                  <button type="button" class="btn btn-success" onclick="addRow('theme');return false;">Добавить строку</button>
-            </div>
-
             <h5 align="justify">3.3. Формы и методы проведения занятий, применяемые учебные технологии</h5>
             {{ form.education_methodology.label_tag }}
             {{ form.education_methodology }}
+            <p align="center"><button type="submit" class="btn btn-success btn-lg">Сохранить</button></p>
+            <div class="mt-4 row">
+                <div class="ml-5">
+                    <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+                </div>
+                <div class="ml-auto mr-5">
+                    <button class=" btn btn-dark" type="submit" id="forward" onclick="goForward();">вперед</button>
+                </div>
+            </div>
         </div>
+    </form>
 
+    <form action="{% url 'rpds:create_rpd_paragraph4' discipline.id %}" method="POST" class="post-form">
+        {% csrf_token %}
         <div id="page4" style="display:none">
             <h5 align="center">4. Перечень учебно-методического обеспечения для самостоятельной работы обучающихся по дисциплине</h5>
             {{ form.count_e_method_support.label_tag }}
             {{ form.count_e_method_support }}
             <h5 align="center">Содержание СРС</h5>
             {{ srs_content.management_form }}
-            <table id=srs_content class="table table-sm">
+            <table id="srs_content" class="table table-sm">
                     {% for form in srs_content %}
                         {% if forloop.first %}
                             <thead align="center" class="thead-dark">
                                 {% for field in form %}
                                     <th {% if forloop.last %} style="display:None" {% endif %}>{{ field.label_tag }}</th>
                                 {% endfor %}
+                                <th></th>
                             </thead>
                         {% endif %}
-                        <th></th>
                         <tbody align="center">
                             <tr>
                                 {% for field in form %}
                                     <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}</td>
                                 {% endfor %}
-                                <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Удалить строку</button></td>
+                                <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this, 'srs_content')">Удалить строку</button></td>
                             </tr>
                         </tbody>
                     {% endfor %}
@@ -161,33 +267,20 @@
             <div align="right" class="ml-auto mr-4">
                   <button type="button" class="btn btn-success" onclick="addRow('srs_content');return false;">Добавить строку</button>
             </div>
-            <h5 align="center">Лабораторные работы или лабораторные практикумы</h5>
-            {{ labs_content.management_form }}
-            <table id=labs_content class="table table-sm">
-                {% for form in labs_content %}
-                    {% if forloop.first %}
-                        <thead align="center" class="thead-dark">
-                            {% for field in form %}
-                                <th {% if forloop.last %} style="display:None" {% endif %}>{{ field.label_tag }}</th>
-                            {% endfor %}
-                        </thead>
-                    {% endif %}
-                    <th></th>
-                    <tbody align="center">
-                        <tr>
-                            {% for field in form %}
-                                <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}</td>
-                            {% endfor %}
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Удалить строку</button></td>
-                        </tr>
-                    </tbody>
-                {% endfor %}
-            </table>
-            <div align="right" class="ml-auto mr-4">
-                  <button type="button" class="btn btn-success" onclick="addRow('labs_content');return false;">Добавить строку</button>
+            <p align="center"><button type="submit" class="btn btn-success btn-lg">Сохранить</button></p>
+            <div class="mt-4 row">
+                <div class="ml-5">
+                    <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+                </div>
+                <div class="ml-auto mr-5">
+                    <button class=" btn btn-dark" type="submit" id="forward" onclick="goForward();">вперед</button>
+                </div>
             </div>
         </div>
+    </form>
 
+    <form action="{% url 'rpds:create_rpd_paragraph5' discipline.id %}" method="POST" class="post-form">
+        {% csrf_token %}
         <div id="page5" style="display:none">
             <h5 align="justify">5. Методические указания для обучающихся по освоению дисциплины</h5>
             {{ form.methodological_instructions.label_tag }}
@@ -201,15 +294,15 @@
                             {% for field in form %}
                                 <th {% if forloop.last %} style="display:None" {% endif %}>{{ field.label_tag }}</th>
                             {% endfor %}
+                            <th></th>
                         </thead>
                     {% endif %}
-                    <th></th>
                     <tbody align="center">
                         <tr>
                             {% for field in form %}
                                 <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}</td>
                             {% endfor %}
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Удалить строку</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this, 'disc_rating')">Удалить строку</button></td>
                         </tr>
                     </tbody>
                 {% endfor %}
@@ -217,8 +310,19 @@
             <div align="right" class="ml-auto mr-4">
                   <button type="button" class="btn btn-success" onclick="addRow('disc_rating');return false;">Добавить строку</button>
             </div>
+            <p align="center"><button type="submit" class="btn btn-success btn-lg">Сохранить</button></p>
+            <div class="mt-4 row">
+                <div class="ml-5">
+                    <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+                </div>
+                <div class="ml-auto mr-5">
+                    <button class=" btn btn-dark" type="submit" id="forward" onclick="goForward();">вперед</button>
+                </div>
+            </div>
         </div>
-
+    </form>
+    <form action="{% url 'rpds:create_rpd_paragraph6' discipline.id %}" method="POST" class="post-form">
+        {% csrf_token %}
         <div id="page6" style="display:none">
             <h5 align="justify">6. Фонд оценочных средств для проведения промежуточной аттестации обучающихся по дисциплине</h5>
             {{ form.fos_fond.label_tag }}
@@ -232,15 +336,15 @@
                             {% for field in form %}
                                 <th {% if forloop.last %} style="display:None" {% endif %}>{{ field.label_tag }}</th>
                             {% endfor %}
+                            <th></th>
                         </thead>
                     {% endif %}
-                    <th></th>
                     <tbody align="center">
                         <tr>
                             {% for field in form %}
                                 <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}</td>
                             {% endfor %}
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Удалить строку</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this, 'mark_scale')">Удалить строку</button></td>
                         </tr>
                      </tbody>
                 {% endfor %}
@@ -260,15 +364,15 @@
                             {% for field in form %}
                                 <th {% if forloop.last %} style="display:None" {% endif %}>{{ field.label_tag }}</th>
                             {% endfor %}
+                            <th></th>
                         </thead>
                         {% endif %}
-                    <th></th>
                     <tbody align="center">
                         <tr>
                             {% for field in form %}
                                 <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}</td>
                             {% endfor %}
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Удалить строку</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this, 'fos')">Удалить строку</button></td>
                         </tr>
                     </tbody>
                 {% endfor %}
@@ -280,8 +384,19 @@
             <h5 align="center">6.3. Методические материалы, определяющие процедуры оценивания</h5>
             {{ form.scaling_methodology.label_tag }}
             {{ form.scaling_methodology }}
+            <p align="center"><button type="submit" class="btn btn-success btn-lg">Сохранить</button></p>
+            <div class="mt-4 row">
+                <div class="ml-5">
+                    <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+                </div>
+                <div class="ml-auto mr-5">
+                    <button class=" btn btn-dark" type="submit" id="forward" onclick="goForward();">вперед</button>
+                </div>
+            </div>
         </div>
-
+    </form>
+    <form action="{% url 'rpds:create_rpd_paragraph7' discipline.id %}" method="POST" class="post-form">
+        {% csrf_token %}
         <div id="page7" style="display:none">
             <h5 align="center">7. Перечень основной и дополнительной учебной литературы, необходимой для освоения дисциплины </h5>
             <label>Примечание: Для обозначения основной литературы в строке "Главная литература" поставьте галочку.</label>
@@ -293,15 +408,15 @@
                             {% for field in form %}
                                 <th {% if forloop.last %} style="display:None" {% endif %}>{{ field.label_tag }}</th>
                             {% endfor %}
+                            <th></th>
                         </thead>
                     {% endif %}
-                    <th></th>
                     <tbody align="center">
                         <tr>
                             {% for field in form %}
                                 <td {% if forloop.last %} style="display:None" {% endif %}>{{ field }}</td>
                             {% endfor %}
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this)">Удалить строку</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRow(this, 'mainlit')">Удалить строку</button></td>
                         </tr>
                     </tbody>
                 {% endfor %}
@@ -309,20 +424,53 @@
             <div align="right" class="ml-auto mr-4">
                   <button type="button" class="btn btn-success" onclick="addRow('mainlit');return false;">Добавить строку</button>
             </div>
+            <p align="center"><button type="submit" class="btn btn-success btn-lg">Сохранить</button></p>
+            <div class="mt-4 row">
+                <div class="ml-5">
+                    <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+                </div>
+                <div class="ml-auto mr-5">
+                    <button class=" btn btn-dark" type="submit" id="forward" onclick="goForward();">вперед</button>
+                </div>
+            </div>
         </div>
-
+    </form>
+    <form action="{% url 'rpds:create_rpd_paragraph8' discipline.id %}" method="POST" class="post-form">
+        {% csrf_token %}
         <div id="page8" style="display:none">
             <h5 align="center">8. Перечень ресурсов информационно-телекоммуникационной сети «Интернет» (далее сеть-Интернет), необходимых для освоения дисциплины</h5>
             {{ form.web_resource.label_tag }}
             {{ form.web_resource }}
+            <p align="center"><button type="submit" class="btn btn-success btn-lg">Сохранить</button></p>
+            <div class="mt-4 row">
+                <div class="ml-5">
+                    <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+                </div>
+                <div class="ml-auto mr-5">
+                    <button class=" btn btn-dark" type="submit" id="forward" onclick="goForward();">вперед</button>
+                </div>
+            </div>
         </div>
-
+    </form>
+    <form action="{% url 'rpds:create_rpd_paragraph9' discipline.id %}" method="POST" class="post-form">
+        {% csrf_token %}
         <div id="page9" style="display:none">
             <h5 align="center">9. Описание материально-технической базы, необходимой для осуществления образовательного процесса по дисциплине</h5>
             {{ form.material.label_tag }}
             {{ form.material }}
+            <p align="center"><button type="submit" class="btn btn-success btn-lg">Сохранить</button></p>
+            <div class="mt-4 row">
+                <div class="ml-5">
+                    <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+                </div>
+                <div class="ml-auto mr-5">
+                    <button class=" btn btn-dark" type="submit" id="forward" onclick="goForward();">вперед</button>
+                </div>
+            </div>
         </div>
-
+    </form>
+    <form action="{% url 'rpds:create_rpd_paragraph10' discipline.id %}" method="POST" class="post-form">
+        {% csrf_token %}
         <div id="page10" style="display:none">
             <h5 align="justify">10. Перечень информационных технологий, используемых при осуществлении образовательного процесса по дисциплине, включая перечень программного обеспечения и информационных справочных систем</h5>
             <h5 align="center">10.1. Перечень информационных технологий, используемых при осуществлении образовательного процесса по дисциплине </h5>
@@ -334,26 +482,27 @@
             <h5 align="center">10.3. Перечень информационных справочных систем</h5>
             {{ form.iss.label_tag }}
             {{ form.iss }}
-        </div>
-
-        <div class="mt-4 row">
-            <div class="ml-5">
-                <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+            <p align="center"><button type="submit" class="btn btn-success btn-lg">Сохранить</button></p>
+            <div class="mt-4 row">
+                <div class="ml-5">
+                    <button class="btn btn-dark" type="button" id="backward" onclick="goBackward();">назад</button>
+                </div>
+                <div class="ml-auto mr-5">
+                    <button class=" btn btn-dark" type="submit" id="forward" onclick="goForward();">вперед</button>
+                </div>
             </div>
-            <div class="ml-auto mr-5">
-                <button class=" btn btn-dark" type="button" id="forward" onclick="goForward();">вперед</button>
-            </div>
         </div>
-
-        <br>
-        <p align="center"><button type="submit" class="btn btn-success btn-lg">Сохранить</button>
-        <a href= "{% url 'rpds:rpd_export' discipline.id %}" class="btn btn-primary btn-lg">Скачать</a>
-        <a href= "{% url 'rpds:rpd_list' %}" class="btn btn-danger btn-lg">Отмена</a></p>
     </form>
+
+    <br>
+    <a href= "{% url 'rpds:rpd_export' discipline.id %}" class="btn btn-primary btn-lg">Скачать</a>
+    <a href= "{% url 'rpds:rpd_list' %}" class="btn btn-danger btn-lg">Отмена</a>
+
 
 {% endblock %}
 
 {% block scripts %}
+    let page = 1;
     let page1 = document.getElementById("page1");
     let page2 = document.getElementById("page2");
     let page3 = document.getElementById("page3");
@@ -366,7 +515,170 @@
     let page10 = document.getElementById("page10");
     let btnForward = document.getElementById("forward");
     let btnBackward = document.getElementById("backward");
-    let page = 1;
+    let result = document.getElementById("id_results-TOTAL_FORMS");
+    let basement = document.getElementById("id_basement-TOTAL_FORMS");
+    let basement2 = document.getElementById("id_basement2-TOTAL_FORMS");
+    let theme = document.getElementById("id_theme-TOTAL_FORMS");
+    let hours_distribution = document.getElementById("id_hours_distribution-TOTAL_FORMS");
+    let srs_content = document.getElementById("id_srs_content-TOTAL_FORMS");
+    let disc_rating = document.getElementById("id_disc_rating-TOTAL_FORMS");
+    let mark_scale = document.getElementById("id_mark_scale-TOTAL_FORMS");
+    let fos = document.getElementById("id_fos_table-TOTAL_FORMS");
+    let mainlit = document.getElementById("id_bibl-TOTAL_FORMS");
+
+    function addRow(id) {
+        let size = document.getElementById(id).getElementsByTagName("tbody").length
+        let tbody = document.getElementById(id).getElementsByTagName("tbody")[size - 1];
+        let tb = document.createElement("tbody");
+        tb.align = "center";
+        console.log(tbody);
+        let tr = tbody.getElementsByTagName('tr')[0];
+        tr.closest("tr");
+        console.log(tr);
+        let dupNode = tr.cloneNode(true);
+        tb.appendChild(dupNode);
+        document.getElementById(id).appendChild(tb);
+        if (id == "results") {
+            result.value = parseInt(result.value) + 1;
+            updateTotalForms(1);
+        }
+        if(id == "basement") {
+            basement.value = parseInt(basement.value) + 1;
+            updateTotalForms(2);
+        }
+        if(id == "basement2") {
+            basement2.value = parseInt(basement2.value) + 1;
+            updateTotalForms(3);
+        }
+        if(id == "theme") {
+            theme.value = parseInt(theme.value) + 1;
+            updateTotalForms(4);
+        }
+        if(id == "hours_distribution") {
+            hours_distribution.value = parseInt(hours_distribution.value) + 1;
+            updateTotalForms(5);
+        }
+        if(id == "srs_content") {
+            srs_content.value = parseInt(srs_content.value) + 1;
+            updateTotalForms(6);
+        }
+        if(id == "disc_rating") {
+            disc_rating.value = parseInt(disc_rating.value) + 1;
+            updateTotalForms(7);
+        }
+        if(id == "mark_scale") {
+            mark_scale.value = parseInt(mark_scale.value) + 1;
+            updateTotalForms(8);
+        }
+        if(id == "fos") {
+            fos.value = parseInt(fos.value) + 1;
+            updateTotalForms(9);
+        }
+        if(id == "mainlit") {
+            mainlit.value = parseInt(mainlit.value) + 1;
+            updateTotalForms(10);
+        }
+    }
+
+    function deleteRow(element, id) {
+        console.log(element);
+        let tr = element.closest('td').closest('tr');
+        console.log(tr);
+        let body = tr.closest('tbody').closest('table');
+        let tb = tr.closest('tbody');
+        console.log(body);
+        let count = body.getElementsByTagName('tbody').length;
+        if(count > 1) {
+            tb.remove();
+            if (id == "results"){
+                result.value = parseInt(result.value) - 1;
+                updateTotalForms(1);
+            }
+            if(id == "basement") {
+                basement.value = parseInt(basement.value) - 1;
+                updateTotalForms(2);
+            }
+            if(id == "basement2") {
+                basement2.value = parseInt(basement2.value) - 1;
+                updateTotalForms(3);
+            }
+            if(id == "theme") {
+                theme.value = parseInt(theme.value) - 1;
+            }
+            if(id == "hours_distribution") {
+                hours_distribution.value = parseInt(hours_distribution.value) - 1;
+            }
+            if(id == "srs_content") {
+                srs_content.value = parseInt(srs_content.value) - 1;
+            }
+            if(id == "disc_rating") {
+                disc_rating.value = parseInt(disc_rating.value) - 1;
+            }
+            if(id == "mark_scale") {
+                mark_scale.value = parseInt(mark_scale.value) - 1;
+            }
+            if(id == "fos") {
+                fos.value = parseInt(fos.value) - 1;
+            }
+            if(id == "mainlit") {
+                mainlit.value = parseInt(mainlit.value) - 1;
+            }
+        }
+    }
+
+    function $_GET(key) {
+        var p = window.location.search;
+        p = p.match(new RegExp(key + '=([^&=]+)'));
+        return p ? p[1] : false;
+    }
+
+    window.onload = function() {
+        if ($_GET("page") == 2){
+            page = 2;
+            page1.style.display = "none";
+            page2.style.display = "block";
+        }
+        if ($_GET("page") == 3){
+            page = 3;
+            page1.style.display = "none";
+            page3.style.display = "block";
+        }
+        if ($_GET("page") == 4){
+            page = 4;
+            page1.style.display = "none";
+            page4.style.display = "block";
+        }
+        if ($_GET("page") == 5){
+            page = 5;
+            page1.style.display = "none";
+            page5.style.display = "block";
+        }
+        if ($_GET("page") == 6){
+            page = 6;
+            page1.style.display = "none";
+            page6.style.display = "block";
+        }
+        if ($_GET("page") == 7){
+            page = 7;
+            page1.style.display = "none";
+            page7.style.display = "block";
+        }
+        if ($_GET("page") == 8){
+            page = 8;
+            page1.style.display = "none";
+            page8.style.display = "block";
+        }
+        if ($_GET("page") == 9){
+            page = 9;
+            page1.style.display = "none";
+            page9.style.display = "block";
+        }
+        if ($_GET("page") == 10){
+            page = 10;
+            page1.style.display = "none";
+            page10.style.display = "block";
+        }
+    };
 
     function goForward() {
         switch (page) {
@@ -469,26 +781,258 @@
         }
     }
 
-    function addRow(id) {
-        let tbody = document.getElementById(id).getElementsByTagName("tbody")[0];
-        console.log(tbody);
-        let tr = tbody.getElementsByTagName('tr')[0];
-        tr.closest("tr");
-        console.log(tr);
-        let dupNode = tr.cloneNode(true);
-        tbody.appendChild(dupNode);
-    }
+    $('.deleteResult').on('click', function(){
+        let elem = this;
+        $.ajax({
+            url:"{% url 'rpds:delete_result' %}",
+            method:"GET",
+            data:{
+                "result_id": this.value
+            },
+            dataType:"json"
+        }).done(function(data, textStatus, jqXHR){
+            if(data['result']){
+                let tr = elem.closest('td').closest('tr');
+                let body = tr.closest('tbody').closest('table');
+                let tb = tr.closest('tbody');
+                tb.remove();
+                updateTotalForms(1);
+            }else{
+                console.log("Не получилось");
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown){
+        });
+    });
 
-    function deleteRow(element) {
-        console.log(element);
-        let tr = element.closest('td').closest('tr');
-        console.log(tr);
-        let body = tr.closest('tbody');
-        console.log(body);
-        let count = body.getElementsByTagName('tr').length;
-        console.log(count);
-        if(count > 1) {
-            tr.remove();
+    $('.deleteBasement').on('click', function(){
+        let elem = this;
+        $.ajax({
+            url:"{% url 'rpds:delete_basement' %}",
+            method:"GET",
+            data:{
+                "basement_id": this.value
+            },
+            dataType:"json"
+        }).done(function(data, textStatus, jqXHR){
+            if(data['result']){
+                let tr = elem.closest('td').closest('tr');
+                let body = tr.closest('tbody').closest('table');
+                let tb = tr.closest('tbody');
+                tb.remove();
+                updateTotalForms(2);
+            }else{
+                console.log("Не получилось");
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown){
+        });
+    });
+
+    $('.deleteBasement2').on('click', function(){
+        let elem = this;
+        $.ajax({
+            url:"{% url 'rpds:delete_basement' %}",
+            method:"GET",
+            data:{
+                "basement_id": this.value
+            },
+            dataType:"json"
+        }).done(function(data, textStatus, jqXHR){
+            if(data['result']){
+                let tr = elem.closest('td').closest('tr');
+                let body = tr.closest('tbody').closest('table');
+                let tb = tr.closest('tbody');
+                tb.remove();
+                updateTotalForms(3);
+            }else{
+                console.log("Не получилось");
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown){
+        });
+    });
+
+    $('.deleteTheme').on('click', function(){
+        let elem = this;
+        $.ajax({
+            url:"{% url 'rpds:delete_theme' %}",
+            method:"GET",
+            data:{
+                "theme_id": this.value
+            },
+            dataType:"json"
+        }).done(function(data, textStatus, jqXHR){
+            if(data['result']){
+                let tr = elem.closest('td').closest('tr');
+                let body = tr.closest('tbody').closest('table');
+                let tb = tr.closest('tbody');
+                tb.remove();
+                updateTotalForms(4);
+            }else{
+                console.log("Не получилось");
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown){
+        });
+    });
+
+    function updateTotalForms(tab) {
+        switch(tab){
+            case 1:
+                let size = document.getElementById("results").getElementsByTagName("tbody").length
+                let tbody = document.getElementById("results").getElementsByTagName("tbody");
+                for (let i = 0; i < size; i++) {
+                    tbody[i].children[0].children[0].childNodes[0].id = "id_results-" + i + "-competency";
+                    tbody[i].children[0].children[0].childNodes[0].name = "results-" + i + "-competency";
+                    tbody[i].children[0].children[1].childNodes[0].id = "id_results-" + i + "-indicator";
+                    tbody[i].children[0].children[1].childNodes[0].name = "results-" + i + "-indicator";
+                    tbody[i].children[0].children[2].childNodes[0].id = "id_results-" + i + "-skill";
+                    tbody[i].children[0].children[2].childNodes[0].name = "results-" + i + "-skill";
+                    tbody[i].children[0].children[3].childNodes[0].id = "id_results-" + i + "-judging";
+                    tbody[i].children[0].children[3].childNodes[0].name = "results-" + i + "-judging";
+                    tbody[i].children[0].children[4].childNodes[0].id = "id_results-" + i + "-id";
+                    tbody[i].children[0].children[4].childNodes[0].name = "results-" + i + "-id";
+                }
+                result.value = size;
+                break;
+            case 2:
+                let size1 = document.getElementById("basement").getElementsByTagName("tbody").length;
+                let tbody1 = document.getElementById("basement").getElementsByTagName("tbody");
+                for (let i = 0; i < size1; i++) {
+                    tbody1[i].children[0].children[0].childNodes[0].id = "id_basement-" + i + "-discipline";
+                    tbody1[i].children[0].children[0].childNodes[0].name = "basement-" + i + "-discipline";
+                    tbody1[i].children[0].children[1].childNodes[0].id = "id_basement-" + i + "-base";
+                    tbody1[i].children[0].children[1].childNodes[0].name = "basement-" + i + "-base";
+                    tbody1[i].children[0].children[2].childNodes[0].id = "id_basement-" + i + "-id";
+                    tbody1[i].children[0].children[2].childNodes[0].name = "basement-" + i + "-id";
+                }
+                basement.value = size1;
+                break;
+            case 3:
+                let size2 = document.getElementById("basement2").getElementsByTagName("tbody").length;
+                let tbody2 = document.getElementById("basement2").getElementsByTagName("tbody");
+                for (let i = 0; i < size2; i++) {
+                    tbody2[i].children[0].children[0].childNodes[0].id = "id_basement2-" + i + "-discipline";
+                    tbody2[i].children[0].children[0].childNodes[0].name = "basement2-" + i + "-discipline";
+                    tbody2[i].children[0].children[1].childNodes[0].id = "id_basement2-" + i + "-base";
+                    tbody2[i].children[0].children[1].childNodes[0].name = "basement2-" + i + "-base";
+                    tbody2[i].children[0].children[2].childNodes[0].id = "id_basement2-" + i + "-id";
+                    tbody2[i].children[0].children[2].childNodes[0].name = "basement2-" + i + "-id";
+                }
+                basement2.value = size2;
+                break;
+            case 4:
+                let size3 = document.getElementById("theme").getElementsByTagName("tbody").length;
+                let tbody3 = document.getElementById("theme").getElementsByTagName("tbody");
+                for (let i = 0; i < size3; i++) {
+                    tbody3[i].children[0].children[0].childNodes[0].id = "id_theme-" + i + "-theme";
+                    tbody3[i].children[0].children[0].childNodes[0].name = "theme-" + i + "-theme";
+                    tbody3[i].children[0].children[1].childNodes[0].id = "id_theme-" + i + "-content";
+                    tbody3[i].children[0].children[1].childNodes[0].name = "theme-" + i + "-content";
+                    tbody3[i].children[0].children[2].childNodes[0].id = "id_theme-" + i + "-id";
+                    tbody3[i].children[0].children[2].childNodes[0].name = "theme-" + i + "-id";
+                }
+                theme.value = size3;
+                break;
+            case 5:
+                let size4 = document.getElementById("hours_distribution").getElementsByTagName("tbody").length;
+                let tbody4 = document.getElementById("hours_distribution").getElementsByTagName("tbody");
+                for (let i = 0; i < size4; i++) {
+                    tbody4[i].children[0].children[0].childNodes[0].id = "id_hours_distribution-" + i + "-content";
+                    tbody4[i].children[0].children[0].childNodes[0].name = "hours_distribution-" + i + "-content";
+                    tbody4[i].children[0].children[1].childNodes[0].id = "id_hours_distribution-" + i + "-hours_type";
+                    tbody4[i].children[0].children[1].childNodes[0].name = "hours_distribution-" + i + "-hours_type";
+                    tbody4[i].children[0].children[2].childNodes[0].id = "id_hours_distribution-" + i + "-hours";
+                    tbody4[i].children[0].children[2].childNodes[0].name = "hours_distribution-" + i + "-hours";
+                    tbody4[i].children[0].children[3].childNodes[0].id = "id_hours_distribution-" + i + "-id";
+                    tbody4[i].children[0].children[3].childNodes[0].name = "hours_distribution-" + i + "-id";
+                }
+                hours_distribution.value = size4;
+                break;
+            case 6:
+                let size5 = document.getElementById("srs_content").getElementsByTagName("tbody").length;
+                let tbody5 = document.getElementById("srs_content").getElementsByTagName("tbody");
+                for (let i = 0; i < size5; i++) {
+                    tbody5[i].children[0].children[0].childNodes[0].id = "id_srs_content-" + i + "-theme";
+                    tbody5[i].children[0].children[0].childNodes[0].name = "srs_content-" + i + "-theme";
+                    tbody5[i].children[0].children[1].childNodes[0].id = "id_srs_content-" + i + "-practice_type";
+                    tbody5[i].children[0].children[1].childNodes[0].name = "srs_content-" + i + "-practice_type";
+                    tbody5[i].children[0].children[2].childNodes[0].id = "id_srs_content-" + i + "-class_type";
+                    tbody5[i].children[0].children[2].childNodes[0].name = "srs_content-" + i + "-class_type";
+                    tbody5[i].children[0].children[3].childNodes[0].id = "id_srs_content-" + i + "-hours";
+                    tbody5[i].children[0].children[3].childNodes[0].name = "srs_content-" + i + "-hours";
+                    tbody5[i].children[0].children[4].childNodes[0].id = "id_srs_content-" + i + "-control";
+                    tbody5[i].children[0].children[4].childNodes[0].name = "srs_content-" + i + "-control";
+                    tbody5[i].children[0].children[5].childNodes[0].id = "id_srs_content-" + i + "-id";
+                    tbody5[i].children[0].children[5].childNodes[0].name = "srs_content-" + i + "-id";
+                }
+                srs_content.value = size5;
+                break;
+            case 7:
+                let size6 = document.getElementById("disc_rating").getElementsByTagName("tbody").length;
+                let tbody6 = document.getElementById("disc_rating").getElementsByTagName("tbody");
+                for (let i = 0; i < size6; i++) {
+                    tbody6[i].children[0].children[0].childNodes[0].id = "id_disc_rating-" + i + "-rating_type";
+                    tbody6[i].children[0].children[0].childNodes[0].name = "disc_rating-" + i + "-rating_type";
+                    tbody6[i].children[0].children[1].childNodes[0].id = "id_disc_rating-" + i + "-semester";
+                    tbody6[i].children[0].children[1].childNodes[0].name = "disc_rating-" + i + "-semester";
+                    tbody6[i].children[0].children[2].childNodes[0].id = "id_disc_rating-" + i + "-work_type";
+                    tbody6[i].children[0].children[2].childNodes[0].name = "disc_rating-" + i + "-work_type";
+                    tbody6[i].children[0].children[3].childNodes[0].id = "id_disc_rating-" + i + "-max_points";
+                    tbody6[i].children[0].children[3].childNodes[0].name = "disc_rating-" + i + "-max_points";
+                    tbody6[i].children[0].children[4].childNodes[0].id = "id_disc_rating-" + i + "-min_points";
+                    tbody6[i].children[0].children[4].childNodes[0].name = "disc_rating-" + i + "-min_points";
+                    tbody6[i].children[0].children[5].childNodes[0].id = "id_disc_rating-" + i + "-id";
+                    tbody6[i].children[0].children[5].childNodes[0].name = "disc_rating-" + i + "-id";
+                }
+                disc_rating.value = size6;
+                break;
+            case 8:
+                let size7 = document.getElementById("mark_scale").getElementsByTagName("tbody").length;
+                let tbody7 = document.getElementById("mark_scale").getElementsByTagName("tbody");
+                for (let i = 0; i < size7; i++) {
+                    tbody7[i].children[0].children[0].childNodes[0].id = "id_mark_scale-" + i + "-skill";
+                    tbody7[i].children[0].children[0].childNodes[0].name = "mark_scale-" + i + "-skill";
+                    tbody7[i].children[0].children[1].childNodes[0].id = "id_mark_scale-" + i + "-level";
+                    tbody7[i].children[0].children[1].childNodes[0].name = "mark_scale-" + i + "-level";
+                    tbody7[i].children[0].children[2].childNodes[0].id = "id_mark_scale-" + i + "-criteria";
+                    tbody7[i].children[0].children[2].childNodes[0].name = "mark_scale-" + i + "-criteria";
+                    tbody7[i].children[0].children[3].childNodes[0].id = "id_mark_scale-" + i + "-mark";
+                    tbody7[i].children[0].children[3].childNodes[0].name = "mark_scale-" + i + "-mark";
+                    tbody7[i].children[0].children[4].childNodes[0].id = "id_mark_scale-" + i + "-id";
+                    tbody7[i].children[0].children[4].childNodes[0].name = "mark_scale-" + i + "-id";
+                }
+                mark_scale.value = size7;
+                break;
+            case 9:
+                let size8 = document.getElementById("fos").getElementsByTagName("tbody").length;
+                let tbody8 = document.getElementById("fos").getElementsByTagName("tbody");
+                for (let i = 0; i < size8; i++) {
+                    tbody8[i].children[0].children[0].childNodes[0].id = "id_fos_table-" + i + "-skill";
+                    tbody8[i].children[0].children[0].childNodes[0].name = "fos_table-" + i + "-skill";
+                    tbody8[i].children[0].children[1].childNodes[0].id = "id_fos_table-" + i + "-theme";
+                    tbody8[i].children[0].children[1].childNodes[0].name = "fos_table-" + i + "-theme";
+                    tbody8[i].children[0].children[2].childNodes[0].id = "id_fos_table-" + i + "-sample";
+                    tbody8[i].children[0].children[2].childNodes[0].name = "fos_table-" + i + "-sample";
+                    tbody8[i].children[0].children[3].childNodes[0].id = "id_fos_table-" + i + "-id";
+                    tbody8[i].children[0].children[3].childNodes[0].name = "fos_table-" + i + "-id";
+                }
+                fos.value = size8;
+                break;
+            case 10:
+                let size9 = document.getElementById("mainlit").getElementsByTagName("tbody").length;
+                let tbody9 = document.getElementById("mainlit").getElementsByTagName("tbody");
+                for (let i = 0; i < size9; i++) {
+                    tbody9[i].children[0].children[0].childNodes[0].id = "id_bibl-" + i + "-reference";
+                    tbody9[i].children[0].children[0].childNodes[0].name = "bibl-" + i + "-reference";
+                    tbody9[i].children[0].children[1].childNodes[0].id = "id_bibl-" + i + "-elibrary";
+                    tbody9[i].children[0].children[1].childNodes[0].name = "bibl-" + i + "-elibrary";
+                    tbody9[i].children[0].children[2].childNodes[0].id = "id_bibl-" + i + "-is_main";
+                    tbody9[i].children[0].children[2].childNodes[0].name = "bibl-" + i + "-is_main";
+                    tbody9[i].children[0].children[3].childNodes[0].id = "id_bibl-" + i + "-count";
+                    tbody9[i].children[0].children[3].childNodes[0].name = "bibl-" + i + "-count";
+                    tbody9[i].children[0].children[4].childNodes[0].id = "id_bibl-" + i + "-id";
+                    tbody9[i].children[0].children[4].childNodes[0].name = "bibl-" + i + "-id";
+                }
+                mainlit.value = size9;
+                break;
         }
     }
 {% endblock %}

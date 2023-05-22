@@ -1,5 +1,6 @@
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.urls import path
 from django.contrib.admin.views.decorators import staff_member_required
 
 from nomenclature import views
@@ -19,4 +20,5 @@ urlpatterns = [
     url(r'^rup/$', views.EduProgListView.as_view(), name='rup'),
     url(r'^nomenclature_disciplines/$', views.nomenclature_discipline, name='nomenclature_disciplines'),
     url(r'^api/',include(api, namespace='api')),
+
 ]

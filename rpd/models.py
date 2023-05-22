@@ -146,7 +146,7 @@ class RPDDisciplineContentHours(Model):
     hours = IntegerField(verbose_name="Кол-во часов",  db_index=True, default=200)
 
     def __str__(self):
-        return self.content
+        return self.content.theme
 
 
 class ClassType(Model): #подкласс
@@ -165,7 +165,7 @@ class PracticeDescription(Model):
     control = CharField(verbose_name="Контроль", max_length=300, db_index=True, default=1)
 
     def __str__(self):
-        return self.theme
+        return self.theme.theme
 
 
 class WorkType(Model): #подкласс

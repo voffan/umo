@@ -169,8 +169,9 @@ def rpd_create(request, rpddiscipline_id):
                 'software': discipline.software,
                 'iss': discipline.iss}
         form = forms.RPDProgram(data=data)
-        results = forms.ResultsSet(queryset=DisciplineResult.objects.filter(rpd__id=rpddiscipline_id), prefix='results', )
+        results = forms.ResultsSet(queryset=DisciplineResult.objects.filter(rpd__id=rpddiscipline_id), prefix='results')
         basement = forms.BasementSet(queryset=Basement.objects.filter(discipline__id=rpddiscipline_id), prefix='basement')
+        basement2 = forms.BasementSet(queryset=Basement.objects.filter(base__id=rpddiscipline_id), prefix='basement2')
         hours_distribution = forms.HoursDistributionSet(queryset=RPDDisciplineContentHours.objects.filter(content__rpd__id=rpddiscipline_id), prefix='hours_distribution')
         theme = forms.ThemeSet(queryset=RPDDisciplineContent.objects.filter(rpd__id=rpddiscipline_id), prefix='theme')
         srs_content = forms.SRSContentSet(queryset=PracticeDescription.objects.filter(rpd__id=rpddiscipline_id), prefix='srs_content')
@@ -178,8 +179,266 @@ def rpd_create(request, rpddiscipline_id):
         disc_rating = forms.DiscRatingSet(queryset=DisciplineRating.objects.filter(rpd__id=rpddiscipline_id), prefix='disc_rating')
         mark_scale = forms.MarkScaleSet(queryset=MarkScale.objects.filter(rpd__id=rpddiscipline_id), prefix='mark_scale')
         fos_table = forms.FosTableSet(queryset=FOS.objects.filter(rpd__id=rpddiscipline_id), prefix='fos_table')
-        bibl = forms.BibliographySet(queryset=Bibliography.objects.filter(rpd__id=rpddiscipline_id, is_main=True), prefix='bibl')
-    return render(request, 'rpd.html', context={'discipline': discipline, 'form': form, 'results': results, 'basement': basement, 'hours_distribution': hours_distribution, 'theme': theme, 'srs_content': srs_content, 'labs_content': labs_content, 'disc_rating': disc_rating, 'mark_scale': mark_scale, 'fos_table': fos_table, 'bibl': bibl})
+        #bibl = forms.BibliographySet(queryset=Bibliography.objects.filter(rpd__id=rpddiscipline_id, is_main=True), prefix='bibl')
+        bibl = forms.BibliographySet(queryset=Bibliography.objects.filter(rpd__id=rpddiscipline_id), prefix='bibl')
+        disc_details = DisciplineDetails.objects.filter(discipline_id=discipline.discipline_ptr_id).all()
+
+    return render(request, 'rpd.html', context={'basement2': basement2, 'disc_details': disc_details, 'discipline': discipline, 'form': form, 'results': results, 'basement': basement, 'hours_distribution': hours_distribution, 'theme': theme, 'srs_content': srs_content, 'labs_content': labs_content, 'disc_rating': disc_rating, 'mark_scale': mark_scale, 'fos_table': fos_table, 'bibl': bibl})
+
+def rpd_paragraph1_create(request, rpddiscipline_id):
+    if request.method == 'POST':
+        rpd = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+        rpd.goal = request.POST.get("goal", "Undefined")
+        rpd.abstract = request.POST.get("abstract", "Undefined")
+        rpd.language = request.POST.get("language", "Undefined")
+        rpd.save();
+
+        results = forms.ResultsSet(request.POST, prefix='results')
+        basement = forms.BasementSet(request.POST, prefix='basement')
+        basement2 = forms.BasementSet(request.POST, prefix='basement2')
+        theme = forms.ThemeSet(request.POST, prefix='theme')
+
+        dict_res = dict(results.data)
+        dict_base = dict(basement.data)
+        dict_base2 = dict(basement2.data)
+        res_num = 0
+        base_num = 0
+        base2_num = 0
+        #print(dict_res)
+        prov = int(dict_res['results-TOTAL_FORMS'][0]) - 1
+        #print(prov)
+        if (dict_res['results-' + str(prov) + '-competency'][0]) == '':
+            res_num = int(dict_res['results-TOTAL_FORMS'][0]) - 1
+        else:
+            res_num = int(dict_res['results-TOTAL_FORMS'][0])
+        prov = int(dict_base['basement-TOTAL_FORMS'][0]) - 1
+        if (dict_res['basement-' + str(prov) + '-discipline'][0]) == '':
+            base_num = int(dict_base['basement-TOTAL_FORMS'][0]) - 1
+        else:
+            base_num = int(dict_base['basement-TOTAL_FORMS'][0])
+        prov = int(dict_base2['basement2-TOTAL_FORMS'][0]) - 1
+        if (dict_res['basement2-' + str(prov) + '-discipline'][0]) == '':
+            base2_num = int(dict_base2['basement2-TOTAL_FORMS'][0]) - 1
+        else:
+            base2_num = int(dict_base2['basement2-TOTAL_FORMS'][0])
+
+        num = 0
+        if results.is_valid():
+                #print(form['name'].value())
+            for form in results:
+                if num < res_num:
+                    num = num + 1
+                    result = form.save(commit=False)
+                    result.rpd = rpd
+                    result.save()
+            for form in results.deleted_forms:
+                try:
+                    res = DisciplineResult.objects.filter(id=form['id'].value(), competency=form['competency'].value(), indicator=form['indicator'].value(), skill=form['skill'].value(), judging=form['judging'].value()).first()
+                    res.delete()
+                except:
+                    print(form['id'].value())
+                    pass
+        num = 0
+        if basement.is_valid():
+            for form in basement:
+                if num < base_num:
+                    num = num + 1
+                    base = form.save(commit=False)
+                    base.rpd = rpd
+                    base.save()
+        num = 0
+        if basement2.is_valid():
+            for form in basement2:
+                if num < base2_num:
+                    num = num + 1
+                    base2 = form.save(commit=False)
+                    base2.rpd = rpd
+                    base2.save()
+        num = 0
+        if theme.is_valid():
+            for form in theme:
+                name = form.save(commit=False)
+                name.rpd = rpd
+                name.save()
+
+    return HttpResponseRedirect("/rpd/rpd/"+ str(rpddiscipline_id) +"?page=2", 'rpd.html')
+
+def rpd_paragraph2_create(request, rpddiscipline_id):
+    return HttpResponseRedirect("/rpd/rpd/"+ str(rpddiscipline_id) +"?page=3", 'rpd.html')
+
+def rpd_paragraph3_create(request, rpddiscipline_id):
+    if request.method == 'POST':
+        rpd = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+        rpd.education_methodology = request.POST.get("education_methodology", "Undefined")
+        rpd.save();
+
+        hours_distribution = forms.HoursDistributionSet(request.POST, prefix='hours_distribution')
+        hour_num = 0
+        dict_hours = dict(hours_distribution.data)
+        print(dict_hours)
+        prov = int(dict_hours['hours_distribution-TOTAL_FORMS'][0]) - 1
+        if (dict_hours['hours_distribution-' + str(prov) + '-content'][0]) == '':
+            hour_num = int(dict_hours['hours_distribution-TOTAL_FORMS'][0]) - 1
+        else:
+            hour_num = int(dict_hours['hours_distribution-TOTAL_FORMS'][0])
+        num = 0
+        if hours_distribution.is_valid():
+            for form in hours_distribution:
+                print(hour_num)
+                if num < hour_num:
+                    num = num + 1
+                    hour_dis = form.save(commit=False)
+                    hour_dis.rpd = rpd
+                    hour_dis.save()
+
+    return HttpResponseRedirect("/rpd/rpd/"+ str(rpddiscipline_id) +"?page=4", 'rpd.html')
+
+def rpd_paragraph4_create(request, rpddiscipline_id):
+    if request.method == 'POST':
+        rpd = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+        rpd.count_e_method_support = request.POST.get("count_e_method_support", "Undefined")
+        rpd.save();
+
+        srs_content = forms.SRSContentSet(request.POST, prefix='srs_content')
+        src_num = 0
+        dict_src = dict(srs_content.data)
+        print(dict_src)
+        prov = int(dict_src['srs_content-TOTAL_FORMS'][0]) - 1
+        if (dict_src['srs_content-' + str(prov) + '-theme'][0]) == '':
+            src_num = int(dict_src['srs_content-TOTAL_FORMS'][0]) - 1
+        else:
+            src_num = int(dict_src['srs_content-TOTAL_FORMS'][0])
+        num = 0
+        if srs_content.is_valid():
+            for form in srs_content:
+                if num < src_num:
+                    num = num + 1
+                    srs = form.save(commit=False)
+                    srs.rpd = rpd
+                    srs.save()
+
+    return HttpResponseRedirect("/rpd/rpd/"+ str(rpddiscipline_id) +"?page=5", 'rpd.html')
+
+def rpd_paragraph5_create(request, rpddiscipline_id):
+    if request.method == 'POST':
+        rpd = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+        rpd.methodological_instructions = request.POST.get("methodological_instructions", "Undefined")
+        rpd.save();
+
+        disc_rating = forms.DiscRatingSet(request.POST, prefix='disc_rating')
+        disc_num = 0
+        dict_disc = dict(disc_rating.data)
+        print(dict_disc)
+        prov = int(dict_disc['disc_rating-TOTAL_FORMS'][0]) - 1
+        if (dict_disc['disc_rating-' + str(prov) + '-work_type'][0]) == '':
+            disc_num = int(dict_disc['disc_rating-TOTAL_FORMS'][0]) - 1
+        else:
+            disc_num = int(dict_disc['disc_rating-TOTAL_FORMS'][0])
+        num = 0
+        if disc_rating.is_valid():
+            for form in disc_rating:
+                if num < disc_num:
+                    num = num + 1
+                    disc = form.save(commit=False)
+                    disc.rpd = rpd
+                    disc.save()
+
+    return HttpResponseRedirect("/rpd/rpd/"+ str(rpddiscipline_id) +"?page=6", 'rpd.html')
+
+def rpd_paragraph6_create(request, rpddiscipline_id):
+    if request.method == 'POST':
+        rpd = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+        rpd.fos_fond = request.POST.get("fos_fond", "Undefined")
+        rpd.fos_methodology = request.POST.get("fos_methodology", "Undefined")
+        rpd.scaling_methodology = request.POST.get("scaling_methodology", "Undefined")
+        rpd.save();
+
+        mark_scale = forms.MarkScaleSet(request.POST, prefix='mark_scale')
+        fos_table = forms.FosTableSet(request.POST, prefix='fos_table')
+        mark_num = 0
+        fos_num = 0
+        dict_mark = dict(mark_scale.data)
+        dict_fos = dict(fos_table.data)
+        print(dict_mark)
+        prov = int(dict_mark['mark_scale-TOTAL_FORMS'][0]) - 1
+        if (dict_mark['mark_scale-' + str(prov) + '-skill'][0]) == '':
+            mark_num = int(dict_mark['mark_scale-TOTAL_FORMS'][0]) - 1
+        else:
+            mark_num = int(dict_mark['mark_scale-TOTAL_FORMS'][0])
+        prov = int(dict_fos['fos_table-TOTAL_FORMS'][0]) - 1
+        if (dict_fos['fos_table-' + str(prov) + '-skill'][0]) == '':
+            fos_num = int(dict_fos['fos_table-TOTAL_FORMS'][0]) - 1
+        else:
+            fos_num = int(dict_fos['fos_table-TOTAL_FORMS'][0])
+        num = 0
+        if mark_scale.is_valid():
+            for form in mark_scale:
+                if num < mark_num:
+                    num = num + 1
+                    mark = form.save(commit=False)
+                    mark.rpd = rpd
+                    mark.save()
+        num = 0
+        if fos_table.is_valid():
+            for form in fos_table:
+                if num < fos_num:
+                    num = num + 1
+                    f_t = form.save(commit=False)
+                    f_t.rpd = rpd
+                    f_t.save()
+
+    return HttpResponseRedirect("/rpd/rpd/"+ str(rpddiscipline_id) +"?page=7", 'rpd.html')
+
+def rpd_paragraph7_create(request, rpddiscipline_id):
+    if request.method == 'POST':
+        rpd = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+
+        bibl = forms.BibliographySet(request.POST, prefix='bibl')
+
+        bibl_num = 0
+        dict_bibl = dict(bibl.data)
+        print(dict_bibl)
+        prov = int(dict_bibl['bibl-TOTAL_FORMS'][0]) - 1
+        if (dict_bibl['bibl-' + str(prov) + '-reference'][0]) == '':
+            bibl_num = int(dict_bibl['bibl-TOTAL_FORMS'][0]) - 1
+        else:
+            bibl_num = int(dict_bibl['bibl-TOTAL_FORMS'][0])
+        num = 0
+        if bibl.is_valid():
+            for form in bibl:
+                if num < bibl_num:
+                    num = num + 1
+                    main = form.save(commit=False)
+                    main.rpd = rpd
+                    main.save()
+
+    return HttpResponseRedirect("/rpd/rpd/"+ str(rpddiscipline_id) +"?page=8", 'rpd.html')
+
+def rpd_paragraph8_create(request, rpddiscipline_id):
+    if request.method == 'POST':
+        rpd = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+        rpd.web_resource = request.POST.get("web_resource", "Undefined")
+        rpd.save()
+
+    return HttpResponseRedirect("/rpd/rpd/"+ str(rpddiscipline_id) +"?page=9", 'rpd.html')
+
+def rpd_paragraph9_create(request, rpddiscipline_id):
+    if request.method == 'POST':
+        rpd = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+        rpd.material = request.POST.get("material", "Undefined")
+        rpd.save()
+
+    return HttpResponseRedirect("/rpd/rpd/"+ str(rpddiscipline_id) +"?page=10", 'rpd.html')
+
+def rpd_paragraph10_create(request, rpddiscipline_id):
+    if request.method == 'POST':
+        rpd = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+        rpd.it = request.POST.get("it", "Undefined")
+        rpd.software = request.POST.get("software", "Undefined")
+        rpd.iss = request.POST.get("iss", "Undefined")
+        rpd.save()
+
+    return HttpResponseRedirect("/rpd/rpd/"+ str(rpddiscipline_id) +"?page=1", 'rpd.html')
 
 def export_docx(request, rpddiscipline_id):
     if request.method == 'GET':
@@ -376,3 +635,141 @@ def create_docx(discipline):
     document.add_heading('10.3. Перечень информационных справочных систем', level=1)
     document.add_paragraph(discipline.iss)
     return document
+
+
+
+def create_rpd_from_discipline(request, discipline_id):
+    disc = Discipline.objects.get(id=discipline_id)
+    rpd = RPDDiscipline(discipline_ptr_id=disc.id)
+    rpd.Name = disc.Name
+    rpd.code = disc.code
+    rpd.program = disc.program
+    rpd.goal = '1'
+    rpd.abstract = '1'
+    rpd.language = 1
+    rpd.education_methodology = '1'
+    rpd.count_e_method_support = '1'
+    rpd.methodological_instructions = '1'
+    rpd.fos_fond = '1'
+    rpd.fos_methodology = '1'
+    rpd.scaling_methodology = '1'
+    rpd.web_resource = '1'
+    rpd.material = '1'
+    rpd.it = '1'
+    rpd.software = '1'
+    rpd.iss = '1'
+    rpd.save()
+    #return render(request, 'disciplines.html')
+    return HttpResponseRedirect("/rpd/list", 'rpd_list.html')
+
+# def rpd_create(request, rpddiscipline_id):
+#     discipline = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+#     if request.method == 'POST':
+#         form = forms.RPDProgram(request.POST)
+#         if form.is_valid():
+#             rpd = RPDDiscipline.objects.filter(id=rpddiscipline_id).first()
+#             rpd.goal = form.cleaned_data['goal']
+#             rpd.abstract = form.cleaned_data['abstract']
+#             rpd.language = form.cleaned_data['language']
+#             rpd.education_methodology = form.cleaned_data['education_methodology']
+#             rpd.count_e_method_support = form.cleaned_data['count_e_method_support']
+#             rpd.methodological_instructions = form.cleaned_data['methodological_instructions']
+#             rpd.fos_fond = form.cleaned_data['fos_fond']
+#             rpd.fos_methodology = form.cleaned_data['fos_methodology']
+#             rpd.scaling_methodology = form.cleaned_data['scaling_methodology']
+#             rpd.web_resource = form.cleaned_data['web_resource']
+#             rpd.material = form.cleaned_data['material']
+#             rpd.it = form.cleaned_data['it']
+#             rpd.software = form.cleaned_data['software']
+#             rpd.iss = form.cleaned_data['iss']
+#             rpd.save()
+#         results = forms.ResultsSet(request.POST, prefix='results')
+#         if results.is_valid():
+#             for form in results:
+#                 result = form.save(commit=False)
+#                 result.rpd = rpd
+#                 result.save()
+#         basement = forms.BasementSet(request.POST, prefix='basement')
+#         if basement.is_valid():
+#             for form in basement:
+#                 base = form.save(commit=False)
+#                 base.rpd = rpd
+#                 base.save()
+#         hours_distribution = forms.HoursDistributionSet(request.POST, prefix='hours_distribution')
+#         if hours_distribution.is_valid():
+#             for form in hours_distribution:
+#                 hour_dis = form.save(commit=False)
+#                 hour_dis.rpd = rpd
+#                 hour_dis.save()
+#         theme = forms.ThemeSet(request.POST, prefix='theme')
+#         if theme.is_valid():
+#             for form in theme:
+#                 name = form.save(commit=False)
+#                 name.rpd = rpd
+#                 name.save()
+#         srs_content = forms.SRSContentSet(request.POST, prefix='srs_content')
+#         if srs_content.is_valid():
+#             for form in srs_content:
+#                 srs = form.save(commit=False)
+#                 srs.rpd = rpd
+#                 srs.save()
+#         labs_content = forms.LabContentSet(request.POST, prefix='labs_content')
+#         if labs_content.is_valid():
+#             for form in labs_content:
+#                 labs = form.save(commit=False)
+#                 labs.rpd = rpd
+#                 labs.save()
+#         disc_rating = forms.DiscRatingSet(request.POST, prefix='disc_rating')
+#         if disc_rating.is_valid():
+#             for form in disc_rating:
+#                 disc = form.save(commit=False)
+#                 disc.rpd = rpd
+#                 disc.save()
+#         mark_scale = forms.MarkScaleSet(request.POST, prefix='mark_scale')
+#         if mark_scale.is_valid():
+#             for form in mark_scale:
+#                 mark = form.save(commit=False)
+#                 mark.rpd = rpd
+#                 mark.save()
+#         fos_table = forms.FosTableSet(request.POST, prefix='fos_table')
+#         if fos_table.is_valid():
+#             for form in fos_table:
+#                 f_t = form.save(commit=False)
+#                 f_t.rpd = rpd
+#                 f_t.save()
+#         bibl = forms.BibliographySet(request.POST, prefix='bibl')
+#         if bibl.is_valid():
+#             for form in bibl:
+#                 main = form.save(commit=False)
+#                 main.rpd = rpd
+#                 main.save()
+#         return redirect('rpds:rpd', discipline.id)
+#     else:
+#         data = {'goal': discipline.goal,
+#                 'abstract': discipline.abstract,
+#                 'language': discipline.language,
+#                 'education_methodology': discipline.education_methodology,
+#                 'count_e_method_support': discipline.count_e_method_support,
+#                 'methodological_instructions': discipline.methodological_instructions,
+#                 'fos_fond': discipline.fos_fond,
+#                 'fos_methodology': discipline.fos_methodology,
+#                 'scaling_methodology': discipline.scaling_methodology,
+#                 'web_resource': discipline.web_resource,
+#                 'material': discipline.material,
+#                 'it': discipline.it,
+#                 'software': discipline.software,
+#                 'iss': discipline.iss}
+#         form = forms.RPDProgram(data=data)
+#         results = forms.ResultsSet(queryset=DisciplineResult.objects.filter(rpd__id=rpddiscipline_id), prefix='results', )
+#         basement = forms.BasementSet(queryset=Basement.objects.filter(discipline__id=rpddiscipline_id), prefix='basement')
+#         hours_distribution = forms.HoursDistributionSet(queryset=RPDDisciplineContentHours.objects.filter(content__rpd__id=rpddiscipline_id), prefix='hours_distribution')
+#         theme = forms.ThemeSet(queryset=RPDDisciplineContent.objects.filter(rpd__id=rpddiscipline_id), prefix='theme')
+#         srs_content = forms.SRSContentSet(queryset=PracticeDescription.objects.filter(rpd__id=rpddiscipline_id), prefix='srs_content')
+#         labs_content = forms.LabContentSet(queryset=PracticeDescription.objects.filter(rpd__id=rpddiscipline_id), prefix='labs_content')
+#         disc_rating = forms.DiscRatingSet(queryset=DisciplineRating.objects.filter(rpd__id=rpddiscipline_id), prefix='disc_rating')
+#         mark_scale = forms.MarkScaleSet(queryset=MarkScale.objects.filter(rpd__id=rpddiscipline_id), prefix='mark_scale')
+#         fos_table = forms.FosTableSet(queryset=FOS.objects.filter(rpd__id=rpddiscipline_id), prefix='fos_table')
+#         bibl = forms.BibliographySet(queryset=Bibliography.objects.filter(rpd__id=rpddiscipline_id, is_main=True), prefix='bibl')
+#         disc_details = DisciplineDetails.objects.filter(discipline_id=discipline.discipline_ptr_id).all()
+#         print(list(disc_details))
+#    return render(request, 'rpd.html', context={'disc_details': disc_details, 'discipline': discipline, 'form': form, 'results': results, 'basement': basement, 'hours_distribution': hours_distribution, 'theme': theme, 'srs_content': srs_content, 'labs_content': labs_content, 'disc_rating': disc_rating, 'mark_scale': mark_scale, 'fos_table': fos_table, 'bibl': bibl})

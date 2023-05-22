@@ -173,3 +173,5 @@ def set_rup_to_groups(request):
         except Exception as e:
             result['error']='Ошибка при сохранении группы!'
     return HttpResponse(json.dumps(result), content_type='application/json')
+
+

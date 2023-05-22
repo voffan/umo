@@ -65,6 +65,7 @@ class HoursDistribution(ModelForm):
         }
         widgets = {
             'content': Select(attrs={'class': 'form-control'}),
+            #'content': TextInput(attrs={'class': 'form-control'}),
             'hours_type': Select(attrs={'class': 'form-control'}),
             'hours': NumberInput(attrs={'class': 'form-control'}),
         }
@@ -92,18 +93,21 @@ class SRS_content(ModelForm):
         model = PracticeDescription
         fields = [
             'theme',
+            'practice_type',
             'class_type',
             'hours',
             'control',
         ]
         labels = {
             'theme': 'Тема',
+            'practice_type' : 'Тип практикума',
             'class_type': 'Вид работы',
             'hours': 'Кол-во часов',
             'control': 'Контроль',
         }
         widgets = {
             'theme': Select(attrs={'class': 'form-control'}),
+            'practice_type': Select(attrs={'class': 'form-control'}),
             'class_type': Select(attrs={'class': 'form-control'}),
             'hours': NumberInput(attrs={'class': 'form-control'}),
             'control': Textarea(attrs={'class': 'form-control'}),
@@ -208,21 +212,21 @@ class Bibliography_Table(ModelForm):
         fields = [
             'reference',
             'elibrary',
-            'grif',
+            #'grif',
             'is_main',
             'count',
         ]
         labels = {
             'reference': 'Библиографическая ссылка',
             'elibrary': 'Электронная литература',
-            'grif': 'Наличие грифа, вид грифа',
+            #'grif': 'Наличие грифа, вид грифа',
             'is_main': 'Главная литература',
             'count': 'Кол-во экземпляров',
         }
         widgets = {
             'reference': Textarea(attrs={'class': 'form-control'}),
             'elibrary': Select(attrs={'class': 'form-control'}),
-            'grif': Textarea(attrs={'class': 'form-control'}),
+            #'grif': Textarea(attrs={'class': 'form-control'}),
             'is_main': CheckboxInput(attrs={'class': 'form-control'}),
             'count': NumberInput(attrs={'class': 'form-control'}),
         }
@@ -244,25 +248,25 @@ class RPDProgram(Form):
     software = CharField(widget=Textarea(attrs={'class': 'form-control'}), label='Указывается программное обеспечение, на которое университет имеет лицензию и свободно распространяемое программное обеспечение, в том числе отечественного производства.:')
     iss = CharField(widget=Textarea(attrs={'class': 'form-control'}), label='')
 
-    def save(self):
-        if self.clean():
-            new_rpd = RPDDiscipline.objects.create(
-                goal=self.cleaned_data['goal'],
-                abstract=self.cleaned_data['abstract'],
-                language=self.cleaned_data['language'],
-                education_methodology=self.cleaned_data['education_methodology'],
-                count_e_method_support=self.cleaned_data['count_e_method_support'],
-                methodological_instructions=self.cleaned_data['methodological_instructions'],
-                fos_fond=self.cleaned_data['fos_fond'],
-                fos_methodology=self.cleaned_data['fos_methodology'],
-                scaling_methodology=self.cleaned_data['scaling_methodology'],
-                web_resource=self.cleaned_data['web_resource'],
-                material=self.cleaned_data['material'],
-                it=self.cleaned_data['it'],
-                software=self.cleaned_data['software'],
-                iss=self.cleaned_data['iss'],
-        )
-        return new_rpd
+    # def save(self):
+    #     if self.clean():
+    #         new_rpd = RPDDiscipline.objects.create(
+    #             goal=self.cleaned_data['goal'],
+    #             abstract=self.cleaned_data['abstract'],
+    #             language=self.cleaned_data['language'],
+    #             education_methodology=self.cleaned_data['education_methodology'],
+    #             count_e_method_support=self.cleaned_data['count_e_method_support'],
+    #             methodological_instructions=self.cleaned_data['methodological_instructions'],
+    #             fos_fond=self.cleaned_data['fos_fond'],
+    #             fos_methodology=self.cleaned_data['fos_methodology'],
+    #             scaling_methodology=self.cleaned_data['scaling_methodology'],
+    #             web_resource=self.cleaned_data['web_resource'],
+    #             material=self.cleaned_data['material'],
+    #             it=self.cleaned_data['it'],
+    #             software=self.cleaned_data['software'],
+    #             iss=self.cleaned_data['iss'],
+    #     )
+    #     return new_rpd
 
 
 ResultsSet = modelformset_factory(DisciplineResult, form=Result, extra=1)

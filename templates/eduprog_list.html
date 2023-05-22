@@ -32,7 +32,9 @@
                 {% for prog in object_list %}
                 <tr>
                     <td> </td>
-                    <td>{{ prog.specialization.code }} {{ prog.specialization.name }}</td>
+                    <td>
+                        <a href="{% url 'disciplines:disciplines' prog.id %}">{{ prog.specialization.code }} {{ prog.specialization.name }}</a>
+                    </td>
                     <td>{{ prog.profile.name }}</td>
                     <td>{{ prog.year }}</td>
                     <td>{{ prog.name }}</td>

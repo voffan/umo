@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Список дисциплин{% endblock %}
+{% block content %}
+    <h1>Список дисциплин</h1>
+    <p align="right" id="disciplines_list_filter"><label><b>Специализация</b></label><br></p>
+    <table id="disciplines_list" class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>№</th>
+                <th>Дисциплина</th>
+                <th>Код</th>
+                <th>Специализация</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for discipline in discipline_list %}
+            <tr>
+                <td> </td>
+                <td> {{ discipline.Name }} </td>
+                <td> {{ discipline.code }} </td>
+                <td> {{ discipline.program }} </td>
+                <td>
+                     <form action = "{% url 'rpds:create_rpd_from_disciplines' discipline.id %}" method="post">
+                         {% csrf_token %}
+                         <input type="submit"  value="Создать РПД" class="btn btn-success">
+                     </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+{% endblock %}
