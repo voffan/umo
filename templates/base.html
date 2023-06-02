@@ -45,6 +45,7 @@
                           <a class="dropdown-item" href="{% url 'disciplines:disciplines_list' %}">Список дисциплин</a>
                           <a class="dropdown-item" href="{% url 'teachers:list_groups' %}">Список групп</a>
                           <a class="dropdown-item" href="{% url 'students:group_points' %}">Экран успеваемости</a>
+                          <a class="dropdown-item" href="{% url 'teachers:add_users' %}">Добавить пользователей</a>
                           <div class="dropdown-divider"></div>
                             {% if user|has_group:"zavkaf" %}
                           <a class="dropdown-item" href="{% url 'rpds:rpd_list' %}">Рабочий план дисциплин</a>

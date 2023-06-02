@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.models import Group as auth_groups
+from django.contrib.auth.models import Group as auth_groups, User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import login, update_session_auth_hash
 from django.core.validators import validate_email
@@ -14,10 +14,12 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.forms import ModelForm, CharField, ValidationError, PasswordInput, HiddenInput
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Side
-
+import csv
 import synch.models as sync_models
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
                         DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam)
+from umo.forms import UploadUsersForm
+from nomenclature.views import hadle_uploaded_file
 
 
 def index(request):
@@ -809,3 +811,34 @@ class BRSPointsListView(ListView):
             wb.save(response)
 
             return response
+        
+
+
+
+def add_users(request):
+    f=UploadUsersForm()
+    if request.method == "POST":
+        f = UploadUsersForm(request.POST, request.FILES)
+        if f.is_valid():
+            flie_path = hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
+            logs=[]
+            process_users(request.FILES['file'].name, logs)
+            return render(request,'logs.html',logs)
+
+    return render(request, 'users_upload.html', {'form': f})
+
+
+def process_users(file_name, logs):
+    with open(file_name,newline='') as read:
+        reader=csv.DictReader(read,delimiter=";")
+        for row in reader:
+            user=User()
+            teacher = Teacher()
+
+
+def login_gen(surname,name,otch): #сгенерировать логи по ФИО
+    pass
+
+def pass_gen(): #рандомно сгенерировать пароль
+    pass
+    

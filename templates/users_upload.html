@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Загрузка рабочего учебного плана{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div style="position:fixed;top:0;left:0;width:100%;z-index:100;" id="error-container">
+                    <div class="alert alert-danger" role="alert" id="error">{{ err_msg }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <form action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <h1>Загрузка списка пользователей</h1>
+                    <br>
+                    {% for field in form.visible_fields %}
+                        <div class="form-group">
+                            {% render_field field class="form-control" %}
+                        </div>
+                    {% endfor %}
+                    <p align="center"><button type="submit" class="btn btn-success">Загрузить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+if("{{ err_msg }}".length > 0){
+    $('#error').delay(3000).slideUp(500, function() {$(this).hide();});
+}else{
+    $('#error').hide();
+}
+{% endblock %}
