@@ -853,7 +853,7 @@ def process_users(file_name, logs):
                 t_id = int(row['teacher_title'])
                 #t.title = Teacher.objects.get(title = t_id).title
 
-                t.position = Position.objects.get(name = "Директор")#str(row['teacher_position']))
+                t.position = Position.objects.get(name = str(row['teacher_position']))
                 t.save()
         # except:
         #     print("Ошибка чего-то там")
