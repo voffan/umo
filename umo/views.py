@@ -20,7 +20,10 @@ from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Stud
                         DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam, Kafedra,Position)
 from umo.forms import UploadUsersForm
 from nomenclature.views import hadle_uploaded_file
+import transliterate
+import random
 
+chars = '+-/*!&$#?=@<>abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 
 def index(request):
     if auth_groups.objects.get(name='teacher') in request.user.groups.all():
@@ -837,12 +840,11 @@ def process_users(file_name, logs):
             for row in reader:
                 u = User()
                 u.username = login_gen(row['teacher_last-name'], row['teacher_first-name'], row['teacher_second-name'])
-                u.set_password("jkjlkj")
+                u.set_password(pass_gen())
                 u.email = "danilove00@mail.ru"
                 u.save()
                 t = Teacher()
                 t.user = u
-                #t.save()
                 t.FIO = row['teacher_last-name'] + " " + row['teacher_first-name'] + " " + row['teacher_second-name']
                 t.last_name = row['teacher_last-name']
                 t.first_name = row['teacher_first-name']
@@ -862,8 +864,14 @@ def process_users(file_name, logs):
 
 
 def login_gen(surname,name,otch): #сгенерировать логин по ФИО
-    return surname+"."+name[0]+"ролрлор"+otch[0]
+    s = transliterate.translit(surname, reversed=True).lower()
+    n = transliterate.translit(name, reversed=True).lower()
+    m = transliterate.translit(otch, reversed=True).lower()
+    return s+"."+n[0]+m[0]
 
 def pass_gen(): #рандомно сгенерировать пароль
-    pass
+    password =''
+    for i in range(8):
+        password += random.choice(chars)
+    return password
     
