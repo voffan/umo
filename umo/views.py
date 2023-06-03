@@ -833,15 +833,12 @@ def add_users(request):
 
 def process_users(file_name, logs):
     with open(file_name,newline='') as read:
-        #try:
             reader=csv.DictReader(read,delimiter=";")
-        #except:
-        #try:
             for row in reader:
                 u = User()
                 u.username = login_gen(row['teacher_last-name'], row['teacher_first-name'], row['teacher_second-name'])
                 u.set_password(pass_gen())
-                u.email = "danilove00@mail.ru"
+                u.email = row['teacher_email']
                 u.save()
                 t = Teacher()
                 t.user = u
@@ -854,7 +851,6 @@ def process_users(file_name, logs):
                 t.cathedra = Kafedra.objects.get(number=c_id)
                 t_id = int(row['teacher_title'])
                 t.title = t_id
-
                 t.position = Position.objects.get(name = str(row['teacher_position']))
                 t.save()
         # except:
