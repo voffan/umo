@@ -851,7 +851,7 @@ def process_users(file_name, logs):
                 c_id = int(row['teacher_kafedra'])
                 t.cathedra = Kafedra.objects.get(number=c_id)
                 t_id = int(row['teacher_title'])
-                #t.title = Teacher.objects.get(title = t_id).title
+                t.title = t_id
 
                 t.position = Position.objects.get(name = str(row['teacher_position']))
                 t.save()
