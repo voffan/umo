@@ -17,7 +17,7 @@ from openpyxl.styles import PatternFill, Border, Alignment, Protection, Font, Si
 import csv
 import synch.models as sync_models
 from umo.models import (Teacher, Group, GroupList, Synch, Year, EduProgram, Student, Discipline, CheckPoint, Control,
-                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam)
+                        DisciplineDetails, BRSpoints, EduPeriod, ExamMarks, Exam, Kafedra,Position)
 from umo.forms import UploadUsersForm
 from nomenclature.views import hadle_uploaded_file
 
@@ -40,7 +40,7 @@ class TeacherCreate(PermissionRequiredMixin, CreateView):
     template_name = 'teacher_form.html'
     success_url = reverse_lazy('teachers:list_teachers')
     model = Teacher
-    fields = ['FIO', 'position', 'zvanie', 'cathedra', 'user']
+    fields = ['FIO', 'position', 'cathedra', 'user']
 
 
 class TeacherUpdate(PermissionRequiredMixin, UpdateView):
@@ -135,7 +135,6 @@ def list_teachers(request):
     all = Teacher.objects.all()
     return render(request, 'teachers_list.html', {'teachers': all})
 '''
-
 
 def get_mark(str, value):
     if (str.lower() == 'зачет' or str.lower() == 'зачёт'):
@@ -820,24 +819,50 @@ def add_users(request):
     if request.method == "POST":
         f = UploadUsersForm(request.POST, request.FILES)
         if f.is_valid():
-            flie_path = hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
+            file_path = hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
             logs=[]
-            process_users(request.FILES['file'].name, logs)
-            return render(request,'logs.html',logs)
+            print(file_path)
+            process_users(file_path, logs)
+            return render(request,'logs.html')
 
     return render(request, 'users_upload.html', {'form': f})
 
 
 def process_users(file_name, logs):
     with open(file_name,newline='') as read:
-        reader=csv.DictReader(read,delimiter=";")
-        for row in reader:
-            user=User()
-            teacher = Teacher()
+        #try:
+            reader=csv.DictReader(read,delimiter=";")
+        #except:
+        #try:
+            for row in reader:
+                u = User()
+                u.username = login_gen(row['teacher_last-name'], row['teacher_first-name'], row['teacher_second-name'])
+                u.set_password("jkjlkj")
+                u.email = "danilove00@mail.ru"
+                u.save()
+                t = Teacher()
+                t.user = u
+                #t.save()
+                t.FIO = row['teacher_last-name'] + " " + row['teacher_first-name'] + " " + row['teacher_second-name']
+                t.last_name = row['teacher_last-name']
+                t.first_name = row['teacher_first-name']
+                t.second_name = row['teacher_second-name']
+                t.maiden_name = row['teacher_maiden-name']
+                c_id = int(row['teacher_kafedra'])
+                t.cathedra = Kafedra.objects.get(number=c_id)
+                t_id = int(row['teacher_title'])
+                #t.title = Teacher.objects.get(title = t_id).title
+
+                t.position = Position.objects.get(name = "Директор")#str(row['teacher_position']))
+                t.save()
+        # except:
+        #     print("Ошибка чего-то там")
+        
+            
 
 
-def login_gen(surname,name,otch): #сгенерировать логи по ФИО
-    pass
+def login_gen(surname,name,otch): #сгенерировать логин по ФИО
+    return surname+"."+name[0]+"ролрлор"+otch[0]
 
 def pass_gen(): #рандомно сгенерировать пароль
     pass

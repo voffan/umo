@@ -96,7 +96,7 @@ def upload_file(request):
 #     form = UploadFileForm()
 #     return render(request)
 
-@permission_required('umo.add_discipline', login_url='/auth/login')
+#@permission_required('umo.add_discipline', login_url='/auth/login')
 def hadle_uploaded_file(filename, file):
      s=os.path.join(settings.BASE_DIR, 'upload',  filename)
      with open(s, 'wb+') as destination:

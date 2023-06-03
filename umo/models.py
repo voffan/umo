@@ -23,7 +23,6 @@ class Person(Model):
 
 
 class Teacher(Person):
-
     NONE = 0
     ASSOCIATE = 1
     PROFESSOR = 2
