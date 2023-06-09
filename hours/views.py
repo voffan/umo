@@ -4,14 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.db.models.functions import Cast, Concat
-from django.db.models import F, CharField, Value, OuterRef, Subquery
+from django.db.models import F, CharField, Value, OuterRef, Subquery, IntegerField
 import json
 from django.http import HttpResponse, JsonResponse
 from transliterate import translit
 from hours.import_data import import_students, import_course, add_supervision_hours, add_practice_hours, add_other_hours
 from umo.models import (Teacher, EduPeriod, Kafedra)
 from hours.models import (DisciplineSetting, GroupInfo, CourseHours, SupervisionHours, PracticeHours, OtherHours,
-                          CathedraEmployee, NormControl)
+                          CathedraEmployee, NormControl, StudentsGroup)
 from .form import UploadFileForm
 from nomenclature.views import hadle_uploaded_file
 from hours.export_data import kup_export
@@ -166,15 +166,24 @@ def get_courselist(request):
                          'vkr_rev', 'admis', 'ref_rev', 'is_lecture_seperate', 'practice_weekly', 'is_hourly',
                          'is_KR_KP_VKR', 'is_new', 'need_new_RPD', 'need_upd_RPD'])
     subgroup = GroupInfo.objects.filter(pk=OuterRef('group_id'))
-    edu = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), practice_type=1)
-    intern = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), practice_type=2)
-    graduate = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), practice_type=3)
-    teaching = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), practice_type=4)
-    supervision_vkr = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), supervision_type=1)
-    supervision_kp_kr = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), supervision_type=2)
-    supervision_mag = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), supervision_type=3)
-    supervision_asp = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), supervision_type=4)
-    supervision_prog_mag = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), supervision_type=5)
+    edu = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'),
+                                       practice_type=1)
+    intern = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'),
+                                          practice_type=2)
+    graduate = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'),
+                                            practice_type=3)
+    teaching = PracticeHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'),
+                                            practice_type=4)
+    supervision_vkr = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'),
+                                                      supervision_type=1)
+    supervision_kp_kr = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'),
+                                                        group_id=OuterRef('group_id'), supervision_type=2)
+    supervision_mag = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'),
+                                                      supervision_type=3)
+    supervision_asp = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'),
+                                                      supervision_type=4)
+    supervision_prog_mag = SupervisionHours.objects.filter(teacher_id=OuterRef('teacher_id'),
+                                                           group_id=OuterRef('group_id'), supervision_type=5)
     gek = OtherHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), other_type=1)
     vkr_rev = OtherHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), other_type=2)
     admis = OtherHours.objects.filter(teacher_id=OuterRef('teacher_id'), group_id=OuterRef('group_id'), other_type=3)
@@ -224,8 +233,18 @@ def get_courselist(request):
 @login_required
 def get_contingentlist(request):
     fields_names = [f.name for f in GroupInfo._meta.get_fields() if f.concrete == True]
+    fields_names.extend(['rf', 'rsa', 'd'])
+    rf = StudentsGroup.objects.filter(group_id=OuterRef('id'), budget_type=0)
+    rsa = StudentsGroup.objects.filter(group_id=OuterRef('id'), budget_type=1)
+    d = StudentsGroup.objects.filter(group_id=OuterRef('id'), budget_type=2)
+    queryset = GroupInfo.objects.annotate(rf=Subquery(rf.values('amount')),
+                                          rsa=Subquery(rsa.values('amount')),
+                                          d=Subquery(d.values('amount')))
     result = [dict(zip(fields_names, row)) for row in
-              GroupInfo.objects.values_list('id', 'group__Name', 'group_type', 'subgroup', 'amount')]
+              queryset.values_list('id', 'group__Name', 'group_type',
+                                   'subgroup', 'amount', 'edu_type',
+                                   'rf', 'rsa', 'd')]
+    print(queryset.query)
 
     for item in result:
         item['group'] = '<a href="' + reverse('hours:edit_contingent', kwargs={'pk': item['id']}) + '">' + item[
@@ -240,7 +259,8 @@ def get_employeelist(request):
     fields_names.append('position')
     fields_names.append('teacherid')
     result = [dict(zip(fields_names, row)) for row in
-              CathedraEmployee.objects.values_list('id', 'teacher__FIO', 'stavka', 'employee_type','is_active', 'teacher__position__name', 'teacher__id')]
+              CathedraEmployee.objects.values_list('id', 'teacher__FIO', 'stavka', 'employee_type', 'is_active',
+                                                   'teacher__position__name', 'teacher__id')]
 
     for item in result:
         item['teacher'] = '<a href="' + reverse('hours:edit_employee', kwargs={'pk': item['id']}) + '">' + item[
@@ -301,41 +321,46 @@ def save_courselist(request):
                 course.save()
                 if course.teacher is not None:
                     add_supervision_hours(t, course.group, k, 1,
-                                          SupervisionHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
+                                          SupervisionHours.objects.filter(teacher_id=course.teacher,
+                                                                          group_id=course.group,
                                                                           edu_period_id=course.edu_period.id,
                                                                           supervision_type=1).first())
                     add_supervision_hours(t, course.group, k, 2,
-                                          SupervisionHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
+                                          SupervisionHours.objects.filter(teacher_id=course.teacher,
+                                                                          group_id=course.group,
                                                                           edu_period_id=course.edu_period.id,
                                                                           supervision_type=2).first())
                     add_supervision_hours(t, course.group, k, 3,
-                                          SupervisionHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
+                                          SupervisionHours.objects.filter(teacher_id=course.teacher,
+                                                                          group_id=course.group,
                                                                           edu_period_id=course.edu_period.id,
                                                                           supervision_type=3).first())
                     add_supervision_hours(t, course.group, k, 4,
-                                          SupervisionHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
+                                          SupervisionHours.objects.filter(teacher_id=course.teacher,
+                                                                          group_id=course.group,
                                                                           edu_period_id=course.edu_period.id,
                                                                           supervision_type=4).first())
                     add_supervision_hours(t, course.group, k, 5,
-                                          SupervisionHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
+                                          SupervisionHours.objects.filter(teacher_id=course.teacher,
+                                                                          group_id=course.group,
                                                                           edu_period_id=course.edu_period.id,
                                                                           supervision_type=5).first())
                     add_practice_hours(t, course.group, k, 1,
                                        PracticeHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
-                                                                       edu_period_id=course.edu_period.id,
-                                                                       practice_type=1).first())
+                                                                    edu_period_id=course.edu_period.id,
+                                                                    practice_type=1).first())
                     add_practice_hours(t, course.group, k, 2,
                                        PracticeHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
-                                                                       edu_period_id=course.edu_period.id,
-                                                                       practice_type=2).first())
+                                                                    edu_period_id=course.edu_period.id,
+                                                                    practice_type=2).first())
                     add_practice_hours(t, course.group, k, 3,
                                        PracticeHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
-                                                                       edu_period_id=course.edu_period.id,
-                                                                       practice_type=3).first())
+                                                                    edu_period_id=course.edu_period.id,
+                                                                    practice_type=3).first())
                     add_practice_hours(t, course.group, k, 4,
                                        PracticeHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
-                                                                       edu_period_id=course.edu_period.id,
-                                                                       practice_type=4).first())
+                                                                    edu_period_id=course.edu_period.id,
+                                                                    practice_type=4).first())
                     add_other_hours(t, course.group, k, 1,
                                     OtherHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
                                                               edu_period_id=course.edu_period.id, other_type=1).first())
@@ -349,7 +374,8 @@ def save_courselist(request):
                                     OtherHours.objects.filter(teacher_id=course.teacher, group_id=course.group,
                                                               edu_period_id=course.edu_period.id, other_type=4).first())
                 if course.discipline_settings.is_lecture_seperate:
-                    check = CourseHours.objects.filter(group_id=course.group.id, cathedra_id=course.cathedra.id, edu_period_id=course.edu_period.id)
+                    check = CourseHours.objects.filter(group_id=course.group.id, cathedra_id=course.cathedra.id,
+                                                       edu_period_id=course.edu_period.id)
                     if check.count() < 2:
                         c = CourseHours()
                         c.edu_period = course.edu_period

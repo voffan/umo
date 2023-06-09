@@ -1,7 +1,7 @@
 import openpyxl
 from django.db import transaction
 from hours.models import GroupInfo, EduPeriod, Kafedra, DisciplineSetting, CourseHours, HoursSettings, \
-    SupervisionHours, PracticeHours, OtherHours, TeacherGekStatus
+    SupervisionHours, PracticeHours, OtherHours, TeacherGekStatus, StudentsGroup
 from umo.models import Discipline, EduProgram, Group, Year, GroupList, Student, EduOrg, Specialization, Profile, \
     Control, DisciplineDetails, Semester
 import synch.models as sync_models
@@ -25,12 +25,15 @@ def import_students(file):
                 subgroup_number = 2
             else:
                 subgroup_number = 1
-            rf, rsa, d = group_student(sheet_obj_oo, cols, i)
-
             group = Group.objects.filter(Name=name_group).first()
             if group is None:
                 continue
             add_contingent(group, name_group, subgroup_number, total, edu_type)
+
+            rf, rsa, d = group_student(sheet_obj_oo, cols, i)
+            students_group = StudentsGroup.objects.filter(group__group__Name=name_group).first()
+            if students_group is None:
+                add_group_student(group, name_group, rf, rsa, d)
 
     sheet_obj_zo = wb_obj['ЗО без академ']
     m_row = sheet_obj_zo.max_row
@@ -44,11 +47,15 @@ def import_students(file):
                 subgroup_number = 2
             else:
                 subgroup_number = 1
-            rf, rsa, d = group_student(sheet_obj_oo, cols, i)
             group = Group.objects.filter(Name=name_group).first()
             if group is None:
                 continue
             add_contingent(group, name_group, subgroup_number, total, edu_type)
+
+            rf, rsa, d = group_student(sheet_obj_zo, cols, i)
+            students_group = StudentsGroup.objects.filter(group__group__Name=name_group).first()
+            if students_group is None:
+                add_group_student(group, name_group, rf, rsa, d)
 
     sheet_obj_ozo = wb_obj['ОЗО без академ']
     m_row = sheet_obj_ozo.max_row
@@ -62,11 +69,15 @@ def import_students(file):
                 subgroup_number = 2
             else:
                 subgroup_number = 1
-            rf, rsa, d = group_student(sheet_obj_oo, cols, i)
             group = Group.objects.filter(Name=name_group).first()
             if group is None:
                 continue
             add_contingent(group, name_group, subgroup_number, total, edu_type)
+
+            rf, rsa, d = group_student(sheet_obj_ozo, cols, i)
+            students_group = StudentsGroup.objects.filter(group__group__Name=name_group).first()
+            if students_group is None:
+                add_group_student(group, name_group, rf, rsa, d)
 
 
 def add_contingent(group, name_group, subgroup_number, total, edu_type):
@@ -112,16 +123,40 @@ def parse_cont_title(sheet_obj):
 
 
 def group_student(sheet_obj, cols, i):
-    rf, rsa, d = (0, 0, 0)
+    rf = 0
+    rsa = 0
+    d = 0
     for k in cols:
-        if sheet_obj.cell(row=i, column=k[2]):
+        if sheet_obj.cell(row=i, column=k[2]).value:
             rf = sheet_obj.cell(row=i, column=k[2]).value
-            if k[1] > 0 and sheet_obj.cell(row=i, column=k[1]):
+            if k[1] > 0 and sheet_obj.cell(row=i, column=k[1]).value:
                 rsa = sheet_obj.cell(row=i, column=k[1]).value
-            if sheet_obj.cell(row=i, column=k[0]):
+            if sheet_obj.cell(row=i, column=k[0]).value:
                 d = sheet_obj.cell(row=i, column=k[0]).value
-            break
     return rf, rsa, d
+
+
+def add_group_student(group, name_group, rf, rsa, d):
+    student_group = StudentsGroup.objects.filter(group__group__Name=name_group).first()
+    if student_group is None:
+        group_student_form(group, rf, rsa, d, 0)
+        group_student_form(group, rf, rsa, d, 1)
+        group_student_form(group, rf, rsa, d, 2)
+
+
+def group_student_form(group, rf, rsa, d, budget_type):
+    student_group = StudentsGroup()
+    student_group.group = GroupInfo.objects.filter(group=group).first()
+    student_group.course = 1
+    student_group.budget_type = budget_type
+    if budget_type == 0:
+        student_group.amount = rf
+    if budget_type == 1:
+        student_group.amount = rsa
+    if budget_type == 2:
+        student_group.amount = d
+    if student_group.amount != 0:
+        student_group.save()
 
 
 @transaction.atomic
