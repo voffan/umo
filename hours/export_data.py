@@ -4,6 +4,7 @@ from hours.models import EduPeriod, CourseHours, HoursSettings, \
     SupervisionHours, PracticeHours, OtherHours, CathedraEmployee
 
 
+
 def kup_header(ws, teacher):
     year = EduPeriod.objects.filter(active=True).first()
     cathedra = teacher.cathedra.name

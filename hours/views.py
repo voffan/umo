@@ -16,6 +16,7 @@ from .form import UploadFileForm
 from nomenclature.views import hadle_uploaded_file
 from hours.export_data import kup_export
 from zipfile import ZipFile
+from io import BytesIO
 
 
 class CourseList(PermissionRequiredMixin, ListView):
@@ -257,16 +258,16 @@ def get_contingentlist(request):
 def get_employeelist(request):
     fields_names = [f.name for f in CathedraEmployee._meta.get_fields() if f.concrete == True]
     fields_names.append('position')
-    fields_names.append('teacherid')
+    fields_names.append('title')
     result = [dict(zip(fields_names, row)) for row in
               CathedraEmployee.objects.values_list('id', 'teacher__FIO', 'stavka', 'employee_type', 'is_active',
-                                                   'teacher__position__name', 'teacher__id')]
+                                                   'teacher__position__name', 'teacher__title')]
 
     for item in result:
         item['teacher'] = '<a href="' + reverse('hours:edit_employee', kwargs={'pk': item['id']}) + '">' + item[
             'teacher'] + '</a>'
-        item['buttons'] = '<a href="' + reverse('hours:export_kup', kwargs={
-            'pk': item['teacherid']}) + '" class="btn btn-danger" style="color: white">' + 'КУП' + '</button>'
+        # item['buttons'] = '<a href="' + reverse('hours:export_kup', kwargs={
+        #     'pk': item['teacherid']}) + '" class="btn btn-danger" style="color: white">' + 'КУП' + '</button>'
     return HttpResponse(json.dumps(result), content_type='application/json')
 
 
@@ -491,12 +492,23 @@ def save_supervision_hours(request):
     return JsonResponse(result)
 
 
-def export_kup(request, pk):
+def export_kup(request):
     if request.method == 'GET':
+        ids = request.GET.getlist("ids")
+        print(ids)
+        #zip_file = zipfile.ZipFile(response, 'w')
+
+        # buffer = BytesIO()
+        # wb.save(buffer)
+        # buffer.seek(0)
+
         teacher = Teacher.objects.filter(id=pk).first()
         wb = kup_export(teacher)
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename=' + translit(teacher.FIO, 'ru',
                                                                              reversed=True) + '.xlsx'
         wb.save(response)
+        # filename = f'{teacher.FIO}.xlsx'
+        # zip_file.writestr(filename, buffer.getbuffer())
+        # zip_file.close()
         return response

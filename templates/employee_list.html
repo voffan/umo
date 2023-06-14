@@ -37,12 +37,14 @@
 <div id="employeelist"></div>
 <a href="{% url 'hours:create_employee' %}" class="btn btn-success">Добавить сотрудника</a>
 <button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
+<a href="{{ updatedLink }}" id="export-kup" class="btn btn-danger" name="export">Экспорт КУП</a>
 
 
 {% endblock %}
 
 {% block scripts %}
 var hot;
+let checkedTeachersIds = [];
 let columns = [
   	{
     	data: 'id',
@@ -76,10 +78,13 @@ let columns = [
         title: 'Должность',
     },
     {
-        data: 'buttons',
-        title: 'КУП',
-        renderer: 'html',
-        readOnly: true,
+        data: 'title',
+        title: 'Ученое звание',
+    },
+    {
+        data: 'kup',
+        title: 'Экпорт КУП',
+        type: 'checkbox',
     }
 ];
 
@@ -117,13 +122,39 @@ fetch("{% url 'hours:api:get_employeelist' %}")
         }
         return value;
       },
-      afterChange: (changes) => {
-        //console.log(data)
+      afterChange: (changes, source) => {
+        if(source === 'loadData') {
+          return;
+        }
+
+        changes.forEach(([row,prop,oldValue,newValue]) => {
+          if(prop === 'kup') {
+            let teacherId = hot.getDataAtRowProp(row,'id');
+            if (newValue) {
+              if (!checkedTeachersIds.includes(teacherId)) {
+                checkedTeachersIds.push(teacherId);
+              }
+            } else {
+              checkedTeachersIds = checkedTeachersIds.filter(id => id !== teacherId);
+            }
+            updateLinkWithIds();
+            console.log(checkedTeachersIds)
+          }
+        });
       }
     });
     //console.log(data);
     //console.log(hot.getSourceData());
 });
+
+function updateLinkWithIds() {
+  let link = "{% url 'hours:employee_list' %}";
+  let idsString = checkedTeachersIds.join('&ids=');
+  let updatedLink = `${link}?ids=${idsString}`;
+  console.log('Updated link:', updatedLink);
+  history.pushState(null, null, updatedLink);
+}
+
 let saveButton  = document.querySelector('#save');
 saveButton.addEventListener('click', () => {
     fetch("{% url 'hours:api:save_employeelist' %}", {
@@ -143,6 +174,26 @@ saveButton.addEventListener('click', () => {
         console.error('Error:', error);
 <!--        undoRedo.undo()-->
         alert("Ошибка в сохранении");
+    })
+});
+let exportButton  = document.querySelector('#export-kup');
+exportButton.addEventListener('click', () => {
+    fetch("{% url 'hours:api:save_employeelist' %}", {
+        method: 'POST',
+        body: JSON.stringify({'data': hot.getData()}),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector("[name=csrfmiddlewaretoken]").value,
+        },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert("Ошибка экспорта КУП");
     })
 });
 {% endblock %}
