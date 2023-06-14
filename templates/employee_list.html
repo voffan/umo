@@ -37,7 +37,7 @@
 <div id="employeelist"></div>
 <a href="{% url 'hours:create_employee' %}" class="btn btn-success">Добавить сотрудника</a>
 <button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
-<a href="{{ updatedLink }}" id="export-kup" class="btn btn-danger" name="export">Экспорт КУП</a>
+<a href="{{ updatedExportLink }}" id="export-kup" class="btn btn-danger" name="export">Экспорт КУП</a>
 
 
 {% endblock %}
@@ -148,11 +148,14 @@ fetch("{% url 'hours:api:get_employeelist' %}")
 });
 
 function updateLinkWithIds() {
-  let link = "{% url 'hours:employee_list' %}";
-  let idsString = checkedTeachersIds.join('&ids=');
-  let updatedLink = `${link}?ids=${idsString}`;
-  console.log('Updated link:', updatedLink);
-  history.pushState(null, null, updatedLink);
+    let link = "{% url 'hours:employee_list' %}";
+    let exportLink = "{% url 'hours:export_kup' %}";
+    let idsString = checkedTeachersIds.join('&ids=');
+    let updatedLink = `${exportLink}?ids=${idsString}`;
+    let updatedExportLink = `${exportLink}?ids=${idsString}`;
+    console.log('Updated link:', updatedLink);
+    history.pushState(null, null, updatedLink);
+    console.log(updatedExportLink);
 }
 
 let saveButton  = document.querySelector('#save');
@@ -176,24 +179,34 @@ saveButton.addEventListener('click', () => {
         alert("Ошибка в сохранении");
     })
 });
-let exportButton  = document.querySelector('#export-kup');
-exportButton.addEventListener('click', () => {
-    fetch("{% url 'hours:api:save_employeelist' %}", {
-        method: 'POST',
-        body: JSON.stringify({'data': hot.getData()}),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'X-CSRFToken': document.querySelector("[name=csrfmiddlewaretoken]").value,
-        },
-    })
-    .then((response) => response.json())
-    .then((data) => {
 
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-        alert("Ошибка экспорта КУП");
-    })
-});
+<!--function sendUrlToServer() {-->
+<!--  const url = window.location.href;-->
+<!--  fetch("{{ updatedExportLink }}", {-->
+<!--    method: 'POST',-->
+<!--    headers: {-->
+<!--      'Accept': 'application/json',-->
+<!--      'Content-Type': 'application/json',-->
+<!--      'X-CSRFToken': getCookie('csrftoken')-->
+<!--    },-->
+<!--    body: JSON.stringify({ url: url })-->
+<!--  })-->
+<!--  .then(response => response.json())-->
+<!--  .then(data => {-->
+<!--    console.log('Success:', data);-->
+<!--  })-->
+<!--  .catch((error) => {-->
+<!--    console.error('Error:', error);-->
+<!--  });-->
+<!--}-->
+
+<!--document.getElementById('export-kup').addEventListener('click', () => {-->
+<!--  sendUrlToServer();-->
+<!--});-->
+
+<!--function getCookie(name) {-->
+<!--  const value = '; ' + document.cookie;-->
+<!--  const parts = value.split('; ' + name + '=');-->
+<!--  if (parts.length === 2) return parts.pop().split(';').shift();-->
+<!--}-->
 {% endblock %}

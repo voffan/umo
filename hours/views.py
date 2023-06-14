@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy, reverse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.db.models.functions import Cast, Concat
 from django.db.models import F, CharField, Value, OuterRef, Subquery, IntegerField
@@ -17,6 +18,7 @@ from nomenclature.views import hadle_uploaded_file
 from hours.export_data import kup_export
 from zipfile import ZipFile
 from io import BytesIO
+from urllib.parse import urlparse, parse_qs
 
 
 class CourseList(PermissionRequiredMixin, ListView):
@@ -492,23 +494,44 @@ def save_supervision_hours(request):
     return JsonResponse(result)
 
 
+@csrf_exempt
 def export_kup(request):
     if request.method == 'GET':
-        ids = request.GET.getlist("ids")
-        print(ids)
-        #zip_file = zipfile.ZipFile(response, 'w')
+        data = json.loads(request.body)
+        url = data['url']
+        print('Received URL:', url)
 
-        # buffer = BytesIO()
-        # wb.save(buffer)
-        # buffer.seek(0)
+        teacher_ids = export_id(url)
+        print('Teacher IDs from URL:', teacher_ids)
 
-        teacher = Teacher.objects.filter(id=pk).first()
-        wb = kup_export(teacher)
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename=' + translit(teacher.FIO, 'ru',
-                                                                             reversed=True) + '.xlsx'
-        wb.save(response)
+        return JsonResponse({'status': 'success'})
+
+
+def export_id(url):
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    if 'ids' in query_params:
+        ids_array = [int(id) for id in query_params['ids']]
+        return ids_array
+    else:
+        return []
+
+
+def export_zip(ids):
+    pass
+    # zip_file = zipfile.ZipFile(response, 'w')
+
+    # buffer = BytesIO()
+    # wb.save(buffer)
+    # buffer.seek(0)
+    # for teacher_id in ids:
+        # teacher = Teacher.objects.filter(id=teacher_id).first()
+        # wb = kup_export(teacher)
+        # response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        # response['Content-Disposition'] = 'attachment; filename=' + translit(teacher.FIO, 'ru',
+        #                                                                      reversed=True) + '.xlsx'
+        # wb.save(response)
         # filename = f'{teacher.FIO}.xlsx'
         # zip_file.writestr(filename, buffer.getbuffer())
         # zip_file.close()
-        return response
+        # return response

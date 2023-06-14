@@ -28,6 +28,6 @@ urlpatterns = [
     path(r'createemployee/', views.EmployeeCreate.as_view(), name='create_employee'),
     path(r'editemployee/<int:pk>', views.EmployeeUpdate.as_view(), name='edit_employee'),
     path(r'supervisionedit/<int:pk>', views.SupervisionUpdate.as_view(), name='edit_supervision'),
-    url(r'^export_kup$', views.export_kup, name='export_kup'),
+    url(r'export_kup$', views.export_kup, name='export_kup'),
     url(r'^api/', include(api, namespace='api'))
 ]
