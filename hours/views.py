@@ -503,3 +503,20 @@ def export_kup(request):
     teacher_ids = request.GET.getlist('ids')
     print('Teacher IDs from URL:', teacher_ids)
     excel_files = []
+    for teacher_id in teacher_ids:
+        teacher = get_object_or_404(Teacher, id=teacher_id)
+        wb = export_form(teacher)
+        excel_files.append(wb.title + '.xslx')
+        wb.save(wb.title + '.xslx')
+    zip_buffer = io.BytesIO()
+
+    with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+        for excel_file in excel_files:
+            zip_file.write(excel_file)
+
+    zip_buffer.seek(0)
+
+    export_date = str(datetime.datetime.now().strftime('%m-%d-%y %H:%M:%S'))
+    response = FileResponse(zip_buffer, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename =' + export_date + '.zip'
+    return response
