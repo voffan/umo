@@ -16,8 +16,8 @@ def kup_header(ws, teacher):
     ws.cell(row=3, column=1).value = '(плановый набор, первая половина рабочего дня)'
     ws.cell(row=4, column=1).value = 'Кафедра: ' + str(cathedra)
     ws.cell(row=5, column=1).value = 'Преподаватель: ' + str(teacher.FIO)
-    ws.cell(row=5, column=13).value = 'Должность: ' + str(position) + ', ставка: ' + str(
-        employee.stavka) + ' став., ' + ' уч. степень: '
+    # ws.cell(row=5, column=13).value = 'Должность: ' + str(position) + ', ставка: ' + str(
+    #     employee.stavka) + ' став., ' + ' уч. степень: '
     ws.cell(row=6, column=1).value = '№'
     ws.cell(row=6, column=2).value = 'Индекс дисциплины'
     ws.cell(row=6, column=3).value = 'Наименование дисциплин'
@@ -426,13 +426,14 @@ def kup_body_data(ws, start, course, supervision, practice, other):
     start += 1
 
 
-def kup_export(teacher):
+def export_form(teacher):
     wb = Workbook()
     ws = wb.active
     teacher_name = str(teacher.FIO).split()
     ws.title = teacher_name[0][0] + teacher_name[1][0] + teacher_name[2][0]
     kup_header(ws, teacher)
     kup_body(ws, teacher)
+    wb.title = teacher_name[0] + teacher_name[1] + teacher_name[2]
     return wb
 
 

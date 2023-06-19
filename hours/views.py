@@ -1,3 +1,7 @@
+import datetime
+import io
+import zipfile
+
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -7,7 +11,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.db.models.functions import Cast, Concat
 from django.db.models import F, CharField, Value, OuterRef, Subquery, IntegerField
 import json
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse
 from transliterate import translit
 from hours.import_data import import_students, import_course, add_supervision_hours, add_practice_hours, add_other_hours
 from umo.models import (Teacher, EduPeriod, Kafedra)
@@ -15,7 +19,7 @@ from hours.models import (DisciplineSetting, GroupInfo, CourseHours, Supervision
                           CathedraEmployee, NormControl, StudentsGroup)
 from .form import UploadFileForm
 from nomenclature.views import hadle_uploaded_file
-from hours.export_data import kup_export
+from hours.export_data import export_form
 from zipfile import ZipFile
 from io import BytesIO
 from urllib.parse import urlparse, parse_qs
@@ -496,42 +500,6 @@ def save_supervision_hours(request):
 
 @csrf_exempt
 def export_kup(request):
-    if request.method == 'GET':
-        data = json.loads(request.body)
-        url = data['url']
-        print('Received URL:', url)
-
-        teacher_ids = export_id(url)
-        print('Teacher IDs from URL:', teacher_ids)
-
-        return JsonResponse({'status': 'success'})
-
-
-def export_id(url):
-    parsed_url = urlparse(url)
-    query_params = parse_qs(parsed_url.query)
-    if 'ids' in query_params:
-        ids_array = [int(id) for id in query_params['ids']]
-        return ids_array
-    else:
-        return []
-
-
-def export_zip(ids):
-    pass
-    # zip_file = zipfile.ZipFile(response, 'w')
-
-    # buffer = BytesIO()
-    # wb.save(buffer)
-    # buffer.seek(0)
-    # for teacher_id in ids:
-        # teacher = Teacher.objects.filter(id=teacher_id).first()
-        # wb = kup_export(teacher)
-        # response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        # response['Content-Disposition'] = 'attachment; filename=' + translit(teacher.FIO, 'ru',
-        #                                                                      reversed=True) + '.xlsx'
-        # wb.save(response)
-        # filename = f'{teacher.FIO}.xlsx'
-        # zip_file.writestr(filename, buffer.getbuffer())
-        # zip_file.close()
-        # return response
+    teacher_ids = request.GET.getlist('ids')
+    print('Teacher IDs from URL:', teacher_ids)
+    excel_files = []
