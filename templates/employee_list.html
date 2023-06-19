@@ -35,6 +35,9 @@
     <br>
 </p>
 <div id="employeelist"></div>
+<p>
+    Выбрать все/ Удалить все<input type="checkbox" name="checkfield" id="g01-01"/>
+</p>
 <a href="{% url 'hours:create_employee' %}" class="btn btn-success">Добавить сотрудника</a>
 <button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
 <a href="{{ updatedExportLink }}" id="export-kup" class="btn btn-danger" name="export">Экспорт КУП</a>
@@ -160,6 +163,9 @@ function updateLinkWithIds() {
     console.log('Updated link:', updatedLink);
     history.pushState(null, null, updatedLink);
     console.log(updatedExportLink);
+    if (idsString.length == 0) {
+        history.pushState(null, null, link)
+    }
 }
 
 let saveButton  = document.querySelector('#save');
@@ -183,4 +189,21 @@ saveButton.addEventListener('click', () => {
         alert("Ошибка в сохранении");
     })
 });
+
+$('input[name=checkfield]').click(function(){
+  if ($(this).is(':checked')) {
+ 	    var rows = hot.countRows();
+      for(var i = 0; i < rows; i++){
+  	    hot.setDataAtCell(i, 8, true)
+      }
+ }
+  else {
+     	  var rows = hot.countRows();
+         for(var i = 0; i < rows; i++){
+  	      hot.setDataAtCell(i, 8, false)
+       }
+  }
+
+})
+
 {% endblock %}

@@ -32,12 +32,12 @@
 </nav>
 
 <h1>Список контингента студентов</h1>
-<label for="columns" class="selectColumn">Select a column:</label>
+<label for="columns" class="selectColumn">Выберите столбец</label>
 <select name="columns" id="columns">
     <option value="1">Группа</option>
     <option value="2">Тип группы</option>
 </select>
-<input type="text" id="filterField" placeholder="Введите фильтр">
+<input type="text" id="filterField" placeholder="Фильтр">
 <br>
 <div id="contingentlist" class="hot"></div>
 <br>
@@ -62,8 +62,8 @@ let columns = [
     	data: 'group_type',
     	title: 'Тип группы',
         type: 'key-value-list',
-        source: [{% for item in group_type %}{_id:"{{ item.0 }}", label: "{{ item.1 }}"},{% endfor %}]
-
+        source: [{% for item in group_type %}{_id:"{{ item.0 }}", label: "{{ item.1 }}"},{% endfor %}],
+        filterByValue: true,
     },
     {
     	data: 'subgroup',
@@ -118,6 +118,7 @@ fetch("{% url 'hours:api:get_contingentlist' %}")
       language: 'en-US',
       licenseKey: 'non-commercial-and-evaluation',
       columns: columns,
+      filters: true,
       hiddenColumns: {
         columns: [0],
         indicators: true
