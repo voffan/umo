@@ -82,6 +82,10 @@ let columns = [
         title: 'Ученое звание',
     },
     {
+        data: 'teacher_id',
+        title: 'ID преподавателя'
+    },
+    {
         data: 'kup',
         title: 'Экпорт КУП',
         type: 'checkbox',
@@ -105,7 +109,7 @@ fetch("{% url 'hours:api:get_employeelist' %}")
       colHeaders: true,
       height: 300,
       hiddenColumns: {
-        columns: [0]
+        columns: [0, 7]
       },
       language: 'ru-RU',
       licenseKey: 'non-commercial-and-evaluation',
@@ -129,7 +133,7 @@ fetch("{% url 'hours:api:get_employeelist' %}")
 
         changes.forEach(([row,prop,oldValue,newValue]) => {
           if(prop === 'kup') {
-            let teacherId = hot.getDataAtRowProp(row,'id');
+            let teacherId = hot.getDataAtRowProp(row,'teacher_id');
             if (newValue) {
               if (!checkedTeachersIds.includes(teacherId)) {
                 checkedTeachersIds.push(teacherId);
@@ -179,34 +183,4 @@ saveButton.addEventListener('click', () => {
         alert("Ошибка в сохранении");
     })
 });
-
-<!--function sendUrlToServer() {-->
-<!--  const url = window.location.href;-->
-<!--  fetch("{{ updatedExportLink }}", {-->
-<!--    method: 'POST',-->
-<!--    headers: {-->
-<!--      'Accept': 'application/json',-->
-<!--      'Content-Type': 'application/json',-->
-<!--      'X-CSRFToken': getCookie('csrftoken')-->
-<!--    },-->
-<!--    body: JSON.stringify({ url: url })-->
-<!--  })-->
-<!--  .then(response => response.json())-->
-<!--  .then(data => {-->
-<!--    console.log('Success:', data);-->
-<!--  })-->
-<!--  .catch((error) => {-->
-<!--    console.error('Error:', error);-->
-<!--  });-->
-<!--}-->
-
-<!--document.getElementById('export-kup').addEventListener('click', () => {-->
-<!--  sendUrlToServer();-->
-<!--});-->
-
-<!--function getCookie(name) {-->
-<!--  const value = '; ' + document.cookie;-->
-<!--  const parts = value.split('; ' + name + '=');-->
-<!--  if (parts.length === 2) return parts.pop().split(';').shift();-->
-<!--}-->
 {% endblock %}

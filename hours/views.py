@@ -265,9 +265,10 @@ def get_employeelist(request):
     fields_names = [f.name for f in CathedraEmployee._meta.get_fields() if f.concrete == True]
     fields_names.append('position')
     fields_names.append('title')
+    fields_names.append('teacher_id')
     result = [dict(zip(fields_names, row)) for row in
               CathedraEmployee.objects.values_list('id', 'teacher__FIO', 'stavka', 'employee_type', 'is_active',
-                                                   'teacher__position__name', 'teacher__title')]
+                                                   'teacher__position__name', 'teacher__title', 'teacher__id')]
 
     for item in result:
         item['teacher'] = '<a href="' + reverse('hours:edit_employee', kwargs={'pk': item['id']}) + '">' + item[

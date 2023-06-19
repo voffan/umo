@@ -32,7 +32,12 @@
 </nav>
 
 <h1>Список контингента студентов</h1>
-<input type="text" id="filterInput" placeholder="Введите фильтр">
+<label for="columns" class="selectColumn">Select a column:</label>
+<select name="columns" id="columns">
+    <option value="1">Группа</option>
+    <option value="2">Тип группы</option>
+</select>
+<input type="text" id="filterField" placeholder="Введите фильтр">
 <br>
 <div id="contingentlist" class="hot"></div>
 <br>
@@ -118,6 +123,21 @@ fetch("{% url 'hours:api:get_contingentlist' %}")
         indicators: true
       }
     });
+
+const filterField = document.querySelector('#filterField');
+
+filterField.addEventListener('keyup', function (event) {
+  const filters = hot.getPlugin('filters');
+  const columnSelector = document.getElementById('columns');
+  const columnValue = columnSelector.value;
+
+  filters.removeConditions(columnValue);
+  filters.addCondition(columnValue, 'contains', [event.target.value]);
+  filters.filter();
+
+  hot.render();
+});
+
 let saveButton  = document.querySelector('#save');
 saveButton.addEventListener('click', () => {
     fetch("{% url 'hours:api:save_contingent' %}", {
@@ -139,6 +159,5 @@ saveButton.addEventListener('click', () => {
         })
     });
 });
-
 
 {% endblock %}
