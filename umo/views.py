@@ -23,7 +23,7 @@ from nomenclature.views import hadle_uploaded_file
 import transliterate
 import random
 
-chars = '+-/*!&$#?=@<>abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+chars = 'abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 
 def index(request):
     if auth_groups.objects.get(name='teacher') in request.user.groups.all():
@@ -823,15 +823,14 @@ def add_users(request):
         f = UploadUsersForm(request.POST, request.FILES)
         if f.is_valid():
             file_path = hadle_uploaded_file(request.FILES['file'].name, request.FILES['file'])
-            logs=[]
             print(file_path)
-            process_users(file_path, logs)
+            process_users(file_path)
             return render(request,'logs.html')
 
     return render(request, 'users_upload.html', {'form': f})
 
 
-def process_users(file_name, logs):
+def process_users(file_name):
     with open(file_name,newline='') as read:
             reader=csv.DictReader(read,delimiter=";")
             for row in reader:
@@ -853,11 +852,6 @@ def process_users(file_name, logs):
                 t.title = t_id
                 t.position = Position.objects.get(name = str(row['teacher_position']))
                 t.save()
-        # except:
-        #     print("Ошибка чего-то там")
-        
-            
-
 
 def login_gen(surname,name,otch): #сгенерировать логин по ФИО
     s = transliterate.translit(surname, reversed=True).lower()
