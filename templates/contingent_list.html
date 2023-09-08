@@ -63,7 +63,6 @@ let columns = [
     	title: 'Тип группы',
         type: 'key-value-list',
         source: [{% for item in group_type %}{_id:"{{ item.0 }}", label: "{{ item.1 }}"},{% endfor %}],
-        filterByValue: true,
     },
     {
     	data: 'subgroup',
@@ -123,19 +122,31 @@ fetch("{% url 'hours:api:get_contingentlist' %}")
         columns: [0],
         indicators: true
       }
-    });
+});
 
 const filterField = document.querySelector('#filterField');
 
 filterField.addEventListener('keyup', function (event) {
   const filters = hot.getPlugin('filters');
   const columnSelector = document.getElementById('columns');
-  const columnValue = columnSelector.value;
+  const columnValue = columnSelector.value
+  console.log(columns[2].source);
 
-  filters.removeConditions(columnValue);
-  filters.addCondition(columnValue, 'contains', [event.target.value]);
-  filters.filter();
-
+  if (columnValue == 2) {
+    const searchTerm = event.target.value.toLowerCase();
+    hot.loadData(data.filter(rowData => {
+      const groupType = rowData.group_type;
+      if (groupType) {
+        const found = columns[2].source.find(item => item.label.toLowerCase().includes(searchTerm) && item._id == groupType);
+        return !!found;
+      }
+      return false;
+    }));
+  } else {
+    filters.removeConditions(columnValue);
+    filters.addCondition(columnValue, 'contains', [event.target.value]);
+    filters.filter();
+  }
   hot.render();
 });
 

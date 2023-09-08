@@ -66,6 +66,7 @@ class ContingentList(PermissionRequiredMixin, ListView):
 
 
 def upload_course(request):
+    content = "курсы"
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -74,10 +75,11 @@ def upload_course(request):
             print('Courses are uploaded')
 
     form = UploadFileForm()
-    return render(request, 'upload_file.html', {'form': form, 'header': 'курсов'})
+    return render(request, 'upload_file.html', {'form': form, 'header': 'курсов', 'content': content})
 
 
 def upload_contingent(request):
+    content = "контингент"
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -86,7 +88,7 @@ def upload_contingent(request):
             print('Contingent are uploaded')
 
     form = UploadFileForm()
-    return render(request, 'upload_file.html', {'form': form, 'header': 'контингента'})
+    return render(request, 'upload_file.html', {'form': form, 'header': 'контингента', 'content': content})
 
 
 class ContingentUpdate(PermissionRequiredMixin, UpdateView):

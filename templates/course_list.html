@@ -55,19 +55,26 @@
         <b>Курсы</b>
     </label>
     <br>
+
 </p>
+<label for="columns" class="selectColumn">Выберите столбец</label>
+<select name="columns" id="columns">
+    <option value="2">ФИО преподавателя</option>
+    <option value="5">Название дисциплины</option>
+</select>
+<input type="text" id="filterField" placeholder="Фильтр">
+<br>
 <div id="course_list" class="hot"></div>
 <br>
 <a href="{% url 'hours:course_upload' %}" class="btn btn-success">Загрузить курсы</a>
 <button id="save" class="btn btn-success" name="save">Сохранить изменения</button>
-<!--    <button id="kup" class="btn btn-success" name="kup">TEST</button>-->
 <a href="{% url 'hours:supervision_hours' %}" class="btn btn-success">Часы ВКР и курсовых</a>
 {% endblock %}
 
 {% block scripts %}
 var hot;
 var k={ {% for item in teacher_status %}{{item.0}}: {{ item.1 }},{% endfor %} };
-
+let fullData = [];
 let columns = [
     {
         data: 'id',
@@ -284,6 +291,7 @@ fetch("{% url 'hours:api:get_courselist' %}")
     return response.json();
 })
 .then((data)=>{
+    fullData = data;
     const container = document.getElementById('course_list');
     hot = new Handsontable(container, {
     data: data,
@@ -351,6 +359,34 @@ function valid(instance, td, row, col, prop, value, cellProperties) {
     td.style.backgroundColor = 'red';
     }
 }
+
+function applyFilter(column, searchTerm) {
+  const filteredData = fullData.filter((row) => {
+    let item;
+    if (column === 2) {
+      item = columns[2].source.find((source) => source._id === row.teacher);
+      console.log(columns[2])
+    } else if (column === 5) {
+      item = { label: row.discipline_settings };
+    } else {
+      return true;
+    }
+
+    return item && item.label.toLowerCase().includes(searchTerm);
+  });
+
+  hot.loadData(filteredData);
+}
+
+const filterField = document.querySelector("#filterField");
+
+filterField.addEventListener("keyup", function (event) {
+  const columnSelector = document.getElementById("columns");
+  const columnValue = parseInt(columnSelector.value);
+  const searchTerm = event.target.value.toLowerCase();
+
+  applyFilter(columnValue, searchTerm);
+});
 
 {% endblock %}
 
