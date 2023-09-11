@@ -294,37 +294,34 @@ fetch("{% url 'hours:api:get_courselist' %}")
     fullData = data;
     const container = document.getElementById('course_list');
     hot = new Handsontable(container, {
-    data: data,
-    rowHeaders: true,
-    colHeaders: true,
-    height: 500,
-    language: 'ru-RU',
-    trimDropdown: false,
-    licenseKey: 'non-commercial-and-evaluation',
-    columns: columns,
-    beforeValidate:(value, row, prop)=>{
-        if(prop === 'teacher') {
-            columns[2].source.forEach((el, index) => {
-                if(el.label.includes(value)) {
-                    console.log(prop);
-                    return (value = el._id);
-                }
-            });
-                return value;
-            }
-            if(prop === 'cathedra') {
-                columns[4].source.forEach((el, index) => {
+        data: data,
+        rowHeaders: true,
+        colHeaders: true,
+        height: 500,
+        language: 'ru-RU',
+        trimDropdown: false,
+        licenseKey: 'non-commercial-and-evaluation',
+        columns: columns,
+        beforeValidate:(value, row, prop)=>{
+            if(prop === 'teacher') {
+                columns[2].source.forEach((el, index) => {
                     if(el.label.includes(value)) {
+                        console.log(prop);
                         return (value = el._id);
                     }
                 });
-                return value;
-            }
-        },
-        beforeChange: (changes) => {
-
-    }
-    });
+                    return value;
+                }
+                if(prop === 'cathedra') {
+                    columns[4].source.forEach((el, index) => {
+                        if(el.label.includes(value)) {
+                            return (value = el._id);
+                        }
+                    });
+                    return value;
+                }
+            },
+        });
 });
 let saveButton  = document.querySelector('#save');
 saveButton.addEventListener('click', () => {
@@ -351,6 +348,7 @@ saveButton.addEventListener('click', () => {
         alert("Ошибка в сохранении");
     })
 });
+
 function valid(instance, td, row, col, prop, value, cellProperties) {
     Handsontable.renderers.TextRenderer.apply(this, arguments);
     console.log(k[(instance.getData()[row][2])]);
@@ -360,33 +358,42 @@ function valid(instance, td, row, col, prop, value, cellProperties) {
     }
 }
 
-function applyFilter(column, searchTerm) {
-  const filteredData = fullData.filter((row) => {
-    let item;
-    if (column === 2) {
-      item = columns[2].source.find((source) => source._id === row.teacher);
-      console.log(columns[2])
-    } else if (column === 5) {
-      item = { label: row.discipline_settings };
-    } else {
-      return true;
-    }
-
-    return item && item.label.toLowerCase().includes(searchTerm);
-  });
-
-  hot.loadData(filteredData);
-}
-
 const filterField = document.querySelector("#filterField");
 
-filterField.addEventListener("keyup", function (event) {
-  const columnSelector = document.getElementById("columns");
-  const columnValue = parseInt(columnSelector.value);
-  const searchTerm = event.target.value.toLowerCase();
+filterField.addEventListener('keyup', function (event) {
+  const filters = hot.getPlugin('filters');
+  const columnSelector = document.getElementById('columns');
+  const columnValue = columnSelector.value
 
-  applyFilter(columnValue, searchTerm);
+  if (columnValue == 2) {
+    const searchTerm = event.target.value.toLowerCase();
+    hot.loadData(fullData.filter(rowData => {
+      const teacher = rowData.teacher;
+      if (teacher) {
+        const found = columns[2].source.find(item => item.label.toLowerCase().includes(searchTerm) && item._id == teacher);
+        return !!found;
+      }
+      return false;
+    }));
+  } else {
+    filters.removeConditions(columnValue);
+    filters.addCondition(columnValue, 'contains', [event.target.value]);
+    filters.filter();
+  }
+  hot.render();
 });
 
+const teacherDropdown = document.querySelector('.htAutocomplete');
+
+if (teacherDropdown) {
+  const teacherOptions = teacherDropdown.querySelectorAll('.ht_master .htCore tr');
+  teacherOptions.forEach((option) => {
+    const teacherName = option.textContent.trim();
+    tippy(option, {
+      content: `${teacherName}`,
+      placement: 'right',
+    });
+  });
+}
 {% endblock %}
 
