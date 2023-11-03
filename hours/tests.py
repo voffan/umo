@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from hours.import_data import get_qualification, get_edu_level, add_institute
 from umo.models import EduOrg
@@ -101,21 +102,17 @@ class TestAddInstitute(TestCase):
         self.assertEqual(result.uni.name, 'Северо-Восточный федеральный университет имени М.К. Аммосова')
 
     def test_2(self):
-        with self.assertRaises(Exception):
+        with self.assertRaises(TypeError):
             add_institute({'id': 1119, 'name': ""})
 
-    # def test_6(self):
-    #     result = add_institute({'id': 1118, 'title': "Институт математики и информатики"})
-    #     self.assertFalse(result)
-    #
-    # def test_7(self):
-    #     result = add_institute({'id': 1118, 'name': 1})
-    #     self.assertFalse(result)
-    #
-    # def test_8(self):
-    #     result = add_institute({'id': 1118, 'name': ""})
-    #     self.assertFalse(result)
-    #
-    # def test_9(self):
-    #     result = add_institute({'id': 1118, 'name': "Институт математики и информатики"})
-    #     self.assertFalse(result)
+    def test_3(self):
+        with self.assertRaises(TypeError):
+            add_institute({'id': 1118, 'title': "Институт математики и информатики"})
+
+    def test_4(self):
+        with self.assertRaises(TypeError):
+            add_institute({'id': 1118, 'name': 1})
+
+    def test_5(self):
+        with self.assertRaises(TypeError):
+            add_institute({'id': 1118, 'name': 1})

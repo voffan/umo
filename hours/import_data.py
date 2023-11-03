@@ -340,6 +340,12 @@ def synch_group(inst_name, spec_code, begin_year):
 
 
 def add_institute(inst_name):
+    if len(inst_name['name']) < 1:
+        raise TypeError('Имя должно быть не пустым')
+
+    if not isinstance(inst_name['name'], str):
+        raise TypeError('Имя должно быть строкой')
+
     university = EduOrg.objects.filter(
         name__icontains="Северо-Восточный федеральный университет имени М.К. Аммосова").first()
     e = EduOrg()
