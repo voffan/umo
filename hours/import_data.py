@@ -341,7 +341,7 @@ def synch_group(inst_name, spec_code, begin_year):
 
 def add_institute(inst_name):
     university = EduOrg.objects.filter(
-        uni__name__icontains="Северо-Восточный федеральный университет имени М.К. Аммосова").first()
+        name__icontains="Северо-Восточный федеральный университет имени М.К. Аммосова").first()
     e = EduOrg()
     e.name = inst_name['name']
     e.uni = university

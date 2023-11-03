@@ -91,7 +91,7 @@ let columns = [
         data: 'teacher',
         title: 'Преподаватель',
         type: 'key-value-list',
-        source: [{_id:"None",label:""},{% for item in teacher %}{_id:"{{ item.id }}", label: "{{ item.FIO }}"},{% endfor %}],
+        source: [{_id:"None",label:""}, {% for item in teacher %}{_id:"{{ item.id }}", label: "{{ item.FIO }}"},{% endfor %}],
     },
     {
         data: 'group',
@@ -322,6 +322,7 @@ fetch("{% url 'hours:api:get_courselist' %}")
                 }
             },
         });
+
 });
 let saveButton  = document.querySelector('#save');
 saveButton.addEventListener('click', () => {
@@ -383,17 +384,24 @@ filterField.addEventListener('keyup', function (event) {
   hot.render();
 });
 
-const teacherDropdown = document.querySelector('.htAutocomplete');
+<!--const teacherDropdown = document.querySelector('.htAutocomplete');-->
 
-if (teacherDropdown) {
-  const teacherOptions = teacherDropdown.querySelectorAll('.ht_master .htCore tr');
-  teacherOptions.forEach((option) => {
-    const teacherName = option.textContent.trim();
-    tippy(option, {
-      content: `${teacherName}`,
-      placement: 'right',
-    });
-  });
-}
+<!--if (teacherDropdown) {-->
+<!--  const teacherOptions = teacherDropdown.querySelectorAll('.ht_master .htCore tr');-->
+<!--  teacherOptions.forEach((option) => {-->
+<!--    const teacherName = option.textContent.trim();-->
+<!--    tippy(option, {-->
+<!--      content: `${teacherName}`,-->
+<!--      placement: 'right',-->
+<!--    });-->
+<!--  });-->
+<!--}-->
+
+tippy('#filterField', {
+  content: 'Введите'
+});
+
+
+
 {% endblock %}
 

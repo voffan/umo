@@ -1,4 +1,5 @@
 import datetime
+import html
 import io
 import zipfile
 
@@ -23,6 +24,8 @@ from hours.export_data import export_form
 from zipfile import ZipFile
 from io import BytesIO
 from urllib.parse import urlparse, parse_qs
+from django.utils.safestring import mark_safe
+from django.utils.html import escape
 
 
 class CourseList(PermissionRequiredMixin, ListView):
@@ -304,10 +307,12 @@ def save_courselist(request):
             serialized_data = json.loads(serialized_data)
             for item in serialized_data['data']:
                 course = CourseHours.objects.get(id=item[0])
-                if item[2] is not None:
-                    t = Teacher.objects.get(id=item[2])
+                try:
+                    t = Teacher.objects.get(id=int(item[2]))
                     if t is not None:
                         course.teacher = t
+                except:
+                    course.teacher = None
                 k = Kafedra.objects.get(id=item[4])
                 course.cathedra = k
                 course.f_lecture = item[6]
