@@ -261,6 +261,7 @@ def import_course(file):
                 # Курсы
                 add_course(group, group.cathedra, dd, value_lecture, value_practice, value_lab,
                            value_control, value_SRS)
+                #TODO Вызвать функции add_supervisionhours, add_practicehours etc
 
 
 def synch_group(inst_name, spec_code, begin_year):
@@ -280,7 +281,7 @@ def synch_group(inst_name, spec_code, begin_year):
                   "ФЛФ": {'id': 1125, 'name': "Филологический факультет"},
                   "ЮФ": {'id': 1126, 'name': "Юридический факультет"},
                   "ИФКиС": {'id': 1120, 'name': "Институт физической культуры и спорта"},
-                  "ИП": {'id': 1124, 'name': "Институт психологии"},
+                  "ИП": {'id': 1124, 'name': "Институт пfсихологии"},
                   }
     begin_year = datetime.date(begin_year, 9, 1)
     year = Year.objects.filter(year=begin_year.year).first()
@@ -340,11 +341,6 @@ def synch_group(inst_name, spec_code, begin_year):
 
 
 def add_institute(inst_name):
-    if len(inst_name['name']) < 1:
-        raise TypeError('Имя должно быть не пустым')
-
-    if not isinstance(inst_name['name'], str):
-        raise TypeError('Имя должно быть строкой')
 
     university = EduOrg.objects.filter(
         name__icontains="Северо-Восточный федеральный университет имени М.К. Аммосова").first()
