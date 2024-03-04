@@ -15,7 +15,7 @@ import json
 from django.http import HttpResponse, JsonResponse, FileResponse
 from transliterate import translit
 from hours.import_data import import_students, import_course, add_supervision_hours, add_practice_hours, add_other_hours
-from umo.models import (Teacher, EduPeriod, Kafedra)
+from umo.models import (Teacher, EduPeriod, Kafedra, Course)
 from hours.models import (DisciplineSetting, GroupInfo, CourseHours, SupervisionHours, PracticeHours, OtherHours,
                           CathedraEmployee, NormControl, StudentsGroup)
 from .form import UploadFileForm

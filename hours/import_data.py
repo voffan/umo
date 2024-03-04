@@ -712,3 +712,55 @@ def add_other_hours(teacher, group, cathedra, other_type, other):
     other.edu_period = EduPeriod.objects.get(active=True)
     other.cathedra = cathedra
     other.save()
+
+def parse_course_data(path):
+    wb_obj = openpyxl.load_workbook(path, data_only=True)
+    sheet_active = wb_obj.active
+    max_row = sheet_active.max_row
+    max_column = sheet_active.max_column
+    discipline_col = 0
+    group_col = 0
+    semester_col = 0
+    edu_form_col = 0
+    hours_col = 0
+    main_dict = {}
+    for row_num in range(1, max_row + 1):
+        for col_num in range(1, max_column + 1):
+            cell_value = sheet_active.cell(row=row_num, column=col_num).value
+            if cell_value == 'Дисциплина, вид учебной работы ':
+                discipline_col = col_num
+            if cell_value == 'Группа':
+                group_col = col_num
+            if cell_value == 'Курс/Семестр или Курс/Сессия':
+                semester_col = col_num
+            if cell_value == 'Вид занятий':
+                edu_form_col = col_num
+            if cell_value == 'Часов (на поток, группу, студента)':
+                hours_col = col_num
+
+    for row_num in range(6, max_row):
+        discipline_value = sheet_active.cell(row=row_num, column=discipline_col).value
+        if discipline_value is not None:
+            discipline_value = discipline_value.split(',')[0]
+        group_value = sheet_active.cell(row=row_num, column=group_col).value
+        semester_value = sheet_active.cell(row=row_num, column=semester_col).value
+        if semester_value is not None:
+            semester_value = semester_value.split('/')[1]
+        edu_form_value = sheet_active.cell(row=row_num, column=edu_form_col).value
+        hours_value = sheet_active.cell(row=row_num, column=hours_col).value
+
+        course_group_tuple = (discipline_value, group_value)
+        edu_hours_dict = {edu_form_value: hours_value}
+        course_data_dict = {semester_value: edu_hours_dict}
+        if course_group_tuple in main_dict:
+            if semester_value in main_dict[course_group_tuple]:
+                main_dict[course_group_tuple][semester_value].update(edu_hours_dict)
+            else:
+                main_dict[course_group_tuple].update(course_data_dict)
+        else:
+            main_dict[course_group_tuple] = course_data_dict
+
+    print(main_dict)
+
+
+# parse_course_data('E:\\123.xlsx')
